@@ -1,1 +1,651 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Taller: Distribuciones Condicionales - Capítulo 2</title>
+    <!-- MathJax -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
 
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            padding: 2rem 1.5rem;
+            line-height: 1.5;
+        }
+
+        /* TEMA CLARO (por defecto) */
+        :root {
+            --bg-body: #f8fafc;
+            --bg-card: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --border: #e2e8f0;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --code-bg: #f1f5f9;
+            --canvas-bg: #ffffff;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+            --btn-secondary: #e2e8f0;
+            --btn-secondary-text: #1e293b;
+        }
+
+        body.dark-theme {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #cbd5e1;
+            --border: #334155;
+            --accent: #60a5fa;
+            --accent-hover: #93c5fd;
+            --code-bg: #0f172a;
+            --canvas-bg: #0f172a;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            --btn-secondary: #334155;
+            --btn-secondary-text: #e2e8f0;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin-bottom: 0.5rem;
+        }
+
+        .sub {
+            color: var(--text-secondary);
+            border-left: 4px solid var(--accent);
+            padding-left: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .theme-toggle {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1.5rem;
+        }
+
+        .theme-btn {
+            background: var(--btn-secondary);
+            color: var(--btn-secondary-text);
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .module {
+            background: var(--bg-card);
+            border-radius: 1.25rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .module-header {
+            background: var(--bg-card);
+            padding: 1.25rem 1.8rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 1.35rem;
+        }
+
+        .module-header:hover {
+            background: var(--code-bg);
+        }
+
+        .module-content {
+            padding: 1.8rem;
+            display: none;
+            border-top: none;
+        }
+
+        .module.open .module-content {
+            display: block;
+        }
+
+        .simu-panel {
+            background: var(--code-bg);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .grid-2col {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        label {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+            background: var(--accent);
+            height: 4px;
+            border-radius: 5px;
+        }
+
+        .value-display {
+            margin-top: 0.3rem;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        canvas {
+            background: var(--canvas-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-top: 1rem;
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 0.8rem;
+        }
+
+        button.secondary {
+            background: var(--btn-secondary);
+            color: var(--btn-secondary-text);
+        }
+
+        .respuesta {
+            background: var(--bg-body);
+            border-left: 4px solid var(--accent);
+            padding: 0.8rem 1rem;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            border-radius: 12px;
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: white;
+            font-size: 0.7rem;
+            border-radius: 20px;
+            padding: 0.2rem 0.7rem;
+            display: inline-block;
+            margin-left: 1rem;
+            vertical-align: middle;
+        }
+
+        .note {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 700px) {
+            body { padding: 1rem; }
+            .module-header { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="theme-toggle">
+        <button id="darkModeToggle" class="theme-btn">Modo oscuro / claro</button>
+    </div>
+    <h1>Distribuciones Condicionales</h1>
+    <div class="sub">Aprendizaje exploratorio: juega, simula y repasa las reglas de la probabilidad condicional.</div>
+
+    <!-- MÓDULO 1: DISCRETO (PMF condicional) -->
+    <div class="module" id="modDiscreto">
+        <div class="module-header">
+            <span>1. Caso discreto: masa condicional y regla de Bayes</span>
+            <span>▼</span>
+        </div>
+        <div class="module-content">
+            <p><strong>Intuición:</strong> Cuando observamos un valor específico de una variable, actualizamos nuestra creencia sobre la otra. Por ejemplo, si lanzamos dos dados pero sabemos que el segundo dado (Y) es un número par, la probabilidad de que X sea 3 cambia. La función de masa condicional \(f(x|y)\) reescala la conjunta.</p>
+            
+            <div class="simu-panel">
+                <h3>Simulador: dados cargados (ejemplo del apunte)</h3>
+                <p>Distribución conjunta modificable: ajusta los pesos relativos de cada celda (X filas 1..6, Y columnas 1..6). Observa la tabla condicional \(f(x|Y=2)\).</p>
+                <div>
+                    <label>Peso extra para celda (X=2, Y=2) (más masa):</label>
+                    <input type="range" id="weight22" min="1" max="8" step="1" value="2">
+                    <span id="weightVal" class="value-display">2</span>
+                </div>
+                <button id="randomizeJoint">Ejemplo aleatorio</button>
+                <div style="overflow-x: auto;">
+                    <canvas id="heatmapCanvas" width="500" height="400" style="max-width:100%; height:auto; background:white;"></canvas>
+                </div>
+                <div id="condTableDisplay" style="margin-top:1rem; font-family: monospace;"></div>
+                <button id="showDiscAnswer" class="secondary">Ver respuesta exploratoria</button>
+                <div id="discAnswer" class="respuesta">
+                    Al modificar el peso (2,2), la fila Y=2 concentra más masa en x=2. Observa que la suma sobre x siempre es 1. La fórmula \(f(x|y)=f(x,y)/f_Y(y)\) se verifica: la probabilidad condicional refleja la nueva escala.
+                </div>
+            </div>
+
+            <div class="note">
+                <strong>📐 Notación formal (discreta):</strong> Sean \(X,Y\) discretas con \(f(x,y)\). Para \(f_Y(y)>0\):
+                \[
+                f_{X|Y}(x|y) = \frac{f(x,y)}{f_Y(y)}, \quad \mathbb{P}(X=x|Y=y) = f(x|y).
+                \]
+                Regla de Bayes: \( f(y|x) = \frac{f(x|y)f_Y(y)}{\sum_{y'}f(x|y')f_Y(y')} \).
+            </div>
+        </div>
+    </div>
+
+    <!-- MÓDULO 2: CONTINUO Y DENSIDAD CONDICIONAL -->
+    <div class="module" id="modContinuo">
+        <div class="module-header">
+            <span>2. Caso continuo: densidad condicional y ley del estadístico inconsciente</span>
+            <span>▼</span>
+        </div>
+        <div class="module-content">
+            <p><strong>Intuición:</strong> En el mundo continuo, condicionar en un evento de probabilidad cero (Y=y) requiere límites. La densidad condicional \(f(x|y)\) es un "corte" de la superficie conjunta, normalizado. Piensa en la recta de regresión: la esperanza condicional \(E[X|Y=y]\) es la mejor predicción de X dado Y.</p>
+            
+            <div class="simu-panel">
+                <h3>Simulador: densidad condicional exponencial (ejemplo del PDF)</h3>
+                <p>Densidad conjunta: \( f(x,y) = \frac{1}{y} e^{-x/y} e^{-y} \), para \(x>0,y>0\). Dado \(Y=y\), \(X|Y=y \sim \text{Exp}(1/y)\).</p>
+                <div class="grid-2col">
+                    <div class="control-group">
+                        <label>Valor condicionante \( y \) :</label>
+                        <input type="range" id="yCond" min="0.5" max="5" step="0.1" value="2">
+                        <span id="yValDisplay" class="value-display">y = 2.0</span>
+                        <button id="sampleCondCont" style="margin-top:0.5rem;">Simular observación X | Y=y</button>
+                        <p id="sampleResult" style="margin-top:0.8rem; font-weight:bold;"></p>
+                    </div>
+                    <div class="control-group">
+                        <label>Distribución condicional \(f(x|y)\):</label>
+                        <canvas id="condDensityCanvas" width="400" height="200" style="width:100%; background:var(--canvas-bg);"></canvas>
+                    </div>
+                </div>
+                <button id="showContAnswer" class="secondary">Ver insight teórico</button>
+                <div id="contAnswer" class="respuesta">
+                    La densidad condicional es \(f(x|y) = \frac{1}{y} e^{-x/y}\) (exponencial con media y). La esperanza condicional \(E[X|Y=y]=y\). Ley de esperanza total: \(E[X] = E[E[X|Y]] = E[Y] = 1\) (pues \(Y \sim Exp(1)\)). Arrastra y observa cómo la curva se aplana o encoge.
+                </div>
+            </div>
+
+            <div class="note">
+                <strong>📐 Notación continua:</strong> \( f_{X|Y}(x|y) = \frac{f(x,y)}{f_Y(y)} \). 
+                \[
+                \mathbb{P}(a \le X \le b | Y=y) = \int_a^b f(x|y)dx,\quad \mathbb{E}[X|Y=y] = \int x f(x|y)dx.
+                \]
+            </div>
+        </div>
+    </div>
+
+    <!-- MÓDULO 3: ESPERANZA Y VARIANZA CONDICIONAL (LEY TOTAL) -->
+    <div class="module" id="modEsperanza">
+        <div class="module-header">
+            <span>3. Esperanza y varianza condicional: leyes de la probabilidad total</span>
+            <span>▼</span>
+        </div>
+        <div class="module-content">
+            <p><strong>Intuición:</strong> La esperanza condicional \(E[Y|X]\) es una variable aleatoria que resume la tendencia de Y cuando conocemos X. La Ley de Esperanza Total dice que en promedio, la predicción condicional da la media global. La Ley de Varianza Total descompone la varianza en "explicada" por X y "residual".</p>
+            
+            <div class="simu-panel">
+                <h3>Simulador: mezcla Poisson-Gamma (número de accidentes)</h3>
+                <p>Supongamos \(N|\Lambda=\lambda \sim Poisson(\lambda)\) y \(\Lambda \sim Gamma(\alpha, \beta)\). Marginalmente \(N \sim Binomial Negativa\). Ajusta los parámetros y observa la esperanza condicional.</p>
+                <div class="grid-2col">
+                    <div class="control-group">
+                        <label>\(\alpha\) (forma):</label>
+                        <input type="range" id="alphaGamma" min="1" max="8" step="0.5" value="2"><span id="alphaVal">2.0</span>
+                    </div>
+                    <div class="control-group">
+                        <label>\(\beta\) (escala):</label>
+                        <input type="range" id="betaGamma" min="0.5" max="5" step="0.5" value="2"><span id="betaVal">2.0</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Simular N (número de accidentes):</label>
+                        <button id="simulateN">Generar muestra Λ y N | Λ</button>
+                        <p id="simulNResult">Media teórica de N: <strong id="teoMeanN">-</strong><br>Valor simulado: <span id="simValueN">-</span></p>
+                    </div>
+                </div>
+                <p><strong>Verificación de leyes:</strong> \(E[N] = E[E[N|\Lambda]] = E[\Lambda] = \alpha\beta\). Varianza total: \(Var(N) = E[Var(N|\Lambda)] + Var(E[N|\Lambda]) = E[\Lambda] + Var(\Lambda) = \alpha\beta + \alpha\beta^2\).</p>
+                <button id="showEVAnswer" class="secondary">Explicación interactiva</button>
+                <div id="evAnswer" class="respuesta">
+                    Usando la ley de esperanza total: \(E[N] = E[\Lambda] = \alpha\beta\). La ley de varianza total separa la variabilidad entre individuos (diferente lambda) y la variabilidad Poisson pura. Juega con α y β para ver cómo cambia la media condicional y marginal.
+                </div>
+            </div>
+
+            <div class="note">
+                <strong>Teoremas clave:</strong> 
+                \[
+                \mathbb{E}[Y] = \mathbb{E}[\mathbb{E}[Y|X]], \quad \operatorname{Var}(Y) = \mathbb{E}[\operatorname{Var}(Y|X)] + \operatorname{Var}(\mathbb{E}[Y|X]).
+                \]
+            </div>
+        </div>
+    </div>
+
+    <!-- MÓDULO 4: TEOREMA DE PROBABILIDAD TOTAL Y BAYES (mix) -->
+    <div class="module" id="modBayes">
+        <div class="module-header">
+            <span>4. Teorema de Probabilidad Total y regla de Bayes (discreto/continuo)</span>
+            <span>▼</span>
+        </div>
+        <div class="module-content">
+            <p><strong>Intuición:</strong> El Teorema de Probabilidad Total nos permite obtener la distribución marginal a partir de las condicionales. La regla de Bayes invierte el condicionamiento: actualizamos nuestra creencia sobre un parámetro después de observar datos.</p>
+            <div class="simu-panel">
+                <h3>Ejemplo: calidad de piezas (discreto-continuo)</h3>
+                <p>Una máquina produce piezas defectuosas con tasa Θ (probabilidad de defecto) que varía entre lotes: Θ ∼ Beta(a,b). Luego, D | Θ = θ ∼ Bernoulli(θ). Modelo Beta-Binomial.</p>
+                <div class="grid-2col">
+                    <div class="control-group">
+                        <label>a (Beta):</label><input type="range" id="betaA" min="0.5" max="5" step="0.2" value="2"><span id="aVal">2.0</span>
+                    </div>
+                    <div class="control-group">
+                        <label>b (Beta):</label><input type="range" id="betaB" min="0.5" max="5" step="0.2" value="2"><span id="bVal">2.0</span>
+                    </div>
+                </div>
+                <p>Observamos 3 piezas: número de defectuosas k = <input type="number" id="obsK" min="0" max="3" value="1"> en n=3 ensayos.</p>
+                <button id="updatePosterior">Actualizar distribución a posteriori de Θ | datos</button>
+                <canvas id="posteriorCanvas" width="500" height="200" style="width:100%;"></canvas>
+                <div id="posteriorStats">Posterior: Beta(a+k, b+n-k)</div>
+                <button id="showBayesAnswer" class="secondary">Ver respuesta conceptual</button>
+                <div id="bayesAnswer" class="respuesta">
+                    Teorema de Probabilidad Total: \(P(Datos) = \int P(Datos|\theta) f_\Theta(\theta)d\theta\). Bayes: \(f(\theta|datos) \propto f(datos|\theta)f_\Theta(\theta)\). La distribución posterior es Beta(a+k, b+n-k), combinando información previa y evidencia.
+                </div>
+            </div>
+            <div class="note">
+                <strong>Fórmulas:</strong> Probabilidad total: \(f_X(x) = \sum_y f(x|y)f_Y(y)\) (discreto) o integral (continuo). Regla de Bayes: \(f(y|x) = \frac{f(x|y)f_Y(y)}{\int f(x|v)f_Y(v)dv}\).
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Common helpers, dark mode, and renderers
+    const darkToggle = document.getElementById('darkModeToggle');
+    darkToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark-theme');
+        // redibujar canvases (cambia fondo)
+        drawHeatmap();
+        drawCondDensity();
+        drawPosterior();
+    });
+
+    // collapsible modules
+    const modules = document.querySelectorAll('.module');
+    modules.forEach(module => {
+        const header = module.querySelector('.module-header');
+        header.addEventListener('click', () => {
+            module.classList.toggle('open');
+        });
+        // open first module by default
+        if(module.id === 'modDiscreto') module.classList.add('open');
+    });
+
+    // ------ MÓDULO 1: DISCRETO (dados 6x6) ------
+    let jointProb = Array(6).fill().map(() => Array(6).fill(1/36));
+    function normalizeJoint() {
+        let sum = 0;
+        for(let i=0;i<6;i++) for(let j=0;j<6;j++) sum += jointProb[i][j];
+        if(sum>0) for(let i=0;i<6;i++) for(let j=0;j<6;j++) jointProb[i][j] /= sum;
+    }
+    function updateWeight() {
+        const w = parseFloat(document.getElementById('weight22').value);
+        document.getElementById('weightVal').innerText = w;
+        // Restablecer matriz base equitativa
+        for(let i=0;i<6;i++) for(let j=0;j<6;j++) jointProb[i][j] = 1;
+        // aplicar peso extra a celda (x=2,y=2) (indices 1,1)
+        jointProb[1][1] = w;  // x=2, y=2
+        normalizeJoint();
+        drawHeatmap();
+        displayCondTable();
+    }
+    function drawHeatmap() {
+        const canvas = document.getElementById('heatmapCanvas');
+        const ctx = canvas.getContext('2d');
+        const w = canvas.clientWidth, h = canvas.clientHeight;
+        canvas.width = w; canvas.height = h;
+        const cellW = w/6, cellH = h/6;
+        for(let i=0;i<6;i++) {
+            for(let j=0;j<6;j++) {
+                let intensity = Math.min(1, jointProb[i][j]*36);
+                let fillColor = `rgba(59,130,246,${0.2+intensity*0.7})`;
+                ctx.fillStyle = fillColor;
+                ctx.fillRect(j*cellW, i*cellH, cellW, cellH);
+                ctx.strokeStyle = 'gray';
+                ctx.strokeRect(j*cellW, i*cellH, cellW, cellH);
+                ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-primary');
+                ctx.font = '12px sans-serif';
+                ctx.fillText(`${jointProb[i][j].toFixed(3)}`, j*cellW+5, i*cellH+15);
+            }
+        }
+    }
+    function displayCondTable() {
+        const yFixed = 1; // Y=2 => indice 1 (0-based)
+        let fY = 0;
+        for(let i=0;i<6;i++) fY += jointProb[i][yFixed];
+        let html = `<strong>Distribución condicional f(x | Y=2):</strong><br>`;
+        for(let x=0;x<6;x++) {
+            let cond = jointProb[x][yFixed] / fY;
+            html += `P(X=${x+1}|Y=2) = ${cond.toFixed(4)} &nbsp; `;
+        }
+        document.getElementById('condTableDisplay').innerHTML = html;
+    }
+    document.getElementById('weight22').addEventListener('input', updateWeight);
+    document.getElementById('randomizeJoint').addEventListener('click', () => {
+        for(let i=0;i<6;i++) for(let j=0;j<6;j++) jointProb[i][j] = Math.random()*2+0.2;
+        normalizeJoint();
+        drawHeatmap();
+        displayCondTable();
+    });
+    document.getElementById('showDiscAnswer').addEventListener('click', ()=>{
+        document.getElementById('discAnswer').style.display = 'block';
+    });
+    // inicial
+    updateWeight();
+
+    // ------ MÓDULO 2: CONTINUO: densidad condicional ------
+    function condDensity(x,y){ return (1/y)*Math.exp(-x/y); }
+    const canvasDens = document.getElementById('condDensityCanvas');
+    function drawCondDensity(){
+        const y = parseFloat(document.getElementById('yCond').value);
+        document.getElementById('yValDisplay').innerText = `y = ${y.toFixed(2)}`;
+        const ctx = canvasDens.getContext('2d');
+        const width = canvasDens.clientWidth, height = 150;
+        canvasDens.width = width; canvasDens.height = height;
+        ctx.clearRect(0,0,width,height);
+        ctx.beginPath();
+        let maxYval = 0;
+        let points = [];
+        for(let i=0;i<=200;i++){
+            let x = i*6/200;
+            let den = condDensity(x,y);
+            if(den>maxYval) maxYval=den;
+            points.push({x,den});
+        }
+        let scaleY = height*0.8/maxYval;
+        ctx.moveTo(0, height - points[0].den*scaleY);
+        for(let p of points){
+            let cx = (p.x/6)*width;
+            let cy = height - p.den*scaleY;
+            ctx.lineTo(cx,cy);
+        }
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = 'var(--text-secondary)';
+        ctx.fillText(`f(x|y=${y.toFixed(1)}) ∼ Exp(1/${y.toFixed(2)})`, 10, 20);
+    }
+    document.getElementById('yCond').addEventListener('input', ()=>{
+        drawCondDensity();
+    });
+    document.getElementById('sampleCondCont').addEventListener('click', ()=>{
+        const y = parseFloat(document.getElementById('yCond').value);
+        // exponencial con media y => lambda = 1/y
+        let u = Math.random();
+        let x = -y * Math.log(1-u);
+        document.getElementById('sampleResult').innerHTML = `Simulación: X | Y=${y.toFixed(2)} = ${x.toFixed(4)} , E[X|Y]=${y.toFixed(2)}`;
+    });
+    document.getElementById('showContAnswer').addEventListener('click', ()=>{
+        document.getElementById('contAnswer').style.display = 'block';
+    });
+    drawCondDensity();
+
+    // ------ MÓDULO 3: POISSON-GAMMA & leyes ------
+    document.getElementById('alphaGamma').addEventListener('input', updateGammaVals);
+    document.getElementById('betaGamma').addEventListener('input', updateGammaVals);
+    function updateGammaVals(){
+        let a = parseFloat(document.getElementById('alphaGamma').value);
+        let b = parseFloat(document.getElementById('betaGamma').value);
+        document.getElementById('alphaVal').innerText = a.toFixed(2);
+        document.getElementById('betaVal').innerText = b.toFixed(2);
+        let meanN = a*b;
+        document.getElementById('teoMeanN').innerText = meanN.toFixed(3);
+    }
+    updateGammaVals();
+    document.getElementById('simulateN').addEventListener('click', ()=>{
+        let a = parseFloat(document.getElementById('alphaGamma').value);
+        let bS = parseFloat(document.getElementById('betaGamma').value);
+        // Gamma shape a, scale bS => media = a*bS
+        let lambda = 0;
+        for(let i=0;i<100;i++) lambda += -Math.log(Math.random()); // approx gamma(1,1) sum a veces
+        lambda = gammaSim(a, bS);
+        let pois = poissonSim(lambda);
+        document.getElementById('simValueN').innerHTML = `λ simulado = ${lambda.toFixed(3)} → N = ${pois}`;
+    });
+    function gammaSim(shape, scale){
+        // Marsaglia & Tsang method simplified
+        let d = shape - 1/3;
+        let c = 1/Math.sqrt(9*d);
+        while(true){
+            let x = normalSim();
+            let v = 1 + c*x;
+            if(v<=0) continue;
+            v = v*v*v;
+            let u = Math.random();
+            let x2 = x*x;
+            if(u < 1 - 0.0331*x2*x2) return d*v*scale;
+            if(Math.log(u) < 0.5*x2 + d*(1 - v + Math.log(v))) return d*v*scale;
+        }
+    }
+    function normalSim(){
+        let u=0, v=0;
+        while(u===0) u=Math.random();
+        while(v===0) v=Math.random();
+        return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+    }
+    function poissonSim(lambda){
+        let L = Math.exp(-lambda);
+        let k=0, p=1;
+        do{ k++; p*=Math.random(); } while(p>L);
+        return k-1;
+    }
+    document.getElementById('showEVAnswer').addEventListener('click', ()=>{
+        document.getElementById('evAnswer').style.display = 'block';
+    });
+
+    // ------ MÓDULO 4: Bayes Beta-Binomial ------
+    let posteriorCanvas = document.getElementById('posteriorCanvas');
+    function drawPosterior(){
+        let a0 = parseFloat(document.getElementById('betaA').value);
+        let b0 = parseFloat(document.getElementById('betaB').value);
+        let k = parseInt(document.getElementById('obsK').value);
+        let n=3;
+        let a_post = a0 + k;
+        let b_post = b0 + n - k;
+        document.getElementById('posteriorStats').innerHTML = `Posterior: Beta(${a_post.toFixed(2)}, ${b_post.toFixed(2)})`;
+        const ctx = posteriorCanvas.getContext('2d');
+        const w = posteriorCanvas.clientWidth, h = 200;
+        posteriorCanvas.width = w; posteriorCanvas.height = h;
+        ctx.clearRect(0,0,w,h);
+        let vals = [];
+        let maxDens=0;
+        for(let i=0;i<=200;i++){
+            let theta = i/200;
+            let dens = Math.pow(theta, a_post-1)*Math.pow(1-theta, b_post-1);
+            dens = dens / (betaFunc(a_post,b_post));
+            if(dens>maxDens) maxDens=dens;
+            vals.push({theta,dens});
+        }
+        ctx.beginPath();
+        let scaleY = h*0.9/maxDens;
+        ctx.moveTo(0, h - vals[0].dens*scaleY);
+        for(let p of vals){
+            let cx = p.theta*w;
+            let cy = h - p.dens*scaleY;
+            ctx.lineTo(cx,cy);
+        }
+        ctx.strokeStyle = '#60a5fa';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = 'var(--text-primary)';
+        ctx.fillText('Densidad posterior de Θ', 10, 20);
+    }
+    function betaFunc(a,b){
+        let gamma = (x) => {
+            if(x===1) return 1;
+            let p = [0.9999999999998099, 676.5203681218851, -1259.1392167224028, 771.3234287776531, -176.6150291621406, 12.507343278686905, -0.13857109526572012, 9.984369578019572e-6, 1.5056327351493116e-7];
+            let g=7;
+            if(x<0.5) return Math.PI/(Math.sin(Math.PI*x)*gamma(1-x));
+            x -=1;
+            let a=p[0];
+            let t=x+g+0.5;
+            for(let i=1;i<p.length;i++) a+=p[i]/(x+i);
+            return Math.sqrt(2*Math.PI)*Math.pow(t, x+0.5)*Math.exp(-t)*a;
+        };
+        return gamma(a)*gamma(b)/gamma(a+b);
+    }
+    document.getElementById('betaA').addEventListener('input', drawPosterior);
+    document.getElementById('betaB').addEventListener('input', drawPosterior);
+    document.getElementById('obsK').addEventListener('input', drawPosterior);
+    document.getElementById('updatePosterior').addEventListener('click', drawPosterior);
+    document.getElementById('showBayesAnswer').addEventListener('click', ()=>{
+        document.getElementById('bayesAnswer').style.display = 'block';
+    });
+    drawPosterior();
+    // extra toggle answer styles
+    window.addEventListener('resize', ()=>{ drawHeatmap(); drawCondDensity(); drawPosterior(); });
+    setTimeout(()=>{drawHeatmap();}, 100);
+</script>
+</body>
+</html>
