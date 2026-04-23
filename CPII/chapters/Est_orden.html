@@ -589,14 +589,13 @@
             
             for(let i=0; i<n; i++) {
                 const x = ((muestras[i] - minVal) / range) * w;
-                const y = 50 + (i % 2) * 20;
+                const y = 40 + (i % 2) * 25;
                 ctx.fillStyle = '#2196f3';
                 ctx.beginPath();
                 ctx.arc(x, y, 5, 0, 2*Math.PI);
                 ctx.fill();
             }
             
-            // Marcar estadísticos de orden
             for(let i=0; i<n; i++) {
                 const x = ((ordenadas[i] - minVal) / range) * w;
                 const y = h - 30 - (i / n) * h * 0.6;
@@ -607,14 +606,17 @@
             }
         }
         
+        const muestraStr = muestras.length > 10 ? muestras.slice(0,10).map(v=>v.toFixed(3)).join(', ') + '...' : muestras.map(v=>v.toFixed(3)).join(', ');
+        const ordenadasStr = ordenadas.length > 10 ? ordenadas.slice(0,10).map(v=>v.toFixed(3)).join(', ') + '...' : ordenadas.map(v=>v.toFixed(3)).join(', ');
+        
         document.getElementById('orden-info').innerHTML = 
-            `Muestra: [${muestras.map(v=>v.toFixed(3)).join(', ')}]<br>
-            Ordenados: [${ordenadas.map(v=>v.toFixed(3)).join(', ')}]<br>
+            `Muestra: [${muestraStr}]<br>
+            Ordenados: [${ordenadasStr}]<br>
             Mínimo = ${ordenadas[0].toFixed(3)} | Máximo = ${ordenadas[n-1].toFixed(3)} | Rango = ${(ordenadas[n-1]-ordenadas[0]).toFixed(3)}`;
     }
     
     // ============================================================
-    // MODULO 2: Mínimo y máximo
+    // MODULO 2: Mínimo y máximo (Uniforme)
     // ============================================================
     function dibujarMinMax() {
         const n = parseInt(document.getElementById('n-mm').value);
@@ -629,27 +631,27 @@
             ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
             ctx.fillRect(0, 0, w, h);
             
-            // Máximo
+            // Máximo: f(x) = n x^{n-1}
             ctx.beginPath();
             for(let i=0; i<w; i++) {
                 const x = (i / w);
                 const dens = n * Math.pow(x, n-1);
                 const y = h - (dens / n) * h * 0.8;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#f44336';
             ctx.lineWidth = 2;
             ctx.stroke();
             
-            // Mínimo
+            // Mínimo: f(x) = n (1-x)^{n-1}
             ctx.beginPath();
             for(let i=0; i<w; i++) {
                 const x = (i / w);
                 const dens = n * Math.pow(1-x, n-1);
                 const y = h - (dens / n) * h * 0.8;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#4caf50';
             ctx.lineWidth = 2;
@@ -657,15 +659,15 @@
         }
         
         document.getElementById('minmax-info').innerHTML = 
-            `\(f_{X_{(n)}}(x) = ${n} x^{${n-1}}\) (máximo, rojo) | \(f_{X_{(1)}}(x) = ${n} (1-x)^{${n-1}}\) (mínimo, verde)`;
-        if(window.MathJax) MathJax.typeset();
+            `\\(f_{X_{(n)}}(x) = ${n} x^{${n-1}}\\) (máximo, rojo) | \\(f_{X_{(1)}}(x) = ${n} (1-x)^{${n-1}}\\) (mínimo, verde)`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
     // MODULO 3: r-ésimo estadístico de orden
     // ============================================================
     function dibujarROrden() {
-        const n = parseInt(document.getElementById('n-r').value);
+        let n = parseInt(document.getElementById('n-r').value);
         let r = parseInt(document.getElementById('r-orden').value);
         if(r > n) r = n;
         document.getElementById('n-r-val').textContent = n;
@@ -689,6 +691,7 @@
             }
             
             const coef = n * comb(n-1, r-1);
+            const maxDens = coef * Math.pow(0.5, r-1) * Math.pow(0.5, n-r);
             
             ctx.beginPath();
             for(let i=0; i<w; i++) {
@@ -697,9 +700,9 @@
                 if(x>0 && x<1) {
                     dens = coef * Math.pow(x, r-1) * Math.pow(1-x, n-r);
                 }
-                const y = h - (dens / (coef * Math.pow(0.5, n-1))) * h * 0.8;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                const y = h - (dens / maxDens) * h * 0.8;
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#1976d2';
             ctx.lineWidth = 2;
@@ -707,8 +710,9 @@
         }
         
         document.getElementById('r-info').innerHTML = 
-            `\(f_{X_{(${r})}}(x) = ${n} \\binom{${n-1}}{${r-1}} x^{${r-1}} (1-x)^{${n-r}}\)`;
-        if(window.MathJax) MathJax.typeset();
+            `\\(f_{X_{(${r})}}(x) = ${n} \\binom{${n-1}}{${r-1}} x^{${r-1}} (1-x)^{${n-r}}\\)<br>
+            La moda está en \\(x = \\frac{${r}-1}{${n}-1} = ${((r-1)/(n-1)).toFixed(3)}\\) para ${r}>1`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -753,13 +757,14 @@
             // Densidad teórica: Beta(n-1, 2)
             ctx.beginPath();
             const coef = (n-1)*n;
+            const maxDensTeor = coef * Math.pow((n-2)/(n+1), n-2) * (1 - (n-2)/(n+1));
             for(let i=0; i<w; i++) {
                 const r = (i / w);
                 let dens = 0;
                 if(r>0 && r<1) dens = coef * Math.pow(r, n-2) * (1-r);
-                const y = h - (dens / (coef * Math.pow(0.5, n-2) * 0.5)) * h * 0.8;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                const y = h - (dens / maxDensTeor) * h * 0.8;
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#f44336';
             ctx.lineWidth = 2;
@@ -768,9 +773,9 @@
         
         const mediaTeorica = (n-1)/(n+1);
         document.getElementById('rango-info').innerHTML = 
-            `Distribución del rango: \(f_R(r) = ${n}(${n-1}) r^{${n-2}} (1-r)\)<br>
-            \(\\mathbb{E}[R] = ${mediaTeorica.toFixed(4)}\)`;
-        if(window.MathJax) MathJax.typeset();
+            `Distribución del rango: \\(f_R(r) = ${n}(${n-1}) r^{${n-2}} (1-r)\\)<br>
+            \\(\\mathbb{E}[R] = ${mediaTeorica.toFixed(4)}\\) | Simulación con ${nSim} repeticiones`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -799,17 +804,20 @@
             
             const barWidth = w / (n+1);
             for(let i=0; i<=n; i++) {
-                const barHeight = espaciados[i] * h * 0.8;
+                const barHeight = espaciados[i] * h * 0.7;
                 ctx.fillStyle = '#4caf50';
                 ctx.fillRect(i*barWidth + 2, h - barHeight, barWidth-4, barHeight);
-                ctx.fillStyle = '#333';
-                ctx.fillText(espaciados[i].toFixed(3), i*barWidth + 5, h - barHeight - 5);
+                ctx.fillStyle = isDark ? '#fff' : '#333';
+                ctx.font = '10px sans-serif';
+                ctx.fillText(espaciados[i].toFixed(3), i*barWidth + 5, h - barHeight - 3);
             }
         }
         
         document.getElementById('espaciados-info').innerHTML = 
             `Los espaciados de uniformes tienen distribución Dirichlet(1,...,1).<br>
-            Se distribuyen como exponenciales normalizadas.`;
+            Se distribuyen como exponenciales normalizadas: \\((D_1, \\ldots, D_{n+1}) \\sim \\text{Dirichlet}(1,\\ldots,1)\\).
+            En uniforme, son intercambiables y \\(\\mathbb{E}[D_i] = \\frac{1}{n+1}\\).`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -817,7 +825,9 @@
     // ============================================================
     function simularPersonas() {
         const n = parseInt(document.getElementById('n-personas').value);
-        const d = parseFloat(document.getElementById('d-personas').value);
+        let d = parseFloat(document.getElementById('d-personas').value);
+        if(d < 0) d = 0;
+        if(d > 1) d = 1;
         document.getElementById('n-personas-val').textContent = n;
         document.getElementById('d-personas-val').textContent = d.toFixed(2);
         
@@ -850,73 +860,126 @@
             ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
             ctx.fillRect(0, 0, w, h);
             
-            // Mostrar una realización
             let posiciones = [];
             for(let i=0; i<n; i++) posiciones.push(Math.random());
             posiciones.sort((a,b)=>a-b);
             
+            ctx.fillStyle = '#2196f3';
             for(let i=0; i<n; i++) {
                 const x = posiciones[i] * w;
-                ctx.fillStyle = '#2196f3';
                 ctx.beginPath();
                 ctx.arc(x, h/2, 8, 0, 2*Math.PI);
                 ctx.fill();
                 ctx.fillStyle = 'white';
                 ctx.font = 'bold 12px sans-serif';
                 ctx.fillText((i+1).toString(), x-4, h/2+4);
+                ctx.fillStyle = '#2196f3';
             }
         }
         
         document.getElementById('personas-info').innerHTML = 
             `Probabilidad muestral: ${probMuestral.toFixed(4)} | Teórica: ${probTeorica.toFixed(4)}<br>
-            Fórmula: \(p = [1 - (n-1)d]^n = [1 - ${(n-1)*d}]^{${n}} = ${Math.pow(Math.max(0,1-(n-1)*d),n).toFixed(4)}\)`;
-        if(window.MathJax) MathJax.typeset();
+            Fórmula: \\(p = [1 - (n-1)d]^n = [1 - ${((n-1)*d).toFixed(3)}]^{${n}} = ${Math.pow(Math.max(0,1-(n-1)*d),n).toFixed(4)}\\)`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
-    // Inicialización
+    // FUNCIÓN PRINCIPAL DE INICIALIZACIÓN
     // ============================================================
-    document.addEventListener('DOMContentLoaded', () => {
+    window.inicializarModuloEstadisticos = function() {
         // Módulo 1
-        document.getElementById('n-muestra')?.addEventListener('input', generarMuestra);
-        document.getElementById('dist-orden')?.addEventListener('change', generarMuestra);
-        document.getElementById('generar-muestra')?.addEventListener('click', generarMuestra);
+        const nMuestra = document.getElementById('n-muestra');
+        const distOrden = document.getElementById('dist-orden');
+        const btnMuestra = document.getElementById('generar-muestra');
+        if(nMuestra) {
+            nMuestra.removeEventListener('input', generarMuestra);
+            nMuestra.addEventListener('input', generarMuestra);
+        }
+        if(distOrden) {
+            distOrden.removeEventListener('change', generarMuestra);
+            distOrden.addEventListener('change', generarMuestra);
+        }
+        if(btnMuestra) {
+            btnMuestra.removeEventListener('click', generarMuestra);
+            btnMuestra.addEventListener('click', generarMuestra);
+        }
         generarMuestra();
         
         // Módulo 2
-        document.getElementById('n-mm')?.addEventListener('input', dibujarMinMax);
+        const nMM = document.getElementById('n-mm');
+        if(nMM) {
+            nMM.removeEventListener('input', dibujarMinMax);
+            nMM.addEventListener('input', dibujarMinMax);
+        }
         dibujarMinMax();
         
         // Módulo 3
-        document.getElementById('n-r')?.addEventListener('input', dibujarROrden);
-        document.getElementById('r-orden')?.addEventListener('input', dibujarROrden);
+        const nR = document.getElementById('n-r');
+        const rOrden = document.getElementById('r-orden');
+        if(nR) {
+            nR.removeEventListener('input', dibujarROrden);
+            nR.addEventListener('input', dibujarROrden);
+        }
+        if(rOrden) {
+            rOrden.removeEventListener('input', dibujarROrden);
+            rOrden.addEventListener('input', dibujarROrden);
+        }
         dibujarROrden();
         
         // Módulo 4
-        document.getElementById('n-rango')?.addEventListener('input', simularRango);
-        document.getElementById('simular-rango')?.addEventListener('click', simularRango);
+        const nRango = document.getElementById('n-rango');
+        const btnRango = document.getElementById('simular-rango');
+        if(nRango) {
+            nRango.removeEventListener('input', simularRango);
+            nRango.addEventListener('input', simularRango);
+        }
+        if(btnRango) {
+            btnRango.removeEventListener('click', simularRango);
+            btnRango.addEventListener('click', simularRango);
+        }
         simularRango();
         
         // Módulo 5
-        document.getElementById('n-espaciados')?.addEventListener('input', generarEspaciados);
-        document.getElementById('generar-espaciados')?.addEventListener('click', generarEspaciados);
+        const nEspaciados = document.getElementById('n-espaciados');
+        const btnEspaciados = document.getElementById('generar-espaciados');
+        if(nEspaciados) {
+            nEspaciados.removeEventListener('input', generarEspaciados);
+            nEspaciados.addEventListener('input', generarEspaciados);
+        }
+        if(btnEspaciados) {
+            btnEspaciados.removeEventListener('click', generarEspaciados);
+            btnEspaciados.addEventListener('click', generarEspaciados);
+        }
         generarEspaciados();
         
         // Módulo 6
-        document.getElementById('n-personas')?.addEventListener('input', simularPersonas);
-        document.getElementById('d-personas')?.addEventListener('input', simularPersonas);
-        document.getElementById('simular-personas')?.addEventListener('click', simularPersonas);
+        const nPersonas = document.getElementById('n-personas');
+        const dPersonas = document.getElementById('d-personas');
+        const btnPersonas = document.getElementById('simular-personas');
+        if(nPersonas) {
+            nPersonas.removeEventListener('input', simularPersonas);
+            nPersonas.addEventListener('input', simularPersonas);
+        }
+        if(dPersonas) {
+            dPersonas.removeEventListener('input', simularPersonas);
+            dPersonas.addEventListener('input', simularPersonas);
+        }
+        if(btnPersonas) {
+            btnPersonas.removeEventListener('click', simularPersonas);
+            btnPersonas.addEventListener('click', simularPersonas);
+        }
         simularPersonas();
         
-        // Observador para cambio de tema
-        const observer = new MutationObserver(() => {
-            dibujarMinMax();
-            dibujarROrden();
-        });
-        observer.observe(document.body, {attributes: true});
-        
-        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
-    });
+        if(window.MathJax) MathJax.typesetPromise();
+    };
+    
+    // Auto-inicializar
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.inicializarModuloEstadisticos);
+    } else {
+        window.inicializarModuloEstadisticos();
+    }
 </script>
+                    
 </body>
 </html>
