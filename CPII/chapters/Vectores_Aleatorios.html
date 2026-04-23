@@ -2,262 +2,256 @@
 <style>
     <style>
 :root {
-    --bg-primary: #ffffff;
-    --bg-secondary: #f5f5f5;
-    --text-primary: #212121;
-    --text-secondary: #616161;
-    --border: #e0e0e0;
-    --accent: #4CAF50;
-    --accent-dark: #23712a;
-    --accent-light: #e8f5e9;
-    --success: #4caf50;
-    --warning: #ff9800;
-    --danger: #f44336;
-    --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
-body.dark-theme {
-    --bg-primary: #1e1e1e;
-    --bg-secondary: #2d2d2d;
-    --text-primary: #e0e0e0;
-    --text-secondary: #b0b0b0;
-    --border: #404040;
-    --accent: #4CAF50;
-    --accent-dark: #23712a;
-    --accent-light: #1a2a1a;
-    --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
 
-.taller-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 1rem;
-}
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
 
-.modulo {
-    background: var(--bg-primary);
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    box-shadow: var(--card-shadow);
-}
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
 
-.modulo-header {
-    background: var(--accent-light);
-    padding: 1rem 1.5rem;
-    border-bottom: 2px solid var(--accent);
-    cursor: pointer;
-    user-select: none;
-}
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
 
-.modulo-header h3 {
-    margin: 0;
-    color: var(--accent-dark);
-}
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
 
-.modulo-content {
-    padding: 1.5rem;
-    display: block;
-}
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
 
-.modulo-content.collapsed {
-    display: none;
-}
+        .modulo-content.collapsed {
+            display: none;
+        }
 
-.explicacion-intro {
-    background: var(--bg-secondary);
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
-    border-left: 4px solid var(--accent);
-    font-size: 1.05rem;
-    line-height: 1.5;
-}
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
 
-.explicacion-formal {
-    background: var(--bg-secondary);
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    margin: 1rem 0;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-    border: 1px dashed var(--border);
-}
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border: 1px dashed var(--border);
+        }
 
-.simulador {
-    background: var(--bg-secondary);
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin: 1rem 0;
-}
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
 
-.controles {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    align-items: center;
-}
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
 
-.controles label {
-    font-weight: bold;
-}
+        .controles label {
+            font-weight: bold;
+        }
 
-input[type="range"] {
-    flex: 1;
-    min-width: 150px;
-}
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
 
-button {
-    background: var(--accent-dark);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.9rem;
-}
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
 
-button:hover {
-    background: var(--accent);
-}
+        button:hover {
+            opacity: 0.9;
+        }
 
-.grid-dados {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-}
+        .grid-dados {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
 
-.dado {
-    width: 80px;
-    height: 80px;
-    background: white;
-    border: 2px solid var(--border);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    font-weight: bold;
-    box-shadow: var(--card-shadow);
-}
+        .dado {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            box-shadow: var(--card-shadow);
+        }
 
-.heatmap {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 4px;
-    max-width: 400px;
-    margin: 1rem auto;
-}
+        .heatmap {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 4px;
+            max-width: 400px;
+            margin: 1rem auto;
+        }
 
-.heatmap-cell {
-    aspect-ratio: 1;
-    background: #e0e0e0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    border-radius: 4px;
-    transition: all 0.2s;
-}
+        .heatmap-cell {
+            aspect-ratio: 1;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
 
-body.dark-theme .heatmap-cell {
-    background: #404040;
-}
+        body.dark-theme .heatmap-cell {
+            background: #404040;
+        }
 
-.tabla-editable {
-    overflow-x: auto;
-}
+        .tabla-editable {
+            overflow-x: auto;
+        }
 
-.tabla-editable table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1rem 0;
-}
+        .tabla-editable table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
 
-.tabla-editable td, .tabla-editable th {
-    border: 1px solid var(--border);
-    padding: 0.5rem;
-    text-align: center;
-}
+        .tabla-editable td, .tabla-editable th {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            text-align: center;
+        }
 
-.tabla-editable input {
-    width: 70px;
-    padding: 0.3rem;
-    text-align: center;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-}
+        .tabla-editable input {
+            width: 70px;
+            padding: 0.3rem;
+            text-align: center;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
 
-canvas {
-    display: block;
-    margin: 1rem auto;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--bg-primary);
-    cursor: crosshair;
-}
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            cursor: crosshair;
+        }
 
-.pregunta-exploratoria {
-    background: var(--accent-light);
-    padding: 1rem;
-    border-radius: 8px;
-    margin: 1rem 0;
-    border-left: 4px solid var(--warning);
-}
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
 
-.pregunta-exploratoria button {
-    background: var(--warning);
-    margin-top: 0.5rem;
-}
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
 
-.pregunta-exploratoria button:hover {
-    background: #e68900;
-}
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
 
-.respuesta {
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    border-radius: 6px;
-    display: none;
-}
+        .respuesta.mostrar {
+            display: block;
+        }
 
-.respuesta.mostrar {
-    display: block;
-}
+        .valor-actual {
+            font-family: monospace;
+            font-weight: bold;
+            color: var(--accent);
+        }
 
-.valor-actual {
-    font-family: monospace;
-    font-weight: bold;
-    color: var(--accent);
-}
+        .fila-ejes {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
 
-.fila-ejes {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-}
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
 
-hr {
-    margin: 2rem 0;
-    border-color: var(--border);
-}
-
-@media (max-width: 768px) {
-    .modulo-content {
-        padding: 1rem;
-    }
-    .controles {
-        flex-direction: column;
-        align-items: stretch;
-    }
-}
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
 </style>
 
     
@@ -559,19 +553,19 @@ hr {
 // ============================================================
 // MODULO 1: Moneda
 // ============================================================
-let lanzamientosMoneda = { aguila: 0, sol: 0 };
+let lanzamientosMoneda = { águila: 0, sol: 0 };
 
 function actualizarMoneda() {
-    const total = lanzamientosMoneda.aguila + lanzamientosMoneda.sol;
-    const pAguila = total === 0 ? 0 : lanzamientosMoneda.aguila / total;
+    const total = lanzamientosMoneda.águila + lanzamientosMoneda.sol;
+    const pÁguila = total === 0 ? 0 : lanzamientosMoneda.águila / total;
     document.getElementById('moneda-frecuencias').innerHTML = 
-        `Águilas: ${lanzamientosMoneda.aguila} (${(pAguila*100).toFixed(1)}%) | Soles: ${lanzamientosMoneda.sol} (${((1-pAguila)*100).toFixed(1)}%)`;
+        `Águilas: ${lanzamientosMoneda.águila} (${(pÁguila*100).toFixed(1)}%) | Soles: ${lanzamientosMoneda.sol} (${((1-pÁguila)*100).toFixed(1)}%)`;
 }
 
 function lanzarMoneda() {
     const esAguila = Math.random() < 0.5;
-    if(esAguila) {
-        lanzamientosMoneda.aguila++;
+    if(esÁguila) {
+        lanzamientosMoneda.Águila++;
         document.getElementById('moneda-resultado').innerHTML = '🪙 Águila';
     } else {
         lanzamientosMoneda.sol++;
@@ -581,7 +575,7 @@ function lanzarMoneda() {
 }
 
 function resetMoneda() {
-    lanzamientosMoneda = { aguila: 0, sol: 0 };
+    lanzamientosMoneda = { águila: 0, sol: 0 };
     document.getElementById('moneda-resultado').innerHTML = '🪙';
     actualizarMoneda();
 }
