@@ -695,7 +695,6 @@
             momentos = { e1: alpha*beta, e2: alpha*beta*beta + alpha*alpha*beta*beta };
         }
         
-        // Graficar en t ∈ [-1, 1]
         ctx.beginPath();
         let first = true;
         for(let px=0; px<w; px++) {
@@ -723,7 +722,7 @@
         document.getElementById('momentos-fgm').innerHTML = 
             `\\(\\mathbb{E}[X] = ${momentos.e1.toFixed(4)}\\) | \\(\\mathbb{E}[X^2] = ${momentos.e2.toFixed(4)}\\) | \\(\\operatorname{var}(X) = ${(momentos.e2 - momentos.e1*momentos.e1).toFixed(4)}\\)`;
         
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -773,7 +772,7 @@
              \\(\\mathbb{E}[X^3] = ${e3.toFixed(4)}\\)<br>
              \\(\\mathbb{E}[X^4] = ${e4.toFixed(4)}\\)<br>
              \\(\\operatorname{var}(X) = ${sigma*sigma.toFixed(4)}\\)`;
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -782,23 +781,23 @@
     function mostrarEjemploFGM() {
         document.getElementById('ejemplo-fgm-resuelto').innerHTML = `
             <strong>Ejemplo resuelto (del PDF):</strong><br><br>
-            Dada la FGM conjunta: \(m_{12}(t_1,t_2) = \exp\{ -t_2 + \frac{1}{2}t_1^2 - t_1t_2 + t_2^2 \}\)<br><br>
+            Dada la FGM conjunta: \\(m_{12}(t_1,t_2) = \\exp\\{ -t_2 + \\frac{1}{2}t_1^2 - t_1t_2 + t_2^2 \\}\\)<br><br>
             <strong>Paso 1: FGM marginal de X₁</strong><br>
-            \(m_1(t_1) = m_{12}(t_1,0) = e^{t_1^2/2}\) ⇒ \(X_1 \sim N(0,1)\) ⇒ \(\mathbb{E}[X_1]=0\), \(\operatorname{var}(X_1)=1\)<br><br>
+            \\(m_1(t_1) = m_{12}(t_1,0) = e^{t_1^2/2}\\) ⇒ \\(X_1 \\sim N(0,1)\\) ⇒ \\(\\mathbb{E}[X_1]=0\\), \\(\\operatorname{var}(X_1)=1\\)<br><br>
             <strong>Paso 2: FGM marginal de X₂</strong><br>
-            \(m_2(t_2) = m_{12}(0,t_2) = e^{-t_2 + t_2^2}\)<br>
-            \(m_2'(t_2) = (-1+2t_2)e^{-t_2+t_2^2}\) ⇒ \(\mathbb{E}[X_2] = m_2'(0) = -1\)<br>
-            \(m_2''(t_2) = [(-1+2t_2)^2 + 2]e^{-t_2+t_2^2}\) ⇒ \(\mathbb{E}[X_2^2] = m_2''(0) = 1 + 2 = 3\)<br>
-            \(\operatorname{var}(X_2) = 3 - 1 = 2\)<br><br>
-            <strong>Paso 3: Momento conjunto \(\mathbb{E}[X_1X_2]\)</strong><br>
-            \(\frac{\partial m_{12}}{\partial t_2} = m_{12} \cdot (-1 - t_1 + 2t_2)\)<br>
-            \(\frac{\partial^2}{\partial t_1 \partial t_2} = \frac{\partial m_{12}}{\partial t_1} \cdot (-1 - t_1 + 2t_2) + m_{12} \cdot (-1)\)<br>
-            En \((0,0)\): \(\frac{\partial m_{12}}{\partial t_1} = m_{12} \cdot t_1 = 0\) ⇒ \(\mathbb{E}[X_1X_2] = 0 \cdot (-1) + 1 \cdot (-1) = -1\)<br><br>
+            \\(m_2(t_2) = m_{12}(0,t_2) = e^{-t_2 + t_2^2}\\)<br>
+            \\(m_2'(t_2) = (-1+2t_2)e^{-t_2+t_2^2}\\) ⇒ \\(\\mathbb{E}[X_2] = m_2'(0) = -1\\)<br>
+            \\(m_2''(t_2) = [(-1+2t_2)^2 + 2]e^{-t_2+t_2^2}\\) ⇒ \\(\\mathbb{E}[X_2^2] = m_2''(0) = 1 + 2 = 3\\)<br>
+            \\(\\operatorname{var}(X_2) = 3 - 1 = 2\\)<br><br>
+            <strong>Paso 3: Momento conjunto \\(\\mathbb{E}[X_1X_2]\\)</strong><br>
+            \\(\\frac{\\partial m_{12}}{\\partial t_2} = m_{12} \\cdot (-1 - t_1 + 2t_2)\\)<br>
+            \\(\\frac{\\partial^2}{\\partial t_1 \\partial t_2} = \\frac{\\partial m_{12}}{\\partial t_1} \\cdot (-1 - t_1 + 2t_2) + m_{12} \\cdot (-1)\\)<br>
+            En \\((0,0)\\): \\(\\frac{\\partial m_{12}}{\\partial t_1} = m_{12} \\cdot t_1 = 0\\) ⇒ \\(\\mathbb{E}[X_1X_2] = 0 \\cdot (-1) + 1 \\cdot (-1) = -1\\)<br><br>
             <strong>Paso 4: Covarianza y correlación</strong><br>
-            \(\operatorname{cov}(X_1,X_2) = -1 - 0 = -1\)<br>
-            \(\rho = \frac{-1}{\sqrt{1 \cdot 2}} = -\frac{1}{\sqrt{2}} \approx -0.7071\)
+            \\(\\operatorname{cov}(X_1,X_2) = -1 - 0 = -1\\)<br>
+            \\(\\rho = \\frac{-1}{\\sqrt{1 \\cdot 2}} = -\\frac{1}{\\sqrt{2}} \\approx -0.7071\\)
         `;
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -825,7 +824,6 @@
             phiAbs = (t) => Math.exp(-t*t/2);
             explicacion = 'Normal(0,1): φ(t) = e^{-t²/2}. Tiene FGM (m(t)=e^{t²/2}) y FC.';
         } else if(dist === 'lognormal') {
-            // La lognormal no tiene FGM pero sí FC (aproximación)
             phiAbs = (t) => Math.exp(-Math.abs(t)*0.8);
             explicacion = 'Lognormal: ¡No tiene FGM porque los momentos crecen muy rápido! La FC existe.';
         }
@@ -851,36 +849,56 @@
     }
     
     // ============================================================
-    // Inicialización
+    // FUNCIÓN PRINCIPAL DE INICIALIZACIÓN
     // ============================================================
-    document.addEventListener('DOMContentLoaded', () => {
+    window.inicializarModuloFGM = function() {
         // Módulo 1
         const distFGM = document.getElementById('dist-fgm');
         const btnFGM = document.getElementById('graficar-fgm');
         if(distFGM) {
-            distFGM.addEventListener('change', () => {
+            const updateDist = () => {
                 actualizarParametrosFGM();
                 graficarFGM();
-            });
+            };
+            distFGM.removeEventListener('change', updateDist);
+            distFGM.addEventListener('change', updateDist);
             actualizarParametrosFGM();
         }
-        if(btnFGM) btnFGM.addEventListener('click', graficarFGM);
+        if(btnFGM) {
+            btnFGM.removeEventListener('click', graficarFGM);
+            btnFGM.addEventListener('click', graficarFGM);
+        }
         graficarFGM();
         
         // Módulo 2
         const distX = document.getElementById('distX');
         const distY = document.getElementById('distY');
         const btnSuma = document.getElementById('calcular-suma');
-        if(distX) distX.addEventListener('change', actualizarSuma);
-        if(distY) distY.addEventListener('change', actualizarSuma);
-        if(btnSuma) btnSuma.addEventListener('click', actualizarSuma);
+        if(distX) {
+            distX.removeEventListener('change', actualizarSuma);
+            distX.addEventListener('change', actualizarSuma);
+        }
+        if(distY) {
+            distY.removeEventListener('change', actualizarSuma);
+            distY.addEventListener('change', actualizarSuma);
+        }
+        if(btnSuma) {
+            btnSuma.removeEventListener('click', actualizarSuma);
+            btnSuma.addEventListener('click', actualizarSuma);
+        }
         actualizarSuma();
         
         // Módulo 3
         const muMomentos = document.getElementById('mu-momentos');
         const sigmaMomentos = document.getElementById('sigma-momentos');
-        if(muMomentos) muMomentos.addEventListener('input', actualizarMomentos);
-        if(sigmaMomentos) sigmaMomentos.addEventListener('input', actualizarMomentos);
+        if(muMomentos) {
+            muMomentos.removeEventListener('input', actualizarMomentos);
+            muMomentos.addEventListener('input', actualizarMomentos);
+        }
+        if(sigmaMomentos) {
+            sigmaMomentos.removeEventListener('input', actualizarMomentos);
+            sigmaMomentos.addEventListener('input', actualizarMomentos);
+        }
         actualizarMomentos();
         
         // Módulo 4
@@ -889,19 +907,25 @@
         // Módulo 5
         const distFC = document.getElementById('dist-fc');
         const btnFC = document.getElementById('graficar-fc');
-        if(distFC) distFC.addEventListener('change', graficarFC);
-        if(btnFC) btnFC.addEventListener('click', graficarFC);
+        if(distFC) {
+            distFC.removeEventListener('change', graficarFC);
+            distFC.addEventListener('change', graficarFC);
+        }
+        if(btnFC) {
+            btnFC.removeEventListener('click', graficarFC);
+            btnFC.addEventListener('click', graficarFC);
+        }
         graficarFC();
         
-        // Observador para cambio de tema
-        const observer = new MutationObserver(() => {
-            graficarFGM();
-            graficarFC();
-        });
-        observer.observe(document.body, {attributes: true});
-        
-        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
-    });
+        if(window.MathJax) MathJax.typesetPromise();
+    };
+    
+    // Auto-inicializar
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.inicializarModuloFGM);
+    } else {
+        window.inicializarModuloFGM();
+    }
 </script>
 </body>
 </html>
