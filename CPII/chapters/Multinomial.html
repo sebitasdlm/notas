@@ -649,8 +649,14 @@
             else x3++;
         }
         
+        const probTeorica = (function factorial(n) {
+            let f = 1;
+            for(let i=2; i<=n; i++) f *= i;
+            return f / (function(fx){let r=1;for(let i=2;i<=fx;i++) r*=i; return r}(x1) * function(fx){let r=1;for(let i=2;i<=fx;i++) r*=i; return r}(x2) * function(fx){let r=1;for(let i=2;i<=fx;i++) r*=i; return r}(x3)) * Math.pow(p1,x1) * Math.pow(p2,x2) * Math.pow(p3,x3);
+        })(n);
+        
         document.getElementById('resultado-tri').innerHTML = 
-            `Realización: X₁ = ${x1}, X₂ = ${x2}, X₃ = ${x3} | Probabilidad teórica = ${(n!/(x1!*x2!*x3!)*Math.pow(p1,x1)*Math.pow(p2,x2)*Math.pow(p3,x3)).toExponential(4)}`;
+            `Realización: X₁ = ${x1}, X₂ = ${x2}, X₃ = ${x3} | Probabilidad teórica = ${probTeorica.toExponential(4)}`;
         
         document.getElementById('barra-c1').style.width = (x1/n)*100 + '%';
         document.getElementById('barra-c2').style.width = (x2/n)*100 + '%';
@@ -768,7 +774,7 @@
         
         document.getElementById('fgm-bin-formula').innerHTML = 
             `\\(m_X(t) = (${q.toFixed(2)} + ${p.toFixed(2)} e^{t})^{${n}}\\)`;
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -883,52 +889,129 @@
     }
     
     // ============================================================
-    // Inicialización
+    // FUNCIÓN PRINCIPAL DE INICIALIZACIÓN
     // ============================================================
-    document.addEventListener('DOMContentLoaded', () => {
+    window.inicializarModuloMultinomial = function() {
         // Módulo 1
-        document.getElementById('p1-tri')?.addEventListener('input', simularTrinomial);
-        document.getElementById('p2-tri')?.addEventListener('input', simularTrinomial);
-        document.getElementById('n-tri')?.addEventListener('input', simularTrinomial);
-        document.getElementById('simular-tri')?.addEventListener('click', simularTrinomial);
+        const p1Tri = document.getElementById('p1-tri');
+        const p2Tri = document.getElementById('p2-tri');
+        const nTri = document.getElementById('n-tri');
+        const btnTri = document.getElementById('simular-tri');
+        
+        if(p1Tri) {
+            p1Tri.removeEventListener('input', simularTrinomial);
+            p1Tri.addEventListener('input', simularTrinomial);
+        }
+        if(p2Tri) {
+            p2Tri.removeEventListener('input', simularTrinomial);
+            p2Tri.addEventListener('input', simularTrinomial);
+        }
+        if(nTri) {
+            nTri.removeEventListener('input', simularTrinomial);
+            nTri.addEventListener('input', simularTrinomial);
+        }
+        if(btnTri) {
+            btnTri.removeEventListener('click', simularTrinomial);
+            btnTri.addEventListener('click', simularTrinomial);
+        }
         simularTrinomial();
         
         // Módulo 2
-        document.getElementById('n-multi')?.addEventListener('input', () => actualizarMultiVisual());
-        document.getElementById('simular-multi')?.addEventListener('click', simularMultinomial);
-        document.getElementById('reset-multi')?.addEventListener('click', resetMultinomial);
+        const nMulti = document.getElementById('n-multi');
+        const btnMulti = document.getElementById('simular-multi');
+        const btnResetMulti = document.getElementById('reset-multi');
+        
+        if(nMulti) {
+            nMulti.removeEventListener('input', () => actualizarMultiVisual());
+            nMulti.addEventListener('input', () => actualizarMultiVisual());
+        }
+        if(btnMulti) {
+            btnMulti.removeEventListener('click', simularMultinomial);
+            btnMulti.addEventListener('click', simularMultinomial);
+        }
+        if(btnResetMulti) {
+            btnResetMulti.removeEventListener('click', resetMultinomial);
+            btnResetMulti.addEventListener('click', resetMultinomial);
+        }
         actualizarMultiVisual();
         
         // Módulo 3
-        document.getElementById('n-fgm')?.addEventListener('input', graficarFGMBin);
-        document.getElementById('p-fgm')?.addEventListener('input', graficarFGMBin);
-        document.getElementById('graficar-fgm-bin')?.addEventListener('click', graficarFGMBin);
+        const nFGM = document.getElementById('n-fgm');
+        const pFGM = document.getElementById('p-fgm');
+        const btnFGM = document.getElementById('graficar-fgm-bin');
+        
+        if(nFGM) {
+            nFGM.removeEventListener('input', graficarFGMBin);
+            nFGM.addEventListener('input', graficarFGMBin);
+        }
+        if(pFGM) {
+            pFGM.removeEventListener('input', graficarFGMBin);
+            pFGM.addEventListener('input', graficarFGMBin);
+        }
+        if(btnFGM) {
+            btnFGM.removeEventListener('click', graficarFGMBin);
+            btnFGM.addEventListener('click', graficarFGMBin);
+        }
         graficarFGMBin();
         
         // Módulo 4
-        document.getElementById('n-costo')?.addEventListener('input', simularCosto);
-        document.getElementById('p1-costo')?.addEventListener('input', simularCosto);
-        document.getElementById('p2-costo')?.addEventListener('input', simularCosto);
-        document.getElementById('simular-costo')?.addEventListener('click', simularCosto);
+        const nCosto = document.getElementById('n-costo');
+        const p1Costo = document.getElementById('p1-costo');
+        const p2Costo = document.getElementById('p2-costo');
+        const btnCosto = document.getElementById('simular-costo');
+        
+        if(nCosto) {
+            nCosto.removeEventListener('input', simularCosto);
+            nCosto.addEventListener('input', simularCosto);
+        }
+        if(p1Costo) {
+            p1Costo.removeEventListener('input', simularCosto);
+            p1Costo.addEventListener('input', simularCosto);
+        }
+        if(p2Costo) {
+            p2Costo.removeEventListener('input', simularCosto);
+            p2Costo.addEventListener('input', simularCosto);
+        }
+        if(btnCosto) {
+            btnCosto.removeEventListener('click', simularCosto);
+            btnCosto.addEventListener('click', simularCosto);
+        }
         simularCosto();
         
         // Módulo 5
-        document.getElementById('p1-correl')?.addEventListener('input', simularCorrelacion);
-        document.getElementById('p2-correl')?.addEventListener('input', simularCorrelacion);
-        document.getElementById('n-correl')?.addEventListener('input', simularCorrelacion);
-        document.getElementById('simular-correl')?.addEventListener('click', simularCorrelacion);
+        const p1Correl = document.getElementById('p1-correl');
+        const p2Correl = document.getElementById('p2-correl');
+        const nCorrel = document.getElementById('n-correl');
+        const btnCorrel = document.getElementById('simular-correl');
+        
+        if(p1Correl) {
+            p1Correl.removeEventListener('input', simularCorrelacion);
+            p1Correl.addEventListener('input', simularCorrelacion);
+        }
+        if(p2Correl) {
+            p2Correl.removeEventListener('input', simularCorrelacion);
+            p2Correl.addEventListener('input', simularCorrelacion);
+        }
+        if(nCorrel) {
+            nCorrel.removeEventListener('input', simularCorrelacion);
+            nCorrel.addEventListener('input', simularCorrelacion);
+        }
+        if(btnCorrel) {
+            btnCorrel.removeEventListener('click', simularCorrelacion);
+            btnCorrel.addEventListener('click', simularCorrelacion);
+        }
         simularCorrelacion();
         
-        // Observador para cambio de tema
-        const observer = new MutationObserver(() => {
-            graficarFGMBin();
-            simularCosto();
-            simularCorrelacion();
-        });
-        observer.observe(document.body, {attributes: true});
-        
-        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
-    });
+        if(window.MathJax) MathJax.typesetPromise();
+    };
+    
+    // Auto-inicializar
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.inicializarModuloMultinomial);
+    } else {
+        window.inicializarModuloMultinomial();
+    }
 </script>
+    
 </body>
 </html>
