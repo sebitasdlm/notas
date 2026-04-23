@@ -145,6 +145,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof window.inicializarModuloEstadisticos === 'function') {
             window.inicializarModuloEstadisticos();
         }
+         if (typeof window.inicializarModuloDesigualdades === 'function') {
+            window.inicializarModuloDesigualdades();
+         }
     }
 
     const loadContent = (filePath, chapter = null) => {
