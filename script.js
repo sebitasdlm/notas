@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let chapters = [];
     let chapterNames = [];
 
-    fetch('CPII/chapters.json')
+    fetch("CPII/chapters.json")
         .then(response => response.json())
         .then(data => {
             chapters = Object.keys(data.chapters);
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
             link.href = "#";
             link.addEventListener("click", (e) => {
                 e.preventDefault();
-                loadContent(`CPII/chapters/${chapter}`, chapter);
+                loadContent("CPII/chapters/${chapter}", chapter);
                 if(window.innerWidth <= 768){
                     sidebar.classList.add("hidden"); // Hide sidebar after selecting a chapter on mobile
                 }
