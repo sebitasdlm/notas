@@ -631,7 +631,6 @@
                 ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
             }
             
-            // Densidad teórica
             ctx.beginPath();
             for(let i=0; i<w; i++) {
                 const x = (i / w) * max;
@@ -647,7 +646,7 @@
         
         document.getElementById('exp-info').innerHTML = 
             `Teoría: \(Y = -\\frac{1}{${lambda.toFixed(1)}} \\log(1-U)\) genera \(Y \\sim \\text{Exp}(${lambda.toFixed(1)})\)`;
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -663,7 +662,7 @@
         const varianza = (Math.exp(sigma*sigma)-1) * Math.exp(2*mu + sigma*sigma);
         
         document.getElementById('lognormal-momentos').innerHTML = 
-            `\(\\mathbb{E}[X] = ${media.toFixed(3)}\), \(\\operatorname{var}(X) = ${varianza.toFixed(3)}\)`;
+            `\\(\\mathbb{E}[X] = ${media.toFixed(3)}\\), \\(\\operatorname{var}(X) = ${varianza.toFixed(3)}\\)`;
         
         const canvas = document.getElementById('lognormalCanvas');
         if(canvas) {
@@ -689,7 +688,7 @@
             ctx.lineWidth = 2;
             ctx.stroke();
         }
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -705,7 +704,6 @@
             if(dist === 'exponencial') {
                 muestras.push(-Math.log(1-u));
             } else if(dist === 'normal') {
-                // Aproximación de la inversa normal (algoritmo de Box-Muller simplificado para una muestra)
                 const u2 = Math.random();
                 const z = Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*u2);
                 muestras.push(z);
@@ -741,13 +739,12 @@
         
         document.getElementById('inversa-info').innerHTML = 
             `Generación por método de la inversa: \(X = F_X^{-1}(U)\) con \(U \\sim \\text{Unif}(0,1)\)`;
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
     // MODULO 4: Transformaciones multivariadas
     // ============================================================
-    let puntosOriginales = [];
     let puntosTransformados = [];
     
     function generarPuntosNormales(n=500) {
@@ -761,7 +758,7 @@
     }
     
     function aplicarTransformacion(matriz) {
-        puntosOriginales = generarPuntosNormales(500);
+        const puntosOriginales = generarPuntosNormales(500);
         puntosTransformados = puntosOriginales.map(p => [
             matriz[0][0]*p[0] + matriz[0][1]*p[1],
             matriz[1][0]*p[0] + matriz[1][1]*p[1]
@@ -776,7 +773,6 @@
             ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
             ctx.fillRect(0, 0, w, h);
             
-            // Encontrar rangos
             let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
             for(let p of puntosTransformados) {
                 minX = Math.min(minX, p[0]);
@@ -790,8 +786,10 @@
             for(let p of puntosTransformados) {
                 const x = ((p[0] - minX) / rangeX) * w;
                 const y = h - ((p[1] - minY) / rangeY) * h;
-                ctx.fillStyle = 'rgba(33,150,243,0.4)';
-                ctx.fillRect(x, y, 3, 3);
+                if(x >= 0 && x <= w && y >= 0 && y <= h) {
+                    ctx.fillStyle = 'rgba(33,150,243,0.4)';
+                    ctx.fillRect(x, y, 3, 3);
+                }
             }
         }
     }
@@ -812,7 +810,6 @@
             ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
             ctx.fillRect(0, 0, w, h);
             
-            // Densidad t
             const tMin = -4, tMax = 4;
             ctx.beginPath();
             for(let i=0; i<w; i++) {
@@ -821,27 +818,25 @@
                 if(n === 1) {
                     dens = 1 / (Math.PI * (1 + t*t));
                 } else {
-                    const coef = Math.exp((Math.log(n+1)-Math.log(n))/2);
                     dens = Math.pow(1 + t*t/n, -(n+1)/2);
                     const norma = 1 / (Math.sqrt(n) * Math.exp((Math.log(n)+Math.log(Math.PI))/2));
                     dens = dens * norma;
                 }
                 const y = h - (dens * 3) * h;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#1976d2';
             ctx.lineWidth = 2;
             ctx.stroke();
             
-            // Densidad normal para comparar
             ctx.beginPath();
             for(let i=0; i<w; i++) {
                 const t = tMin + (i / w) * (tMax - tMin);
                 const dens = Math.exp(-t*t/2) / Math.sqrt(2*Math.PI);
                 const y = h - (dens * 3) * h;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#f44336';
             ctx.lineWidth = 1.5;
@@ -852,9 +847,9 @@
         
         const varTeorica = n > 2 ? (n/(n-2)).toFixed(3) : (n === 2 ? 'infinita' : 'no definida');
         document.getElementById('t-propiedades').innerHTML = 
-            `\(t_{${n}}\) | \(\\mathbb{E}[T] = 0\) | \(\\operatorname{var}(T) = ${varTeorica}\)<br>
-            Línea roja discontinua: \(N(0,1)\) para comparación`;
-        if(window.MathJax) MathJax.typeset();
+            `\\(t_{${n}}\\) | \\(\\mathbb{E}[T] = 0\\) | \\(\\operatorname{var}(T) = ${varTeorica}\\)<br>
+            Línea roja discontinua: \\(N(0,1)\\) para comparación`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -892,58 +887,103 @@
         
         document.getElementById('boxmuller-info').innerHTML = 
             `Transformación Box-Muller: de uniformes a normales independientes.<br>
-            \(X_1 = \\sqrt{-2\\log U_1} \\cos 2\\pi U_2\), \(X_2 = \\sqrt{-2\\log U_1} \\sin 2\\pi U_2\)`;
-        if(window.MathJax) MathJax.typeset();
+            \\(X_1 = \\sqrt{-2\\log U_1} \\cos 2\\pi U_2\\), \\(X_2 = \\sqrt{-2\\log U_1} \\sin 2\\pi U_2\\)`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
-    // Inicialización
+    // FUNCIÓN PRINCIPAL DE INICIALIZACIÓN
     // ============================================================
-    document.addEventListener('DOMContentLoaded', () => {
+    window.inicializarModuloTransformaciones = function() {
         // Módulo 1
-        document.getElementById('lambda-exp')?.addEventListener('input', generarExponencial);
-        document.getElementById('generar-exp')?.addEventListener('click', generarExponencial);
+        const lambdaExp = document.getElementById('lambda-exp');
+        const btnExp = document.getElementById('generar-exp');
+        if(lambdaExp) {
+            lambdaExp.removeEventListener('input', generarExponencial);
+            lambdaExp.addEventListener('input', generarExponencial);
+        }
+        if(btnExp) {
+            btnExp.removeEventListener('click', generarExponencial);
+            btnExp.addEventListener('click', generarExponencial);
+        }
         generarExponencial();
         
         // Módulo 2
-        document.getElementById('mu-ln')?.addEventListener('input', actualizarLognormal);
-        document.getElementById('sigma-ln')?.addEventListener('input', actualizarLognormal);
+        const muLn = document.getElementById('mu-ln');
+        const sigmaLn = document.getElementById('sigma-ln');
+        if(muLn) {
+            muLn.removeEventListener('input', actualizarLognormal);
+            muLn.addEventListener('input', actualizarLognormal);
+        }
+        if(sigmaLn) {
+            sigmaLn.removeEventListener('input', actualizarLognormal);
+            sigmaLn.addEventListener('input', actualizarLognormal);
+        }
         actualizarLognormal();
         
         // Módulo 3
-        document.getElementById('dist-objetivo')?.addEventListener('change', generarPorInversa);
-        document.getElementById('simular-inversa')?.addEventListener('click', generarPorInversa);
+        const distObj = document.getElementById('dist-objetivo');
+        const btnInversa = document.getElementById('simular-inversa');
+        if(distObj) {
+            distObj.removeEventListener('change', generarPorInversa);
+            distObj.addEventListener('change', generarPorInversa);
+        }
+        if(btnInversa) {
+            btnInversa.removeEventListener('click', generarPorInversa);
+            btnInversa.addEventListener('click', generarPorInversa);
+        }
         generarPorInversa();
         
         // Módulo 4
-        document.getElementById('transform-ejemplo1')?.addEventListener('click', () => aplicarTransformacion([[1,1],[1,-1]]));
-        document.getElementById('transform-ejemplo2')?.addEventListener('click', () => aplicarTransformacion([[2,0],[0,1]]));
-        document.getElementById('transform-ejemplo3')?.addEventListener('click', () => {
-            const angulo = 45 * Math.PI / 180;
-            aplicarTransformacion([[Math.cos(angulo), -Math.sin(angulo)], [Math.sin(angulo), Math.cos(angulo)]]);
-        });
+        const btnTrans1 = document.getElementById('transform-ejemplo1');
+        const btnTrans2 = document.getElementById('transform-ejemplo2');
+        const btnTrans3 = document.getElementById('transform-ejemplo3');
+        if(btnTrans1) {
+            btnTrans1.removeEventListener('click', () => aplicarTransformacion([[1,1],[1,-1]]));
+            btnTrans1.addEventListener('click', () => aplicarTransformacion([[1,1],[1,-1]]));
+        }
+        if(btnTrans2) {
+            btnTrans2.removeEventListener('click', () => aplicarTransformacion([[2,0],[0,1]]));
+            btnTrans2.addEventListener('click', () => aplicarTransformacion([[2,0],[0,1]]));
+        }
+        if(btnTrans3) {
+            btnTrans3.removeEventListener('click', () => {
+                const angulo = 45 * Math.PI / 180;
+                aplicarTransformacion([[Math.cos(angulo), -Math.sin(angulo)], [Math.sin(angulo), Math.cos(angulo)]]);
+            });
+            btnTrans3.addEventListener('click', () => {
+                const angulo = 45 * Math.PI / 180;
+                aplicarTransformacion([[Math.cos(angulo), -Math.sin(angulo)], [Math.sin(angulo), Math.cos(angulo)]]);
+            });
+        }
         aplicarTransformacion([[1,1],[1,-1]]);
         
         // Módulo 5
-        document.getElementById('gl-t')?.addEventListener('input', dibujarTStudent);
+        const glT = document.getElementById('gl-t');
+        if(glT) {
+            glT.removeEventListener('input', dibujarTStudent);
+            glT.addEventListener('input', dibujarTStudent);
+        }
         dibujarTStudent();
         
         // Módulo 6
-        document.getElementById('generar-boxmuller')?.addEventListener('click', generarBoxMuller);
+        const btnBoxMuller = document.getElementById('generar-boxmuller');
+        if(btnBoxMuller) {
+            btnBoxMuller.removeEventListener('click', generarBoxMuller);
+            btnBoxMuller.addEventListener('click', generarBoxMuller);
+        }
         generarBoxMuller();
         
-        // Observador para cambio de tema
-        const observer = new MutationObserver(() => {
-            generarExponencial();
-            actualizarLognormal();
-            generarPorInversa();
-            dibujarTStudent();
-            generarBoxMuller();
-        });
-        observer.observe(document.body, {attributes: true});
-        
-        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
-    });
+        if(window.MathJax) MathJax.typesetPromise();
+    };
+    
+    // Auto-inicializar
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.inicializarModuloTransformaciones);
+    } else {
+        window.inicializarModuloTransformaciones();
+    }
 </script>
+    
 </body>
 </html>
