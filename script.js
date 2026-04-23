@@ -124,6 +124,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof window.inicializarIndependencia === 'function') {
             window.inicializarIndependencia();
         }
+        if (typeof window.inicializarModuloEsperanza === 'function') {
+            window.inicializarModuloEsperanza();
+        }
     }
 
     const loadContent = (filePath, chapter = null) => {
