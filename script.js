@@ -136,6 +136,9 @@ document.addEventListener("DOMContentLoaded", () => {
          if (typeof window.inicializarModuloNormal === 'function') {
             window.inicializarModuloNormal();
         }
+         if (typeof window.inicializarModuloTransformaciones === 'function') {
+            window.inicializarModuloTransformaciones();
+         }
     }
 
     const loadContent = (filePath, chapter = null) => {
