@@ -1,1 +1,989 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Vectores Aleatorios - Capítulo 1</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border: 1px dashed var(--border);
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .grid-dados {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .dado {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            box-shadow: var(--card-shadow);
+        }
+
+        .heatmap {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 4px;
+            max-width: 400px;
+            margin: 1rem auto;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        body.dark-theme .heatmap-cell {
+            background: #404040;
+        }
+
+        .tabla-editable {
+            overflow-x: auto;
+        }
+
+        .tabla-editable table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .tabla-editable td, .tabla-editable th {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        .tabla-editable input {
+            width: 70px;
+            padding: 0.3rem;
+            text-align: center;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            cursor: crosshair;
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .valor-actual {
+            font-family: monospace;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .fila-ejes {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Espacios de Probabilidad (1.1)                  -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Espacios de Probabilidad</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>La base de todo:</strong> Un <strong>espacio de probabilidad</strong> es el escenario donde ocurre lo aleatorio. 
+                Tiene tres elementos: un <strong>espacio muestral</strong> \(\Omega\) (todos los resultados posibles), 
+                una colección de <strong>eventos</strong> \(\mathcal{F}\) (subconjuntos de \(\Omega\) que tienen probabilidad), 
+                y una <strong>medida de probabilidad</strong> \(\mathbb{P}\) que asigna números entre 0 y 1 a los eventos.
+            </div>
+
+            <div class="simulador">
+                <h4>Visualiza un experimento simple: lanzar una moneda</h4>
+                <div class="controles">
+                    <button id="moneda-lanzar">Lanzar moneda</button>
+                    <button id="moneda-reset">Resetear</button>
+                </div>
+                <div style="font-size: 3rem; text-align: center; margin: 1rem;" id="moneda-resultado">🪙</div>
+                <div id="moneda-frecuencias" style="text-align: center;"></div>
+                <div class="explicacion-formal">
+                    \(\Omega = \{\text{Águila}, \text{Sol}\}\), \(\mathcal{F} = \{\emptyset, \{\text{A}\}, \{\text{S}\}, \Omega\}\), 
+                    \(\mathbb{P}(\{\text{A}\}) = \mathbb{P}(\{\text{S}\}) = 0.5\) (moneda justa).
+                </div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Axiomas de Kolmogorov (K1-K3):</strong><br>
+                <strong>K1:</strong> \(\mathbb{P}(A) \ge 0\) para todo evento \(A\).<br>
+                <strong>K2:</strong> \(\mathbb{P}(\Omega) = 1\).<br>
+                <strong>K3:</strong> Si \(A_1, A_2, \dots\) son eventos <strong>ajenos</strong> (\(A_i \cap A_j = \emptyset\)), entonces 
+                \(\mathbb{P}(\bigcup_{i=1}^{\infty} A_i) = \sum_{i=1}^{\infty} \mathbb{P}(A_i)\).
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>Consecuencia:</strong> De los axiomas se deduce que \(\mathbb{P}(A^c) = 1 - \mathbb{P}(A)\). 
+                ¿Por qué?
+                <button onclick="mostrarRespuesta('respuesta-axiomas')">Ver explicación</button>
+                <div id="respuesta-axiomas" class="respuesta">
+                    Como \(A\) y \(A^c\) son ajenos y \(A \cup A^c = \Omega\), por K2 y K3: 
+                    \(1 = \mathbb{P}(\Omega) = \mathbb{P}(A) + \mathbb{P}(A^c)\), despejando se obtiene la fórmula.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Vectores Aleatorios Discretos (1.2)            -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Vectores Aleatorios Discretos</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Un <strong>vector aleatorio</strong> \((X,Y)\) es una función que asigna un par ordenado de números a cada resultado del experimento. 
+                En el caso <strong>discreto</strong>, solo puede tomar un número finito o numerable de pares.
+            </div>
+
+            <div class="simulador">
+                <h4>Lanza dos dados (experiencia interactiva)</h4>
+                <div class="controles">
+                    <button id="btn-lanzar-una">Lanzar una vez</button>
+                    <button id="btn-lanzar-muchas">Lanzar 500 veces</button>
+                    <button id="btn-resetear">Resetear</button>
+                </div>
+                <div class="grid-dados">
+                    <div class="dado" id="dado1">⚀</div>
+                    <div class="dado" id="dado2">⚀</div>
+                </div>
+                <div id="heatmap-container" class="heatmap"></div>
+                <div id="frecuencias-texto" style="font-size:0.85rem; text-align:center; margin-top:0.5rem;"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Función masa de probabilidad conjunta:</strong> 
+                \(f_{XY}(x,y) = \mathbb{P}(X=x, Y=y)\).<br>
+                Propiedades: \(f_{XY}(x,y) \ge 0\) y \(\sum_x \sum_y f_{XY}(x,y) = 1\).
+            </div>
+
+            <div class="simulador">
+                <h4>Manipula la dependencia (dados cargados)</h4>
+                <div class="controles">
+                    <label>"Carga" (probabilidad extra cuando X=Y):</label>
+                    <input type="range" id="carga-slider" min="1" max="10" step="1" value="1">
+                    <span id="carga-valor">1</span>
+                </div>
+                <div id="tabla-conjunta-cargada" class="tabla-editable"></div>
+                <div id="marginales-cargadas" style="margin-top:1rem;"></div>
+                <div class="pregunta-exploratoria">
+                    <strong>Pregunta:</strong> Al aumentar la carga, cambia \(\mathbb{P}(X=3)\)? ¿Cambia \(\mathbb{P}(X=Y)\)?
+                    <button onclick="mostrarRespuesta('respuesta-carga')">Ver respuesta</button>
+                    <div id="respuesta-carga" class="respuesta">
+                        \(\mathbb{P}(X=3)\) <strong>no cambia</strong> (sigue siendo 1/6). Las marginales son invariantes.<br>
+                        \(\mathbb{P}(X=Y)\) <strong>sí aumenta</strong> con la carga.
+                    </div>
+                </div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Distribuciones marginales:</strong> se obtienen sumando sobre la otra variable:<br>
+                \(f_X(x) = \sum_y f_{XY}(x,y)\) &nbsp;&nbsp; y &nbsp;&nbsp; \(f_Y(y) = \sum_x f_{XY}(x,y)\).
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Función de Probabilidad Acumulada (1.3)        -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Función de Probabilidad Acumulada Conjunta</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>función de distribución acumulada (FPA)</strong> se obtiene acumulando toda la probabilidad hacia abajo 
+              y hacia la izquierda desde el punto (x,y): 
+                \(F_{XY}(x,y) = \mathbb{P}(X \le x, Y \le y)\).
+            </div>
+
+            <div class="simulador">
+                <h4>Visualiza F_{XY} para dados</h4>
+                <div class="controles">
+                    <label>Selecciona punto (x,y):</label>
+                    <input type="range" id="fpa-x" min="0" max="7" step="1" value="3">
+                    <span id="fpa-x-val">x = 3</span>
+                    <input type="range" id="fpa-y" min="0" max="7" step="1" value="3">
+                    <span id="fpa-y-val">y = 3</span>
+                </div>
+                <div id="fpa-valor" class="valor-actual" style="text-align:center; padding:1rem;"></div>
+                <div id="fpa-region" style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;"></div>
+                <div class="explicacion-formal">
+                    <strong>Propiedades clave de \(F_{XY}\):</strong><br>
+                    1. No decreciente en cada argumento.<br>
+                    2. \(F(-\infty, y)=0\), \(F(x, -\infty)=0\), \(F(\infty, \infty)=1\).<br>
+                    3. \(F_X(x) = \lim_{y\to\infty} F_{XY}(x,y)\).<br>
+                    4. Para \(a < b\), \(c < d\): 
+                    \(\mathbb{P}(a < X \le b, c < Y \le d) = F(b,d) - F(b,c) - F(a,d) + F(a,c)\).
+                </div>
+            </div>
+
+            <div class="simulador">
+                <h4>¿Toda función que cumple las propiedades es una FPA válida?</h4>
+                <div class="controles">
+                    <label>Ejemplo problemático:</label>
+                    <select id="selector-fpa">
+                        <option value="valida">F(x,y) = (1-e^{-x})(1-e^{-y}) (válida)</option>
+                        <option value="invalida">F(x,y) = 1 si x+y≥0, 0 en otro caso (inválida)</option>
+                    </select>
+                </div>
+                <div id="fpa-ejemplo-visual"></div>
+                <div id="fpa-veredicto" style="margin-top:1rem; padding:1rem; border-radius:8px;"></div>
+                <div class="pregunta-exploratoria">
+                    <strong>La prueba de fuego:</strong> Para una FPA válida, debe cumplirse que 
+                    \(F(b,d)-F(b,c)-F(a,d)+F(a,c) \ge 0\) para todo \(a&lt;b, c&lt;d\).
+                    <button onclick="mostrarRespuesta('respuesta-fpa')">Ver por qué falla el segundo ejemplo</button>
+                    <div id="respuesta-fpa" class="respuesta">
+                        Toma \(a=-1, b=3, c=-1, d=3\). En el segundo ejemplo: 
+                        \(F(3,3)-F(3,-1)-F(-1,3)+F(-1,-1) = 1 - 1 - 1 + 0 = -1\), que no es ≥ 0.
+                        ¡No puede ser una FPA!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Vectores Continuos (1.4)                       -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Vectores Aleatorios Continuos</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Un vector continuo puede tomar cualquier valor en una región del plano. 
+                Su comportamiento se describe mediante una <strong>función de densidad conjunta</strong> \(f_{XY}(x,y) \ge 0\) 
+                tal que \(\iint_{\mathbb{R}^2} f_{XY}(x,y)\,dx\,dy = 1\).
+            </div>
+
+            <div class="simulador">
+                <h4>Ejemplo 1: Distribución uniforme en el cuadrado [0,1]×[0,1]</h4>
+                <canvas id="cuadradoCanvas" width="400" height="400"></canvas>
+                <div class="controles">
+                    <label>Punto (x,y):</label>
+                    <input type="range" id="cuadrado-x" min="0" max="1" step="0.01" value="0.5">
+                    <span id="cuadrado-x-val">0.50</span>
+                    <input type="range" id="cuadrado-y" min="0" max="1" step="0.01" value="0.5">
+                    <span id="cuadrado-y-val">0.50</span>
+                </div>
+                <div id="cuadrado-prob" class="valor-actual" style="text-align:center;"></div>
+                <div class="explicacion-formal">
+                    Densidad: \(f_{XY}(x,y) = 1\) si \(0 \le x \le 1, 0 \le y \le 1\).<br>
+                    Marginales: \(f_X(x)=1\) en [0,1] (uniforme), igual para \(Y\).<br>
+                    \(F_{XY}(x,y) = xy\) en el cuadrado.
+                </div>
+            </div>
+
+            <div class="simulador">
+                <h4>Ejemplo 2: Densidad con soporte triangular (de los apuntes)</h4>
+                <p>\(f(x,y) = 2e^{-(x+y)}\) para \(0 \le x \le y < \infty\).</p>
+                <canvas id="regionCanvas" width="450" height="450"></canvas>
+                <div class="controles">
+                    <label>Límite t para X+Y ≤ t:</label>
+                    <input type="range" id="t-slider" min="0" max="3" step="0.02" value="1">
+                    <span id="t-valor">1.00</span>
+                </div>
+                <div id="prob-continua" class="valor-actual" style="text-align:center; padding:0.5rem;"></div>
+                <div class="explicacion-formal">
+                    <strong>Marginales de este ejemplo:</strong><br>
+                    \(f_X(x) = 2e^{-2x}\) (exponencial con media 1/2)<br>
+                    \(f_Y(y) = 2e^{-y}(1 - e^{-y})\).
+                </div>
+                <div class="pregunta-exploratoria">
+                    <strong>Observa:</strong> El soporte es \(x \le y\). ¿Qué forma tiene? ¿Es un rectángulo?
+                    <button onclick="mostrarRespuesta('respuesta-soporte-continuo')">Reflexión</button>
+                    <div id="respuesta-soporte-continuo" class="respuesta">
+                        No es un rectángulo, es un triángulo (infinito). Esto ya nos anticipa que 
+                        <strong>X y Y no son independientes</strong>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Independencia (1.5)                            -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Independencia de Variables Aleatorias</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Dos variables \(X\) y \(Y\) son <strong>independientes</strong> si conocer el valor de una no da información sobre la otra. 
+                Equivalentemente: \(F_{XY}(x,y) = F_X(x)F_Y(y)\) para todo \(x,y\).
+            </div>
+
+            <div class="simulador">
+                <h4>Lema de factorización (para variables continuas)</h4>
+                <p>\(X\) y \(Y\) son independientes si y solo si \(f_{XY}(x,y) = g(x)h(y)\) para algunas funciones \(g\) y \(h\).</p>
+                <div class="controles">
+                    <label>Selecciona un ejemplo:</label>
+                    <select id="selector-independencia">
+                        <option value="indep-si">Producto: f(x,y) = 2e^{-2x} · 3e^{-3y} (independientes)</option>
+                        <option value="indep-no">Soporte triangular: f(x,y) = 2e^{-(x+y)} con x≤y (dependientes)</option>
+                        <option value="rectangulo">Uniforme en [0,2]×[0,1] (independientes)</option>
+                        <option value="circulo">Dentro del círculo x²+y²≤1 (dependientes)</option>
+                    </select>
+                </div>
+                <canvas id="indepCanvas" width="400" height="400"></canvas>
+                <div id="indep-veredicto" style="margin-top:1rem; padding:1rem; border-radius:8px; text-align:center;"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Regla práctica:</strong> Si el <strong>soporte</strong> (región donde \(f>0\)) no es un producto cartesiano (rectángulo), 
+                entonces es imposible que sean independientes. Si es un rectángulo, aún hay que verificar la factorización.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>Desafío:</strong> En el módulo 2 (tabla de dados), ¿cuándo son X e Y independientes?
+                <button onclick="mostrarRespuesta('respuesta-indep-dados')">Ver respuesta</button>
+                <div id="respuesta-indep-dados" class="respuesta">
+                    Son independientes cuando la probabilidad conjunta es producto de las marginales. 
+                    En el caso de dados honestos (\(f_{XY}=1/36\)) sí lo son. 
+                    En los dados cargados (con carga >1) <strong>no</strong> son independientes.
+                </div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedad importante:</strong> Si \(X\) y \(Y\) son independientes, entonces para cualquier par de funciones \(g\) y \(h\), 
+                las variables \(g(X)\) y \(h(Y)\) también son independientes.
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // Helper para toggle de módulos
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: Moneda
+    // ============================================================
+    let lanzamientosMoneda = { cara: 0, cruz: 0 };
+    function actualizarMoneda() {
+        const total = lanzamientosMoneda.cara + lanzamientosMoneda.cruz;
+        const pCara = total === 0 ? 0 : lanzamientosMoneda.cara / total;
+        document.getElementById('moneda-frecuencias').innerHTML = 
+            `Caras: ${lanzamientosMoneda.cara} (${(pCara*100).toFixed(1)}%) | Cruces: ${lanzamientosMoneda.cruz} (${((1-pCara)*100).toFixed(1)}%)`;
+    }
+    function lanzarMoneda() {
+        const esCara = Math.random() < 0.5;
+        if(esCara) {
+            lanzamientosMoneda.cara++;
+            document.getElementById('moneda-resultado').innerHTML = '🪙 Águila';
+        } else {
+            lanzamientosMoneda.cruz++;
+            document.getElementById('moneda-resultado').innerHTML = '🪙 Sol';
+        }
+        actualizarMoneda();
+    }
+    function resetMoneda() {
+        lanzamientosMoneda = { cara: 0, cruz: 0 };
+        document.getElementById('moneda-resultado').innerHTML = '🪙';
+        actualizarMoneda();
+    }
+
+    // ============================================================
+    // MODULO 2: Dados
+    // ============================================================
+    let lanzamientos = Array(6).fill().map(() => Array(6).fill(0));
+    let totalLanzamientos = 0;
+
+    function actualizarHeatmap() {
+        const container = document.getElementById('heatmap-container');
+        if (!container) return;
+        container.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+            for (let j = 0; j < 6; j++) {
+                const freq = totalLanzamientos === 0 ? 0 : lanzamientos[i][j] / totalLanzamientos;
+                const div = document.createElement('div');
+                div.className = 'heatmap-cell';
+                div.textContent = lanzamientos[i][j];
+                div.style.backgroundColor = `rgba(66, 165, 245, ${Math.min(1, freq * 10)})`;
+                div.style.color = (freq > 0.05) ? 'white' : 'inherit';
+                container.appendChild(div);
+            }
+        }
+        document.getElementById('frecuencias-texto').innerHTML = `Lanzamientos: ${totalLanzamientos} | (cada celda muestra frecuencia absoluta)`;
+    }
+
+    function lanzarDado() {
+        return Math.floor(Math.random() * 6) + 1;
+    }
+
+    function lanzarUnaVez() {
+        const x = lanzarDado();
+        const y = lanzarDado();
+        lanzamientos[x-1][y-1]++;
+        totalLanzamientos++;
+        actualizarHeatmap();
+        const caras = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+        document.getElementById('dado1').textContent = caras[x-1];
+        document.getElementById('dado2').textContent = caras[y-1];
+        actualizarTablaCargada();
+    }
+
+    function lanzarMuchas(veces) {
+        for (let i = 0; i < veces; i++) {
+            const x = lanzarDado();
+            const y = lanzarDado();
+            lanzamientos[x-1][y-1]++;
+        }
+        totalLanzamientos += veces;
+        actualizarHeatmap();
+        actualizarTablaCargada();
+    }
+
+    function resetearLanzamientos() {
+        lanzamientos = Array(6).fill().map(() => Array(6).fill(0));
+        totalLanzamientos = 0;
+        actualizarHeatmap();
+        document.getElementById('dado1').textContent = '⚀';
+        document.getElementById('dado2').textContent = '⚀';
+        actualizarTablaCargada();
+    }
+
+    function actualizarTablaCargada() {
+        const carga = parseInt(document.getElementById('carga-slider')?.value || 1);
+        document.getElementById('carga-valor').textContent = carga;
+        const tablaDiv = document.getElementById('tabla-conjunta-cargada');
+        if (!tablaDiv) return;
+        
+        let w = carga / (carga + 5);
+        let resto = (1 - w) / 30;
+        
+        let html = '</table><thead>96<th>X\\Y</th>';
+        for(let y=1; y<=6; y++) html += `<th>${y}</th>`;
+        html += '<th>P(X=x)</th></tr></thead><tbody>';
+        
+        let marginalesX = new Array(6).fill(0);
+        let marginalesY = new Array(6).fill(0);
+        
+        for(let x=1; x<=6; x++) {
+            html += `<tr><th>${x}</th>`;
+            for(let y=1; y<=6; y++) {
+                let prob;
+                if(x===y) prob = w/6;
+                else prob = resto;
+                marginalesX[x-1] += prob;
+                marginalesY[y-1] += prob;
+                html += `<td>${prob.toFixed(4)}</td>`;
+            }
+            html += `<td>${marginalesX[x-1].toFixed(4)}</td></tr>`;
+        }
+        html += '<tr><th>P(Y=y)</th>';
+        for(let y=0; y<6; y++) html += `<td>${marginalesY[y].toFixed(4)}</td>`;
+        html += '<td>1</td></tr>';
+        html += '</tbody></table>';
+        tablaDiv.innerHTML = html;
+        document.getElementById('marginales-cargadas').innerHTML = 
+            `<small>Marginales: P(X=x) = ${marginalesX.map(p=>p.toFixed(4)).join(', ')} (todas iguales a 1/6)</small>`;
+    }
+
+    // ============================================================
+    // MODULO 3: FPA
+    // ============================================================
+    function actualizarFPA() {
+        const x = parseInt(document.getElementById('fpa-x').value);
+        const y = parseInt(document.getElementById('fpa-y').value);
+        document.getElementById('fpa-x-val').textContent = `x = ${x}`;
+        document.getElementById('fpa-y-val').textContent = `y = ${y}`;
+        
+        // Para dados justos: F(x,y) = (x/6)*(y/6) para x,y≤6, truncado
+        let fx = Math.min(x, 6) / 6;
+        let fy = Math.min(y, 6) / 6;
+        if(x<0) fx = 0;
+        if(y<0) fy = 0;
+        const fxy = fx * fy;
+        document.getElementById('fpa-valor').innerHTML = `F(${x},${y}) = P(X≤${x}, Y≤${y}) = ${fxy.toFixed(4)}`;
+        
+        // Visualizar región en un grid 6x6
+        const container = document.getElementById('fpa-region');
+        let gridHtml = '<div style="display:grid; grid-template-columns:repeat(6,30px); gap:2px;">';
+        for(let i=0; i<6; i++) {
+            for(let j=0; j<6; j++) {
+                const estaDentro = (i+1 <= x && j+1 <= y);
+                gridHtml += `<div style="width:30px;height:30px;background:${estaDentro ? '#4caf50' : '#e0e0e0'};display:flex;align-items:center;justify-content:center;font-size:10px;">${i+1},${j+1}</div>`;
+            }
+        }
+        gridHtml += '</div>';
+        container.innerHTML = gridHtml;
+    }
+
+    function actualizarEjemploFPA() {
+        const tipo = document.getElementById('selector-fpa').value;
+        const div = document.getElementById('fpa-ejemplo-visual');
+        const veredicto = document.getElementById('fpa-veredicto');
+        if(tipo === 'valida') {
+            div.innerHTML = '<canvas id="fpaCanvas" width="400" height="300"></canvas>';
+            const canvas = document.getElementById('fpaCanvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width, h = canvas.height;
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(0,0,w,h);
+                for(let px=0; px<w; px++) {
+                    for(let py=0; py<h; py++) {
+                        const x = px/w * 3;
+                        const y = py/h * 3;
+                        const val = (1-Math.exp(-x))*(1-Math.exp(-y));
+                        ctx.fillStyle = `rgba(0,100,0,${Math.min(0.8, val)})`;
+                        ctx.fillRect(px, h-py-1, 1, 1);
+                    }
+                }
+            }
+            veredicto.innerHTML = '✅ F(x,y) = (1-e^{-x})(1-e^{-y}) SÍ es una FPA válida (cumple todas las propiedades).';
+            veredicto.style.background = 'rgba(76,175,80,0.2)';
+        } else {
+            div.innerHTML = '<canvas id="fpaCanvas" width="400" height="300"></canvas>';
+            const canvas = document.getElementById('fpaCanvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width, h = canvas.height;
+                ctx.fillStyle = '#f0f0f0';
+                ctx.fillRect(0,0,w,h);
+                for(let px=0; px<w; px++) {
+                    for(let py=0; py<h; py++) {
+                        const x = (px/w)*4 - 2;
+                        const y = (py/h)*4 - 2;
+                        const val = (x+y >= 0) ? 1 : 0;
+                        ctx.fillStyle = val ? `rgba(200,50,50,0.7)` : `rgba(100,100,100,0.3)`;
+                        ctx.fillRect(px, h-py-1, 1, 1);
+                    }
+                }
+            }
+            veredicto.innerHTML = '❌ F(x,y) = 1_{x+y≥0} NO es válida. La propiedad 5 falla: da probabilidades negativas.';
+            veredicto.style.background = 'rgba(244,67,54,0.2)';
+        }
+    }
+
+    // ============================================================
+    // MODULO 4: Continuos
+    // ============================================================
+    function dibujarCuadrado() {
+        const canvas = document.getElementById('cuadradoCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        const x0 = parseFloat(document.getElementById('cuadrado-x')?.value || 0.5);
+        const y0 = parseFloat(document.getElementById('cuadrado-y')?.value || 0.5);
+        document.getElementById('cuadrado-x-val').textContent = x0.toFixed(2);
+        document.getElementById('cuadrado-y-val').textContent = y0.toFixed(2);
+        
+        const prob = x0 * y0;
+        document.getElementById('cuadrado-prob').innerHTML = 
+            `F(${x0.toFixed(2)}, ${y0.toFixed(2)}) = P(X≤${x0.toFixed(2)}, Y≤${y0.toFixed(2)}) = ${prob.toFixed(4)}`;
+        
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0,0,w,h);
+        const px0 = x0 * w;
+        const py0 = y0 * h;
+        ctx.fillStyle = 'rgba(76,175,80,0.4)';
+        ctx.fillRect(0, h-py0, px0, py0);
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(px0, 0);
+        ctx.lineTo(px0, h);
+        ctx.moveTo(0, h-py0);
+        ctx.lineTo(w, h-py0);
+        ctx.stroke();
+    }
+
+    function dibujarRegionContinua(t) {
+        const canvas = document.getElementById('regionCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const maxVal = 3;
+        const isDark = document.body.classList.contains('dark-theme');
+        ctx.fillStyle = isDark ? '#2d2d2d' : '#f0f0f0';
+        ctx.fillRect(0, 0, w, h);
+        for(let px=0; px<w; px++) {
+            for(let py=0; py<h; py++) {
+                const x = (px / w) * maxVal;
+                const y = ((h-py) / h) * maxVal;
+                if(x >= 0 && y >= x && x <= maxVal && y <= maxVal) {
+                    let dentro = (x + y <= t);
+                    ctx.fillStyle = dentro ? 'rgba(76, 175, 80, 0.7)' : 'rgba(33, 150, 243, 0.3)';
+                    ctx.fillRect(px, py, 1, 1);
+                }
+            }
+        }
+        ctx.beginPath();
+        ctx.strokeStyle = isDark ? '#aaa' : '#333';
+        ctx.lineWidth = 1.5;
+        ctx.moveTo(0, h);
+        ctx.lineTo(w, h);
+        ctx.moveTo(0, 0);
+        ctx.lineTo(0, h);
+        ctx.stroke();
+        ctx.fillStyle = isDark ? '#eee' : '#000';
+        ctx.font = '12px sans-serif';
+        ctx.fillText('x', w-10, h-5);
+        ctx.fillText('y', 5, 15);
+    }
+    
+    function calcularProbContinua(t) {
+        if(t <= 0) return 0;
+        if(t >= 5) return 1;
+        let suma = 0;
+        const n = 150;
+        const maxX = Math.min(t, 3);
+        const dx = maxX / n;
+        for(let i=0; i<n; i++) {
+            const x = i * dx;
+            const yMin = x;
+            const yMax = Math.min(t - x, 3);
+            if(yMax <= yMin) continue;
+            const dy = (yMax - yMin) / n;
+            for(let j=0; j<n; j++) {
+                const y = yMin + j * dy;
+                suma += 2 * Math.exp(-(x+y)) * dx * dy;
+            }
+        }
+        return Math.min(suma, 1);
+    }
+    
+    function actualizarContinua() {
+        const t = parseFloat(document.getElementById('t-slider')?.value || 1);
+        document.getElementById('t-valor').textContent = t.toFixed(2);
+        const prob = calcularProbContinua(t);
+        document.getElementById('prob-continua').innerHTML = 
+            `\(\mathbb{P}(X+Y \le ${t.toFixed(2)}) = ${prob.toFixed(4)}\)`;
+        dibujarRegionContinua(t);
+        if(window.MathJax) MathJax.typeset();
+    }
+
+    // ============================================================
+    // MODULO 5: Independencia visual
+    // ============================================================
+    function dibujarIndependencia(tipo) {
+        const canvas = document.getElementById('indepCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const isDark = document.body.classList.contains('dark-theme');
+        ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+        ctx.fillRect(0, 0, w, h);
+        
+        let independiente = false;
+        let descripcion = "";
+        
+        if(tipo === 'indep-si') {
+            ctx.fillStyle = 'rgba(76, 175, 80, 0.6)';
+            for(let i=0; i<w; i+=10) {
+                const x = i/w * 3;
+                const gx = 2 * Math.exp(-2*x);
+                for(let j=0; j<h; j+=10) {
+                    const y = j/h * 3;
+                    const hy = 3 * Math.exp(-3*y);
+                    const intensity = gx * hy;
+                    ctx.fillStyle = `rgba(76, 175, 80, ${Math.min(0.8, intensity*5)})`;
+                    ctx.fillRect(i, j, 10, 10);
+                }
+            }
+            independiente = true;
+            descripcion = "f(x,y) = 2e^{-2x} · 3e^{-3y} → se factoriza → INDEPENDIENTES.";
+        } else if(tipo === 'indep-no') {
+            ctx.fillStyle = 'rgba(255, 152, 0, 0.6)';
+            for(let px=0; px<w; px++) {
+                for(let py=0; py<h; py++) {
+                    const x = (px/w)*3;
+                    const y = ((h-py)/h)*3;
+                    if(x >= 0 && y >= x && y <= 3) {
+                        ctx.fillRect(px, py, 1, 1);
+                    }
+                }
+            }
+            independiente = false;
+            descripcion = "Soporte triangular (x≤y) → NO se factoriza → DEPENDIENTES.";
+        } else if(tipo === 'rectangulo') {
+            ctx.fillStyle = 'rgba(76, 175, 80, 0.4)';
+            ctx.fillRect(0, 0, w*2/3, h);
+            independiente = true;
+            descripcion = "Soporte rectangular → PUEDE ser independiente (si densidad se factoriza). En uniforme sí lo es.";
+        } else if(tipo === 'circulo') {
+            ctx.beginPath();
+            ctx.arc(w/2, h/2, w/3, 0, 2*Math.PI);
+            ctx.fillStyle = 'rgba(244, 67, 54, 0.6)';
+            ctx.fill();
+            independiente = false;
+            descripcion = "Soporte circular → NO es rectángulo → DEPENDIENTES.";
+        }
+        
+        const div = document.getElementById('indep-veredicto');
+        div.innerHTML = `<strong>${descripcion}</strong><br>
+        ${independiente ? 'Recuerda: soporte rectangular es necesario pero no suficiente. Debe cumplirse f(x,y)=f_X(x)f_Y(y).' : 
+        'Si el soporte no es un rectángulo, es imposible la independencia.'}`;
+        div.style.background = independiente ? 'rgba(76,175,80,0.2)' : 'rgba(244,67,54,0.2)';
+    }
+
+    // ============================================================
+    // Inicialización
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // Módulo 1
+        const monedaBtn = document.getElementById('moneda-lanzar');
+        const monedaReset = document.getElementById('moneda-reset');
+        if(monedaBtn) monedaBtn.addEventListener('click', lanzarMoneda);
+        if(monedaReset) monedaReset.addEventListener('click', resetMoneda);
+        
+        // Módulo 2
+        const btnUna = document.getElementById('btn-lanzar-una');
+        const btnMuchas = document.getElementById('btn-lanzar-muchas');
+        const btnReset = document.getElementById('btn-resetear');
+        const cargaSlider = document.getElementById('carga-slider');
+        if(btnUna) btnUna.addEventListener('click', lanzarUnaVez);
+        if(btnMuchas) btnMuchas.addEventListener('click', () => lanzarMuchas(500));
+        if(btnReset) btnReset.addEventListener('click', resetearLanzamientos);
+        if(cargaSlider) cargaSlider.addEventListener('input', actualizarTablaCargada);
+        actualizarHeatmap();
+        actualizarTablaCargada();
+        
+        // Módulo 3
+        const fpaX = document.getElementById('fpa-x');
+        const fpaY = document.getElementById('fpa-y');
+        const selectorFPA = document.getElementById('selector-fpa');
+        if(fpaX) fpaX.addEventListener('input', actualizarFPA);
+        if(fpaY) fpaY.addEventListener('input', actualizarFPA);
+        if(selectorFPA) selectorFPA.addEventListener('change', actualizarEjemploFPA);
+        actualizarFPA();
+        actualizarEjemploFPA();
+        
+        // Módulo 4
+        const cuadradoX = document.getElementById('cuadrado-x');
+        const cuadradoY = document.getElementById('cuadrado-y');
+        if(cuadradoX) cuadradoX.addEventListener('input', dibujarCuadrado);
+        if(cuadradoY) cuadradoY.addEventListener('input', dibujarCuadrado);
+        dibujarCuadrado();
+        
+        const tSlider = document.getElementById('t-slider');
+        if(tSlider) tSlider.addEventListener('input', actualizarContinua);
+        actualizarContinua();
+        
+        // Módulo 5
+        const selectorIndep = document.getElementById('selector-independencia');
+        if(selectorIndep) {
+            selectorIndep.addEventListener('change', (e) => dibujarIndependencia(e.target.value));
+            dibujarIndependencia('indep-si');
+        }
+        
+        // Observador para cambio de tema (redibujar)
+        const observer = new MutationObserver(() => {
+            dibujarCuadrado();
+            const t = parseFloat(document.getElementById('t-slider')?.value || 1);
+            dibujarRegionContinua(t);
+            const sel = document.getElementById('selector-independencia')?.value;
+            if(sel) dibujarIndependencia(sel);
+            actualizarEjemploFPA();
+        });
+        observer.observe(document.body, {attributes: true});
+        
+        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
+    });
+</script>
+</body>
+</html>
