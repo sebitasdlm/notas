@@ -544,6 +544,15 @@
         elem.classList.toggle('mostrar');
     }
 
+    // Función gamma aproximada (Método de Lanczos simplificado)
+    function gamma(z) {
+        if(z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+        z -= 1;
+        let x = 0.99999999999980993 + 676.5203681218851/(z+1) - 1259.1392167224028/(z+2) + 771.3234287776531/(z+3) - 176.6150291621406/(z+4) + 12.507343278686905/(z+5) - 0.13857109526572012/(z+6) + 9.9843695780195716e-6/(z+7) + 1.5056327351493116e-7/(z+8);
+        let y = z + 7.5;
+        return Math.sqrt(2*Math.PI) * Math.pow(y, z+0.5) * Math.exp(-y) * x;
+    }
+
     // ============================================================
     // MODULO 1: Suma de uniformes
     // ============================================================
@@ -578,7 +587,6 @@
                 ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
             }
             
-            // Densidad teórica triangular
             ctx.beginPath();
             for(let i=0; i<w; i++) {
                 const z = (i / w) * 2;
@@ -596,8 +604,8 @@
         }
         
         document.getElementById('suma-uniforme-info').innerHTML = 
-            `\(f_{X+Y}(z) = z\\mathbb{1}_{[0,1]}(z) + (2-z)\\mathbb{1}_{(1,2]}(z)\) (triangular)`;
-        if(window.MathJax) MathJax.typeset();
+            `\\(f_{X+Y}(z) = z\\mathbb{1}_{[0,1]}(z) + (2-z)\\mathbb{1}_{(1,2]}(z)\\) (triangular)`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -634,8 +642,8 @@
                     dens1 = Math.pow(x, alpha1-1) * Math.exp(-x/beta) / (Math.pow(beta, alpha1) * gamma(alpha1));
                 }
                 const y = h - (dens1 * 2) * h;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#ff9800';
             ctx.lineWidth = 1.5;
@@ -650,8 +658,8 @@
                     dens2 = Math.pow(x, alpha2-1) * Math.exp(-x/beta) / (Math.pow(beta, alpha2) * gamma(alpha2));
                 }
                 const y = h - (dens2 * 2) * h;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#2196f3';
             ctx.lineWidth = 1.5;
@@ -666,8 +674,8 @@
                     densSum = Math.pow(z, alphasum-1) * Math.exp(-z/beta) / (Math.pow(beta, alphasum) * gamma(alphasum));
                 }
                 const y = h - (densSum * 2) * h;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#4caf50';
             ctx.lineWidth = 2.5;
@@ -675,18 +683,9 @@
         }
         
         document.getElementById('gamma-info').innerHTML = 
-            `\(X \\sim \\text{Gamma}(${alpha1.toFixed(1)}, ${beta.toFixed(1)})\) | \(Y \\sim \\text{Gamma}(${alpha2.toFixed(1)}, ${beta.toFixed(1)})\)<br>
-            \(X+Y \\sim \\text{Gamma}(${alphasum.toFixed(1)}, ${beta.toFixed(1)})\)`;
-        if(window.MathJax) MathJax.typeset();
-    }
-    
-    // Función gamma aproximada (Método de Lanczos simplificado)
-    function gamma(z) {
-        if(z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
-        z -= 1;
-        let x = 0.99999999999980993 + 676.5203681218851/(z+1) - 1259.1392167224028/(z+2) + 771.3234287776531/(z+3) - 176.6150291621406/(z+4) + 12.507343278686905/(z+5) - 0.13857109526572012/(z+6) + 9.9843695780195716e-6/(z+7) + 1.5056327351493116e-7/(z+8);
-        let y = z + 7.5;
-        return Math.sqrt(2*Math.PI) * Math.pow(y, z+0.5) * Math.exp(-y) * x;
+            `\\(X \\sim \\text{Gamma}(${alpha1.toFixed(1)}, ${beta.toFixed(1)})\\) | \\(Y \\sim \\text{Gamma}(${alpha2.toFixed(1)}, ${beta.toFixed(1)})\\)<br>
+            \\(X+Y \\sim \\text{Gamma}(${alphasum.toFixed(1)}, ${beta.toFixed(1)})\\)`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -697,11 +696,9 @@
         const muestras = [];
         for(let i=0; i<n; i++) {
             let x, y;
-            do {
-                x = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
-                y = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
-            } while(Math.abs(x) < 1e-10);
-            muestras.push(y / x);
+            x = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            y = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            muestras.push(y / (Math.abs(x) < 1e-10 ? (x + 1e-10) : x));
         }
         
         const canvas = document.getElementById('cocienteCanvas');
@@ -729,7 +726,6 @@
                 ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
             }
             
-            // Densidad Cauchy teórica
             ctx.beginPath();
             for(let i=0; i<w; i++) {
                 const z = min + (i / w) * (max - min);
@@ -744,9 +740,9 @@
         }
         
         document.getElementById('cociente-info').innerHTML = 
-            `Cociente de normales estándar: \(Z = Y/X \\sim \\text{Cauchy}(0,1)\)<br>
-            \(f_Z(z) = \\frac{1}{\\pi(1+z^2)}\)`;
-        if(window.MathJax) MathJax.typeset();
+            `Cociente de normales estándar: \\(Z = Y/X \\sim \\text{Cauchy}(0,1)\\)<br>
+            \\(f_Z(z) = \\frac{1}{\\pi(1+z^2)}\\)`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -777,8 +773,8 @@
                     dens = coef * Math.pow(wVal, m/2 - 1) / Math.pow(1 + (m/n)*wVal, (m+n)/2);
                 }
                 const y = h - (dens / 1.5) * h * 0.8;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#1976d2';
             ctx.lineWidth = 2;
@@ -789,14 +785,14 @@
         let varianza = '';
         if(n > 4) {
             const varVal = 2*n*n*(m+n-2)/(m*(n-2)*(n-2)*(n-4));
-            varianza = `\(\\operatorname{var}(W) = ${varVal.toFixed(3)}\)`;
+            varianza = `\\(\\operatorname{var}(W) = ${varVal.toFixed(3)}\\)`;
         } else {
             varianza = 'varianza no definida (n ≤ 4)';
         }
         
         document.getElementById('f-propiedades').innerHTML = 
-            `\(F_{${m},${n}}\) | \(\\mathbb{E}[W] = ${esperanza}\) | ${varianza}`;
-        if(window.MathJax) MathJax.typeset();
+            `\\(F_{${m},${n}}\\) | \\(\\mathbb{E}[W] = ${esperanza}\\) | ${varianza}`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -835,7 +831,7 @@
             const xMax = Math.min(10, 2 + Math.max(m,n)/2);
             const bins = new Array(50).fill(0);
             for(let val of muestras) {
-                if(val <= xMax) {
+                if(val <= xMax && val >= 0) {
                     const idx = Math.floor(val / xMax * 50);
                     bins[Math.min(49, idx)]++;
                 }
@@ -848,7 +844,6 @@
                 ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
             }
             
-            // Densidad teórica del cociente
             ctx.beginPath();
             const coef = gamma((m+n)/2) / (gamma(m/2) * gamma(n/2));
             for(let i=0; i<w; i++) {
@@ -858,8 +853,8 @@
                     dens = coef * Math.pow(z, m/2 - 1) / Math.pow(1+z, (m+n)/2);
                 }
                 const y = h - (dens / 2.5) * h * 0.8;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#f44336';
             ctx.lineWidth = 2;
@@ -867,51 +862,89 @@
         }
         
         document.getElementById('cociente-chi2-info').innerHTML = 
-            `\(X \\sim \\chi^2_{${m}}\), \(Y \\sim \\chi^2_{${n}}\) ⇒ \(Z = X/Y\) tiene densidad \(f_Z(z) \\propto \\frac{z^{${m/2-1}}}{(1+z)^{${(m+n)/2}}}\)`;
-        if(window.MathJax) MathJax.typeset();
+            `\\(X \\sim \\chi^2_{${m}}\\), \\(Y \\sim \\chi^2_{${n}}\\) ⇒ \\(Z = X/Y\\) tiene densidad \\(f_Z(z) \\propto \\frac{z^{${m/2-1}}}{(1+z)^{${(m+n)/2}}}\\)`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
-    // Inicialización
+    // FUNCIÓN PRINCIPAL DE INICIALIZACIÓN
     // ============================================================
-    document.addEventListener('DOMContentLoaded', () => {
+    window.inicializarModuloSumaCociente = function() {
         // Módulo 1
-        document.getElementById('simular-suma-uniforme')?.addEventListener('click', generarSumaUniforme);
+        const btnSimularSuma = document.getElementById('simular-suma-uniforme');
+        if(btnSimularSuma) {
+            btnSimularSuma.removeEventListener('click', generarSumaUniforme);
+            btnSimularSuma.addEventListener('click', generarSumaUniforme);
+        }
         generarSumaUniforme();
         
         // Módulo 2
-        document.getElementById('alpha1-gamma')?.addEventListener('input', actualizarGammaSum);
-        document.getElementById('alpha2-gamma')?.addEventListener('input', actualizarGammaSum);
-        document.getElementById('beta-gamma')?.addEventListener('input', actualizarGammaSum);
+        const alpha1Gamma = document.getElementById('alpha1-gamma');
+        const alpha2Gamma = document.getElementById('alpha2-gamma');
+        const betaGamma = document.getElementById('beta-gamma');
+        if(alpha1Gamma) {
+            alpha1Gamma.removeEventListener('input', actualizarGammaSum);
+            alpha1Gamma.addEventListener('input', actualizarGammaSum);
+        }
+        if(alpha2Gamma) {
+            alpha2Gamma.removeEventListener('input', actualizarGammaSum);
+            alpha2Gamma.addEventListener('input', actualizarGammaSum);
+        }
+        if(betaGamma) {
+            betaGamma.removeEventListener('input', actualizarGammaSum);
+            betaGamma.addEventListener('input', actualizarGammaSum);
+        }
         actualizarGammaSum();
         
         // Módulo 3
-        document.getElementById('simular-cociente-normal')?.addEventListener('click', generarCocienteNormal);
+        const btnCocienteNormal = document.getElementById('simular-cociente-normal');
+        if(btnCocienteNormal) {
+            btnCocienteNormal.removeEventListener('click', generarCocienteNormal);
+            btnCocienteNormal.addEventListener('click', generarCocienteNormal);
+        }
         generarCocienteNormal();
         
         // Módulo 4
-        document.getElementById('m-f')?.addEventListener('input', dibujarF);
-        document.getElementById('n-f')?.addEventListener('input', dibujarF);
+        const mF = document.getElementById('m-f');
+        const nF = document.getElementById('n-f');
+        if(mF) {
+            mF.removeEventListener('input', dibujarF);
+            mF.addEventListener('input', dibujarF);
+        }
+        if(nF) {
+            nF.removeEventListener('input', dibujarF);
+            nF.addEventListener('input', dibujarF);
+        }
         dibujarF();
         
         // Módulo 5
-        document.getElementById('m-cociente')?.addEventListener('input', generarCocienteChi2);
-        document.getElementById('n-cociente')?.addEventListener('input', generarCocienteChi2);
-        document.getElementById('simular-cociente-chi2')?.addEventListener('click', generarCocienteChi2);
+        const mCociente = document.getElementById('m-cociente');
+        const nCociente = document.getElementById('n-cociente');
+        const btnCocienteChi2 = document.getElementById('simular-cociente-chi2');
+        if(mCociente) {
+            mCociente.removeEventListener('input', generarCocienteChi2);
+            mCociente.addEventListener('input', generarCocienteChi2);
+        }
+        if(nCociente) {
+            nCociente.removeEventListener('input', generarCocienteChi2);
+            nCociente.addEventListener('input', generarCocienteChi2);
+        }
+        if(btnCocienteChi2) {
+            btnCocienteChi2.removeEventListener('click', generarCocienteChi2);
+            btnCocienteChi2.addEventListener('click', generarCocienteChi2);
+        }
         generarCocienteChi2();
         
-        // Observador para cambio de tema
-        const observer = new MutationObserver(() => {
-            generarSumaUniforme();
-            actualizarGammaSum();
-            generarCocienteNormal();
-            dibujarF();
-            generarCocienteChi2();
-        });
-        observer.observe(document.body, {attributes: true});
-        
-        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
-    });
+        if(window.MathJax) MathJax.typesetPromise();
+    };
+    
+    // Auto-inicializar
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.inicializarModuloSumaCociente);
+    } else {
+        window.inicializarModuloSumaCociente();
+    }
 </script>
+                        
 </body>
 </html>
