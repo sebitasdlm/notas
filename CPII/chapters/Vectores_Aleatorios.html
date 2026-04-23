@@ -639,41 +639,101 @@ function resetMoneda() {
     }
 
     function actualizarTablaCargada() {
-        const carga = parseInt(document.getElementById('carga-slider')?.value || 1);
-        document.getElementById('carga-valor').textContent = carga;
-        const tablaDiv = document.getElementById('tabla-conjunta-cargada');
-        if (!tablaDiv) return;
-        
-        let w = carga / (carga + 5);
-        let resto = (1 - w) / 30;
-        
-        let html = '</td><thead><tr><th>X\\Y</th>';
-        for(let y=1; y<=6; y++) html += `<th>${y}</th>`;
-        html += '<th>P(X=x)</th></tr></thead><tbody>';
-        
-        let marginalesX = new Array(6).fill(0);
-        let marginalesY = new Array(6).fill(0);
-        
-        for(let x=1; x<=6; x++) {
-            html += `<tr><th>${x}</th>`;
-            for(let y=1; y<=6; y++) {
-                let prob;
-                if(x===y) prob = w/6;
-                else prob = resto;
-                marginalesX[x-1] += prob;
-                marginalesY[y-1] += prob;
-                html += `<td>${prob.toFixed(4)}</td>`;
+    const carga = parseInt(document.getElementById('carga-slider')?.value || 1);
+    document.getElementById('carga-valor').textContent = carga;
+    const tablaDiv = document.getElementById('tabla-conjunta-cargada');
+    if (!tablaDiv) return;
+    
+    let w = carga / (carga + 5);
+    let resto = (1 - w) / 30;
+    
+    // Formato más bonito con colores y mejor espaciado
+    let html = `
+        <style>
+            .tabla-probabilidad {
+                width: 100%;
+                border-collapse: collapse;
+                font-family: 'Segoe UI', Arial, sans-serif;
+                font-size: 0.9rem;
+                text-align: center;
+                background: var(--bg-primary);
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             }
-            html += `<td>${marginalesX[x-1].toFixed(4)}</td></tr>`;
+            .tabla-probabilidad th {
+                background: var(--accent-dark);
+                color: white;
+                padding: 10px 8px;
+                font-weight: 600;
+            }
+            .tabla-probabilidad td {
+                padding: 8px 6px;
+                border-bottom: 1px solid var(--border);
+            }
+            .tabla-probabilidad tr:hover {
+                background: var(--accent-light);
+            }
+            .tabla-probabilidad .fila-titulo {
+                background: var(--accent-light);
+                font-weight: bold;
+            }
+            .tabla-probabilidad .marginal {
+                background: #e8f5e9;
+                font-weight: bold;
+            }
+            body.dark-theme .tabla-probabilidad .marginal {
+                background: #2d2a1a;
+            }
+            .prob-destacada {
+                background: rgba(76, 175, 80, 0.2);
+                font-weight: bold;
+            }
+        </style>
+        <table class="tabla-probabilidad">
+            <thead>
+                <tr><th>X \ Y</th>`;
+    for(let y=1; y<=6; y++) html += `<th style="color:white;">${y}</th>`;
+    html += '<th>P(X=x)</th>';
+    html += `</tr>
+            </thead>
+            <tbody>`;
+    
+    let marginalesX = new Array(6).fill(0);
+    let marginalesY = new Array(6).fill(0);
+    
+    for(let x=1; x<=6; x++) {
+        html += `<tr class="${x%2===0 ? 'fila-par' : ''}">`;
+        html += `<td class="fila-titulo"><strong>${x}</strong></td>`;
+        for(let y=1; y<=6; y++) {
+            let prob;
+            if(x===y) prob = w/6;
+            else prob = resto;
+            marginalesX[x-1] += prob;
+            marginalesY[y-1] += prob;
+            const esDiagonal = (x===y);
+            const claseDiagonal = esDiagonal ? 'prob-destacada' : '';
+            html += `<td class="${claseDiagonal}">${(prob * 100).toFixed(1)}%</td>`;
         }
-        html += '<tr><th>P(Y=y)</th>';
-        for(let y=0; y<6; y++) html += `<td>${marginalesY[y].toFixed(4)}</td>`;
-        html += '<td>1</td></tr>';
-        html += '</tbody></table>';
-        tablaDiv.innerHTML = html;
-        document.getElementById('marginales-cargadas').innerHTML = 
-            `<small>Marginales: P(X=x) = ${marginalesX.map(p=>p.toFixed(4)).join(', ')} (todas iguales a 1/6)</small>`;
+        html += `<td class="marginal"><strong>${(marginalesX[x-1] * 100).toFixed(1)}%</strong></td>`;
+        html += `</tr>`;
     }
+    
+    html += `<tr class="fila-titulo">
+                <td><strong>P(Y=y)</strong></td>`;
+    for(let y=0; y<6; y++) {
+        html += `<td class="marginal"><strong>${(marginalesY[y] * 100).toFixed(1)}%</strong></td>`;
+    }
+    html += `<td class="marginal"><strong>100%</strong></td>`;
+    html += `</tr>`;
+    html += `</tbody>
+        </table>`;
+    
+    tablaDiv.innerHTML = html;
+    
+    document.getElementById('marginales-cargadas').innerHTML = 
+        `<small style="color: var(--accent);">✨ Las marginales P(X=x) y P(Y=y) son uniformes: 1/6 ≈ 16.7% cada una. La diagonal (X=Y) se destaca en verde.</small>`;
+}
 
     // ============================================================
     // MODULO 3: FPA
