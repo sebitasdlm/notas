@@ -604,11 +604,9 @@
         document.getElementById('sigma2-val').textContent = sigma2.toFixed(1);
         document.getElementById('rho-val').textContent = rho.toFixed(2);
         
-        // Dibujar contornos (elipses)
         const centerX = w/2 + mu1 * 30;
         const centerY = h/2 - mu2 * 30;
         
-        // Calcular ángulo y semiejes de la elipse
         const angulo = 0.5 * Math.atan2(2*rho*sigma1*sigma2, sigma1*sigma1 - sigma2*sigma2);
         const a = 2 * Math.sqrt((sigma1*sigma1 + sigma2*sigma2 + Math.sqrt((sigma1*sigma1 - sigma2*sigma2)**2 + 4*rho*rho*sigma1*sigma1*sigma2*sigma2))/2);
         const b = 2 * Math.sqrt((sigma1*sigma1 + sigma2*sigma2 - Math.sqrt((sigma1*sigma1 - sigma2*sigma2)**2 + 4*rho*rho*sigma1*sigma1*sigma2*sigma2))/2);
@@ -629,16 +627,15 @@
         ctx.stroke();
         ctx.restore();
         
-        // Dibujar centro
         ctx.fillStyle = '#f44336';
         ctx.beginPath();
         ctx.arc(centerX, centerY, 5, 0, 2*Math.PI);
         ctx.fill();
         
         document.getElementById('bivariate-formula').innerHTML = 
-            `\(f(x_1,x_2) = \\frac{1}{2\\pi \\cdot ${sigma1.toFixed(1)} \\cdot ${sigma2.toFixed(1)} \\cdot \\sqrt{1-${rho.toFixed(2)}^2}} \\exp\\left\\{-\\frac{1}{2(1-${rho.toFixed(2)}^2)}\\left[\\left(\\frac{x_1-${mu1}}{${sigma1.toFixed(1)}}\\right)^2 - 2\\cdot${rho.toFixed(2)}\\left(\\frac{x_1-${mu1}}{${sigma1.toFixed(1)}}\\right)\\left(\\frac{x_2-${mu2}}{${sigma2.toFixed(1)}}\\right) + \\left(\\frac{x_2-${mu2}}{${sigma2.toFixed(1)}}\\right)^2\\right]\\right\\}``;
+            `\\(f(x_1,x_2) = \\frac{1}{2\\pi \\cdot ${sigma1.toFixed(1)} \\cdot ${sigma2.toFixed(1)} \\cdot \\sqrt{1-${rho.toFixed(2)}^2}} \\exp\\left\\{-\\frac{1}{2(1-${rho.toFixed(2)}^2)}\\left[\\left(\\frac{x_1-${mu1}}{${sigma1.toFixed(1)}}\\right)^2 - 2\\cdot${rho.toFixed(2)}\\left(\\frac{x_1-${mu1}}{${sigma1.toFixed(1)}}\\right)\\left(\\frac{x_2-${mu2}}{${sigma2.toFixed(1)}}\\right) + \\left(\\frac{x_2-${mu2}}{${sigma2.toFixed(1)}}\\right)^2\\right]\\right\\}\``;
         
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -663,9 +660,8 @@
         const varCond = sigma1*sigma1 * (1 - rho*rho);
         
         document.getElementById('condicional-resultado').innerHTML = 
-            `\(X_1 \\mid X_2 = ${x2.toFixed(1)} \\sim N(${mediaCond.toFixed(3)}, ${varCond.toFixed(3)})\)`;
+            `\\(X_1 \\mid X_2 = ${x2.toFixed(1)} \\sim N(${mediaCond.toFixed(3)}, ${varCond.toFixed(3)})\\)`;
         
-        // Graficar la densidad condicional
         const canvas = document.getElementById('condicionalCanvas');
         if(!canvas) return;
         const ctx = canvas.getContext('2d');
@@ -696,7 +692,7 @@
         ctx.lineWidth = 2;
         ctx.stroke();
         
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -720,11 +716,9 @@
         document.getElementById('escala-x-val').textContent = sx.toFixed(1);
         document.getElementById('escala-y-val').textContent = sy.toFixed(1);
         
-        // Matriz de transformación: rotación * escala
         const cos = Math.cos(angulo);
         const sin = Math.sin(angulo);
         
-        // Dibujar círculo unitario transformado
         ctx.save();
         ctx.translate(w/2, h/2);
         ctx.beginPath();
@@ -732,7 +726,6 @@
             const theta = 2*Math.PI * i/100;
             const x0 = Math.cos(theta);
             const y0 = Math.sin(theta);
-            // Aplicar transformación: escala y rotación
             let x1 = sx * x0;
             let y1 = sy * y0;
             const xf = cos * x1 - sin * y1;
@@ -746,49 +739,15 @@
         ctx.restore();
         
         document.getElementById('transform-info').innerHTML = 
-            `Matriz de transformación: \(\\mathbf{A} = \\begin{pmatrix} ${(sx*cos).toFixed(2)} & ${(-sx*sin).toFixed(2)} \\\\ ${(sy*sin).toFixed(2)} & ${(sy*cos).toFixed(2)} \\end{pmatrix}\)<br>
-            Si \(\\mathbf{X} \\sim N_2(\\mathbf{0}, \\mathbf{I})\), entonces \(\\mathbf{Y} = \\mathbf{A}\\mathbf{X} \\sim N_2(\\mathbf{0}, \\mathbf{A}\\mathbf{A}^T)\)`;
-        if(window.MathJax) MathJax.typeset();
+            `Matriz de transformación: \\(\\mathbf{A} = \\begin{pmatrix} ${(sx*cos).toFixed(2)} & ${(-sx*sin).toFixed(2)} \\\\ ${(sy*sin).toFixed(2)} & ${(sy*cos).toFixed(2)} \\end{pmatrix}\\)<br>
+            Si \\(\\mathbf{X} \\sim N_2(\\mathbf{0}, \\mathbf{I})\\), entonces \\(\\mathbf{Y} = \\mathbf{A}\\mathbf{X} \\sim N_2(\\mathbf{0}, \\mathbf{A}\\mathbf{A}^T)\\)`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
     // MODULO 4: Descomposición espectral
     // ============================================================
     function calcularEspectral() {
-        // Matriz Sigma del ejemplo
-        const Sigma = [
-            [1, 0, -1, 1, 0],
-            [0, 2, -1, 0, 1],
-            [-1, -1, 3, -1, 0],
-            [1, 0, -1, 4, 1],
-            [0, 1, 0, 1, 5]
-        ];
-        
-        // Cálculo simplificado de valores propios (aproximación numérica)
-        // Usamos el método de potencia para aproximar
-        function powerIteration(A, numIter=100) {
-            const n = A.length;
-            let v = Array(n).fill(1);
-            for(let iter=0; iter<numIter; iter++) {
-                let w = Array(n).fill(0);
-                for(let i=0; i<n; i++) {
-                    for(let j=0; j<n; j++) {
-                        w[i] += A[i][j] * v[j];
-                    }
-                }
-                let norm = Math.sqrt(w.reduce((s,x)=>s+x*x,0));
-                v = w.map(x=>x/norm);
-            }
-            let lambda = 0;
-            for(let i=0; i<n; i++) {
-                for(let j=0; j<n; j++) {
-                    lambda += A[i][j] * v[i] * v[j];
-                }
-            }
-            return {lambda, v};
-        }
-        
-        // Valores propios conocidos del PDF (de R)
         const valoresPropios = [5.423, 5.064, 2.869, 1.247, 0.397];
         const vartot = valoresPropios.reduce((a,b)=>a+b,0);
         const proporciones = valoresPropios.map(v => v/vartot);
@@ -801,7 +760,7 @@
         
         document.getElementById('espectral-resultado').innerHTML = 
             `<strong>Valores propios (λᵢ):</strong> ${valoresPropios.map(v=>v.toFixed(3)).join(', ')}<br>
-            <strong>Variación total:</strong> ${vartot}<br>
+            <strong>Variación total:</strong> ${vartot.toFixed(3)}<br>
             <strong>Proporciones individuales (δᵢ):</strong> ${proporciones.map(p=>p.toFixed(4)).join(', ')}<br>
             <strong>Proporciones acumuladas (Δⱼ):</strong> ${acumuladas.map(a=>a.toFixed(4)).join(', ')}<br>
             <strong>Primeras 3 componentes explican:</strong> ${(acumuladas[2]*100).toFixed(1)}% de la variación<br>
@@ -831,7 +790,6 @@
         
         const mu1=0, mu2=0, sigma1=1, sigma2=1;
         
-        // Generar puntos de la normal bivariada
         const puntos = [];
         for(let i=0; i<500; i++) {
             let z1 = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
@@ -841,7 +799,6 @@
             puntos.push([x1, x2]);
         }
         
-        // Dibujar puntos
         for(let p of puntos) {
             const x = (p[0] + 3) / 6 * w;
             const y = h - (p[1] + 3) / 6 * h;
@@ -851,7 +808,6 @@
             }
         }
         
-        // Dibujar línea de regresión E[X₁|X₂=x₂] = ρ x₂ (con mu=0, sigma=1)
         ctx.beginPath();
         for(let px=0; px<w; px++) {
             const x2 = -3 + (px/w)*6;
@@ -866,56 +822,75 @@
         ctx.stroke();
         
         document.getElementById('regresion-info').innerHTML = 
-            `\(\mathbb{E}[X_1 \\mid X_2 = x_2] = ${rho.toFixed(2)} \\cdot x_2\)<br>
-            \(\\text{var}(X_1 \\mid X_2 = x_2) = 1 - ${rho.toFixed(2)}^2 = ${(1-rho*rho).toFixed(3)}\)<br>
+            `\\(\\mathbb{E}[X_1 \\mid X_2 = x_2] = ${rho.toFixed(2)} \\cdot x_2\\)<br>
+            \\(\\text{var}(X_1 \\mid X_2 = x_2) = 1 - ${rho.toFixed(2)}^2 = ${(1-rho*rho).toFixed(3)}\\)<br>
             Pendiente = ρ, constante e independiente de x₂ (homocedasticidad)`;
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
-    // Inicialización
+    // FUNCIÓN PRINCIPAL DE INICIALIZACIÓN
     // ============================================================
-    document.addEventListener('DOMContentLoaded', () => {
+    window.inicializarModuloNormal = function() {
         // Módulo 1
         const sliders1 = ['mu1','mu2','sigma1','sigma2','rho'];
         sliders1.forEach(id => {
-            document.getElementById(id)?.addEventListener('input', dibujarNormalBivariada);
+            const elem = document.getElementById(id);
+            if(elem) {
+                elem.removeEventListener('input', dibujarNormalBivariada);
+                elem.addEventListener('input', dibujarNormalBivariada);
+            }
         });
         dibujarNormalBivariada();
         
         // Módulo 2
         const sliders2 = ['mu1-cond','mu2-cond','sigma1-cond','sigma2-cond','rho-cond','x2-fijo'];
         sliders2.forEach(id => {
-            document.getElementById(id)?.addEventListener('input', actualizarCondicional);
+            const elem = document.getElementById(id);
+            if(elem) {
+                elem.removeEventListener('input', actualizarCondicional);
+                elem.addEventListener('input', actualizarCondicional);
+            }
         });
         actualizarCondicional();
         
         // Módulo 3
         const sliders3 = ['rotacion','escala-x','escala-y'];
         sliders3.forEach(id => {
-            document.getElementById(id)?.addEventListener('input', dibujarTransformacion);
+            const elem = document.getElementById(id);
+            if(elem) {
+                elem.removeEventListener('input', dibujarTransformacion);
+                elem.addEventListener('input', dibujarTransformacion);
+            }
         });
         dibujarTransformacion();
         
         // Módulo 4
-        document.getElementById('calcular-espectral')?.addEventListener('click', calcularEspectral);
+        const btnEspectral = document.getElementById('calcular-espectral');
+        if(btnEspectral) {
+            btnEspectral.removeEventListener('click', calcularEspectral);
+            btnEspectral.addEventListener('click', calcularEspectral);
+        }
         calcularEspectral();
         
         // Módulo 5
-        document.getElementById('rho-reg')?.addEventListener('input', dibujarRegresion);
+        const rhoReg = document.getElementById('rho-reg');
+        if(rhoReg) {
+            rhoReg.removeEventListener('input', dibujarRegresion);
+            rhoReg.addEventListener('input', dibujarRegresion);
+        }
         dibujarRegresion();
         
-        // Observador para cambio de tema
-        const observer = new MutationObserver(() => {
-            dibujarNormalBivariada();
-            actualizarCondicional();
-            dibujarTransformacion();
-            dibujarRegresion();
-        });
-        observer.observe(document.body, {attributes: true});
-        
-        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
-    });
+        if(window.MathJax) MathJax.typesetPromise();
+    };
+    
+    // Auto-inicializar
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.inicializarModuloNormal);
+    } else {
+        window.inicializarModuloNormal();
+    }
 </script>
+    
 </body>
 </html>
