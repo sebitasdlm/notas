@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
             link.href = "#";
             link.addEventListener("click", (e) => {
                 e.preventDefault();
-                loadContent(`chapters/${chapter}`, chapter);
+                loadContent(`CPII/chapters/${chapter}`, chapter);
                 if(window.innerWidth <= 768){
                     sidebar.classList.add("hidden"); // Hide sidebar after selecting a chapter on mobile
                 }
