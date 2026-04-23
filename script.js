@@ -139,7 +139,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Render MathJax equations
                 if (window.MathJax) {
-                    MathJax.typesetPromise();
+                    MathJax.texReset();           // Reinicia MathJax
+                    MathJax.typesetPromise()      // Procesa todo el contenido nuevo
+                        .then(() => console.log('MathJax renderizado correctamente'))
+                        .catch(err => console.log('Error en MathJax:', err));
+                } else {
+                    console.log('MathJax no está disponible');
                 }
             })
             .then(() => {
