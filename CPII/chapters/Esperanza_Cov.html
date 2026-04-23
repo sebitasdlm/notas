@@ -1,1 +1,926 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Esperanza y Covarianzas - Capítulo 3</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border: 1px dashed var(--border);
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .valor-actual {
+            font-family: monospace;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .tabla-pequena {
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .tabla-pequena table {
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+
+        .tabla-pequena td, .tabla-pequena th {
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            text-align: center;
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Esperanza de funciones (TEI)                    -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Esperanza de funciones de vectores aleatorios</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                El <strong>Teorema del Estadístico Inconsciente (TEI)</strong> nos dice cómo calcular 
+                la esperanza de una función \(g(X,Y)\) sin necesidad de encontrar primero la distribución de \(g(X,Y)\).
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Esperanza de funciones en dados</h4>
+                <div class="controles">
+                    <label>Función g(X,Y):</label>
+                    <select id="funcion-selector">
+                        <option value="suma">g(X,Y) = X + Y</option>
+                        <option value="producto">g(X,Y) = X * Y</option>
+                        <option value="maximo">g(X,Y) = max(X, Y)</option>
+                        <option value="cuadrado">g(X,Y) = X² + Y²</option>
+                    </select>
+                    <button id="calcular-esperanza">Calcular E[g(X,Y)]</button>
+                </div>
+                <div id="resultado-esperanza" class="valor-actual" style="text-align:center; padding:1rem;"></div>
+                <div id="detalle-calculo" style="font-size:0.85rem; text-align:center;"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>TEI para vectores aleatorios:</strong><br>
+                Caso discreto: \(\mathbb{E}[g(X,Y)] = \sum_x \sum_y g(x,y) f_{XY}(x,y)\)<br>
+                Caso continuo: \(\mathbb{E}[g(X,Y)] = \iint_{\mathbb{R}^2} g(x,y) f_{XY}(x,y) dx dy\)
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>Propiedad:</strong> Siempre se cumple que \(\mathbb{E}[X+Y] = \mathbb{E}[X] + \mathbb{E}[Y]\). 
+                ¿Por qué?
+                <button onclick="mostrarRespuesta('respuesta-linealidad')">Ver explicación</button>
+                <div id="respuesta-linealidad" class="respuesta">
+                    La esperanza es lineal. Para \(g(X,Y)=X+Y\), la integral/suma se separa en dos términos,
+                    cada uno dando la esperanza marginal correspondiente.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Covarianza y Correlación                        -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Covarianza y Correlación</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>covarianza</strong> mide la asociación lineal entre dos variables:
+                \[
+                \operatorname{cov}(X,Y) = \mathbb{E}[(X-\mu_X)(Y-\mu_Y)] = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y]
+                \]
+                El <strong>coeficiente de correlación</strong> \(\rho = \frac{\operatorname{cov}(X,Y)}{\sigma_X \sigma_Y}\) 
+                está normalizado entre -1 y 1.
+            </div>
+
+            <div class="simulador">
+                <h4>Explora diferentes niveles de correlación</h4>
+                <div class="controles">
+                    <label>Correlación ρ:</label>
+                    <input type="range" id="rho-slider" min="-1" max="1" step="0.01" value="0.8">
+                    <span id="rho-valor">0.80</span>
+                    <button id="generar-muestra">Generar 200 puntos</button>
+                </div>
+                <canvas id="correlacionCanvas" width="400" height="400"></canvas>
+                <div id="rho-calculado" class="valor-actual" style="text-align:center;"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedades de la covarianza:</strong>
+                <ul>
+                    <li>\(\operatorname{cov}(X,X) = \operatorname{var}(X)\)</li>
+                    <li>\(\operatorname{cov}(X,Y) = \operatorname{cov}(Y,X)\)</li>
+                    <li>\(\operatorname{cov}(aX, bY) = ab \operatorname{cov}(X,Y)\)</li>
+                    <li>\(\operatorname{cov}(X+Y, Z) = \operatorname{cov}(X,Z) + \operatorname{cov}(Y,Z)\)</li>
+                    <li>Si \(X \perp Y\), entonces \(\operatorname{cov}(X,Y)=0\) (pero el recíproco no es cierto)</li>
+                </ul>
+            </div>
+
+            <div class="simulador">
+                <h4>Contraejemplo: covarianza cero NO implica independencia</h4>
+                <div class="tabla-pequena">
+                    <table>
+                        <tr><th>X\Y</th><th>-1</th><th>0</th><th>1</th><th>P(X=x)</th></tr>
+                        <tr><th>-1</th><td>1/3</td><td>0</td><td>1/3</td><td>2/3</td></tr>
+                        <tr><th>1</th><td>0</td><td>1/3</td><td>0</td><td>1/3</td></tr>
+                        <tr><th>P(Y=y)</th><td>1/3</td><td>1/3</td><td>1/3</td><td>1</td></tr>
+                    </table>
+                </div>
+                <div id="contraejemplo-resultado" style="text-align:center;"></div>
+                <div class="pregunta-exploratoria">
+                    <strong>Verifica:</strong> En esta tabla, \(\mathbb{E}[X]=-1/3\), \(\mathbb{E}[Y]=0\), \(\mathbb{E}[XY]=0\). 
+                    ¿Son independientes X e Y?
+                    <button onclick="mostrarRespuesta('respuesta-contraejemplo')">Ver respuesta</button>
+                    <div id="respuesta-contraejemplo" class="respuesta">
+                        <strong>No son independientes.</strong> Por ejemplo, \(f(-1,-1)=1/3\) pero 
+                        \(f_X(-1)f_Y(-1) = (2/3)(1/3)=2/9\). ¡Covarianza cero pero dependientes!
+                    </div>
+                </div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Desigualdad de Cauchy-Schwarz:</strong>
+                \[
+                (\mathbb{E}[XY])^2 \le \mathbb{E}[X^2]\mathbb{E}[Y^2]
+                \]
+                De aquí se deduce que \(|\operatorname{corr}(X,Y)| \le 1\).
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Media y Varianza Muestral                       -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Media y Varianza Muestral</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Para una muestra \(X_1, \ldots, X_n\) i.i.d. con media \(\mu\) y varianza \(\sigma^2\):
+                \[
+                \bar{X}_n = \frac{1}{n}\sum_{i=1}^n X_i, \qquad 
+                S^2 = \frac{1}{n-1}\sum_{i=1}^n (X_i - \bar{X}_n)^2
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Comportamiento de la media muestral</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="distribucion-muestra">
+                        <option value="normal">Normal(μ=0, σ=1)</option>
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="exponencial">Exponencial(λ=1)</option>
+                    </select>
+                    <label>Tamaño muestral n:</label>
+                    <input type="range" id="n-muestra" min="2" max="200" step="1" value="30">
+                    <span id="n-valor">30</span>
+                    <button id="generar-muestra-2">Generar muestra</button>
+                </div>
+                <canvas id="muestraCanvas" width="500" height="250"></canvas>
+                <div id="resultados-muestra" style="text-align:center; margin-top:1rem;"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedades fundamentales:</strong>
+                <ul>
+                    <li>\(\mathbb{E}[\bar{X}_n] = \mu\) (insesgado)</li>
+                    <li>\(\operatorname{var}(\bar{X}_n) = \sigma^2/n\)</li>
+                    <li>\(\mathbb{E}[S^2] = \sigma^2\) (cuasivarianza insesgada)</li>
+                </ul>
+                La división por \(n-1\) (en lugar de \(n\)) corrige el sesgo.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué usamos n-1 en lugar de n para la varianza muestral?</strong>
+                <button onclick="mostrarRespuesta('respuesta-n1')">Ver explicación</button>
+                <div id="respuesta-n1" class="respuesta">
+                    Porque \(\mathbb{E}[\frac{1}{n}\sum (X_i - \bar{X})^2] = \frac{n-1}{n}\sigma^2\). 
+                    Al dividir por \(n-1\) obtenemos un estimador insesgado: \(\mathbb{E}[S^2] = \sigma^2\).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Vector de Medias y Matriz de Covarianzas        -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Vector de Medias y Matriz de Covarianzas</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Para un vector aleatorio \(\mathbf{X} = (X_1, \ldots, X_n)^T\):
+                \[
+                \boldsymbol{\mu} = \mathbb{E}[\mathbf{X}] = \begin{pmatrix} \mu_1 \\ \vdots \\ \mu_n \end{pmatrix}, \qquad
+                \boldsymbol{\Sigma} = \operatorname{cov}(\mathbf{X}) = \mathbb{E}[(\mathbf{X}-\boldsymbol{\mu})(\mathbf{X}-\boldsymbol{\mu})^T]
+                \]
+                \(\boldsymbol{\Sigma}\) es simétrica y semidefinida positiva.
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización de matriz de covarianzas 2D</h4>
+                <div class="controles">
+                    <label>Varianza de X₁ (σ₁²):</label>
+                    <input type="range" id="var1" min="0.1" max="3" step="0.1" value="1">
+                    <span id="var1-val">1.0</span>
+                    <label>Varianza de X₂ (σ₂²):</label>
+                    <input type="range" id="var2" min="0.1" max="3" step="0.1" value="1">
+                    <span id="var2-val">1.0</span>
+                    <label>Covarianza σ₁₂:</label>
+                    <input type="range" id="cov12" min="-2" max="2" step="0.1" value="0.5">
+                    <span id="cov12-val">0.5</span>
+                </div>
+                <canvas id="covarianzaCanvas" width="400" height="400"></canvas>
+                <div id="matriz-info" style="text-align:center; margin-top:0.5rem;"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedades:</strong>
+                <ul>
+                    <li>\(\mathbb{E}[A\mathbf{X}] = A\boldsymbol{\mu}\)</li>
+                    <li>\(\operatorname{cov}(A\mathbf{X}) = A\boldsymbol{\Sigma}A^T\)</li>
+                    <li>\(\operatorname{vartot}(\mathbf{X}) = \operatorname{tr}(\boldsymbol{\Sigma}) = \sum_i \sigma_i^2 = \sum_i \lambda_i\)</li>
+                </ul>
+                La <strong>variación total</strong> es la suma de las varianzas, igual a la suma de los valores propios.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué significa que la matriz de covarianzas sea diagonal?</strong>
+                <button onclick="mostrarRespuesta('respuesta-diagonal')">Ver respuesta</button>
+                <div id="respuesta-diagonal" class="respuesta">
+                    Si \(\boldsymbol{\Sigma}\) es diagonal, todas las covarianzas son cero: 
+                    las variables están <strong>no correlacionadas</strong>. Pero cuidado: 
+                    ¡no correlacionadas no implica independencia!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Sumas Aleatorias                                -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Sumas Aleatorias</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Sea \(N\) una variable aleatoria entera no negativa, y \(X_1, X_2, \ldots\) i.i.d. independientes de \(N\).
+                Definimos la suma aleatoria:
+                \[
+                S_N = X_1 + X_2 + \cdots + X_N
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Elevador con personas</h4>
+                <div class="controles">
+                    <label>Número medio de personas (λ Poisson):</label>
+                    <input type="range" id="lambda-poisson" min="1" max="10" step="0.5" value="2.3">
+                    <span id="lambda-val">2.3</span>
+                    <label>Peso medio por persona (kg):</label>
+                    <input type="range" id="peso-mean" min="50" max="100" step="1" value="66.25">
+                    <span id="peso-mean-val">66.25</span>
+                    <button id="simular-elevador">Simular 1000 viajes</button>
+                </div>
+                <canvas id="elevadorCanvas" width="500" height="250"></canvas>
+                <div id="elevador-resultados" style="text-align:center; margin-top:1rem;"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Resultados clave para sumas aleatorias:</strong>
+                \[
+                \mathbb{E}[S_N] = \mathbb{E}[N] \cdot \mathbb{E}[X]
+                \]
+                \[
+                \operatorname{var}(S_N) = \operatorname{var}(N) \cdot (\mathbb{E}[X])^2 + \mathbb{E}[N] \cdot \operatorname{var}(X)
+                \]
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué aparece \(\mathbb{E}[N] \cdot \operatorname{var}(X)\) y \(\operatorname{var}(N) \cdot (\mathbb{E}[X])^2\)?</strong>
+                <button onclick="mostrarRespuesta('respuesta-suma-aleatoria')">Ver explicación</button>
+                <div id="respuesta-suma-aleatoria" class="respuesta">
+                    Por la ley de varianza total: \(\operatorname{var}(S_N) = \mathbb{E}[\operatorname{var}(S_N|N)] + \operatorname{var}(\mathbb{E}[S_N|N])\).
+                    El primer término da \(\mathbb{E}[N]\sigma_X^2\) y el segundo \(\sigma_N^2 \mu_X^2\).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 6: Mezclas de Distribuciones                       -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>6. Mezclas de Distribuciones</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Una <strong>mezcla</strong> de distribuciones tiene densidad:
+                \[
+                f_X(x) = \sum_{i=1}^k p_i f_i(x), \quad \text{con } p_i > 0, \sum p_i = 1
+                \]
+                Es como elegir al azar de cuál distribución proviene la observación.
+            </div>
+
+            <div class="simulador">
+                <h4>Mezcla de dos normales (distribución contaminada)</h4>
+                <div class="controles">
+                    <label>Probabilidad de la normal estándar (p):</label>
+                    <input type="range" id="p-mezcla" min="0" max="1" step="0.01" value="0.7">
+                    <span id="p-val">0.70</span>
+                    <label>Desviación de la contaminante (σ):</label>
+                    <input type="range" id="sigma-mezcla" min="1" max="5" step="0.1" value="3">
+                    <span id="sigma-val">3.0</span>
+                </div>
+                <canvas id="mezclaCanvas" width="500" height="300"></canvas>
+                <div id="mezcla-info" style="text-align:center; margin-top:0.5rem;"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedades de la mezcla:</strong>
+                \[
+                \mathbb{E}[X] = \sum_{i=1}^k p_i \mu_i
+                \]
+                \[
+                \operatorname{var}(X) = \sum_{i=1}^k p_i \sigma_i^2 + \sum_{i=1}^k p_i (\mu_i - \bar{\mu})^2
+                \]
+                (varianza dentro de los grupos + varianza entre las medias)
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>Observa:</strong> Cuando σ es grande, ¿cómo cambia la forma de la densidad?
+                <button onclick="mostrarRespuesta('respuesta-mezcla')">Ver explicación</button>
+                <div id="respuesta-mezcla" class="respuesta">
+                    Aparece una "cola" más pesada. Las mezclas de normales son útiles para modelar 
+                    datos atípicos o poblaciones heterogéneas (ej: pesos de personas de diferentes edades).
+                </div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Ejemplo adicional:</strong> Poisson con media aleatoria Gamma produce 
+                una distribución Binomial Negativa (modelo para número de accidentes).
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // Helper para toggle de módulos
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: Esperanza de funciones
+    // ============================================================
+    // Distribución conjunta de dados honestos (1/36 cada celda)
+    function calcularEsperanzaFuncion() {
+        const func = document.getElementById('funcion-selector').value;
+        let suma = 0;
+        for(let x=1; x<=6; x++) {
+            for(let y=1; y<=6; y++) {
+                let g = 0;
+                if(func === 'suma') g = x + y;
+                else if(func === 'producto') g = x * y;
+                else if(func === 'maximo') g = Math.max(x, y);
+                else if(func === 'cuadrado') g = x*x + y*y;
+                suma += g * (1/36);
+            }
+        }
+        const ex = (func === 'suma') ? 7 : (func === 'producto') ? 12.25 : null;
+        document.getElementById('resultado-esperanza').innerHTML = 
+            `\(\mathbb{E}[${document.getElementById('funcion-selector').options[document.getElementById('funcion-selector').selectedIndex].text}] = ${suma.toFixed(4)}\)`;
+        
+        let detalle = '';
+        if(func === 'suma') detalle = 'E[X+Y] = E[X] + E[Y] = 3.5 + 3.5 = 7';
+        else if(func === 'producto') detalle = 'E[XY] = 12.25. Nota: E[X]·E[Y] = 3.5·3.5 = 12.25 (son independientes)';
+        else detalle = 'Calculado directamente sumando sobre los 36 pares.';
+        document.getElementById('detalle-calculo').innerHTML = detalle;
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 2: Correlación (visualización con datos normales)
+    // ============================================================
+    let puntosActuales = [];
+    function generarPuntosCorrelacion(rho, n=200) {
+        const puntos = [];
+        for(let i=0; i<n; i++) {
+            let z1 = Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(2 * Math.PI * Math.random());
+            let z2 = Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(2 * Math.PI * Math.random());
+            let x = z1;
+            let y = rho * z1 + Math.sqrt(1 - rho*rho) * z2;
+            puntos.push([x, y]);
+        }
+        return puntos;
+    }
+    
+    function dibujarCorrelacion() {
+        const canvas = document.getElementById('correlacionCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const isDark = document.body.classList.contains('dark-theme');
+        ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+        ctx.fillRect(0, 0, w, h);
+        
+        if(puntosActuales.length === 0) return;
+        
+        // Escalar a [-3,3] en ambos ejes
+        for(let p of puntosActuales) {
+            const x = (p[0] + 3) / 6 * w;
+            const y = h - (p[1] + 3) / 6 * h;
+            if(x >= 0 && x <= w && y >= 0 && y <= h) {
+                ctx.fillStyle = 'rgba(33, 150, 243, 0.6)';
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, 2*Math.PI);
+                ctx.fill();
+            }
+        }
+        
+        // Calcular correlación muestral
+        let sumX=0, sumY=0, sumXY=0, sumX2=0, sumY2=0;
+        for(let p of puntosActuales) {
+            sumX += p[0];
+            sumY += p[1];
+            sumXY += p[0]*p[1];
+            sumX2 += p[0]*p[0];
+            sumY2 += p[1]*p[1];
+        }
+        const n = puntosActuales.length;
+        const rhoMuestral = (sumXY - sumX*sumY/n) / Math.sqrt((sumX2 - sumX*sumX/n)*(sumY2 - sumY*sumY/n));
+        document.getElementById('rho-calculado').innerHTML = `Correlación muestral: r = ${rhoMuestral.toFixed(4)}`;
+    }
+    
+    // ============================================================
+    // MODULO 3: Media y varianza muestral
+    // ============================================================
+    let muestraActual = [];
+    function generarMuestra(dist, n) {
+        const muestra = [];
+        for(let i=0; i<n; i++) {
+            let val;
+            if(dist === 'normal') {
+                val = Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(2 * Math.PI * Math.random());
+            } else if(dist === 'uniforme') {
+                val = Math.random();
+            } else {
+                val = -Math.log(Math.random());
+            }
+            muestra.push(val);
+        }
+        return muestra;
+    }
+    
+    function dibujarMuestra() {
+        const canvas = document.getElementById('muestraCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const isDark = document.body.classList.contains('dark-theme');
+        ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+        ctx.fillRect(0, 0, w, h);
+        
+        if(muestraActual.length === 0) return;
+        
+        const min = Math.min(...muestraActual);
+        const max = Math.max(...muestraActual);
+        const range = max - min;
+        const binWidth = w / 30;
+        const bins = new Array(30).fill(0);
+        for(let val of muestraActual) {
+            const idx = Math.min(29, Math.floor((val - min) / range * 30));
+            bins[idx]++;
+        }
+        const maxBin = Math.max(...bins);
+        for(let i=0; i<30; i++) {
+            const barHeight = (bins[i] / maxBin) * h * 0.8;
+            ctx.fillStyle = 'rgba(33, 150, 243, 0.7)';
+            ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
+        }
+        
+        const media = muestraActual.reduce((a,b)=>a+b,0)/muestraActual.length;
+        const varMuestral = muestraActual.reduce((a,b)=>a+(b-media)*(b-media),0)/(muestraActual.length-1);
+        document.getElementById('resultados-muestra').innerHTML = 
+            `n = ${muestraActual.length} | \(\bar{x} = ${media.toFixed(4)}\) | \(s^2 = ${varMuestral.toFixed(4)}\) | \(s = ${Math.sqrt(varMuestral).toFixed(4)}\)`;
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 4: Matriz de covarianzas (elipse)
+    // ============================================================
+    function dibujarElipseCovarianza() {
+        const canvas = document.getElementById('covarianzaCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const isDark = document.body.classList.contains('dark-theme');
+        ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+        ctx.fillRect(0, 0, w, h);
+        
+        const var1 = parseFloat(document.getElementById('var1').value);
+        const var2 = parseFloat(document.getElementById('var2').value);
+        const cov12 = parseFloat(document.getElementById('cov12').value);
+        
+        document.getElementById('var1-val').textContent = var1.toFixed(1);
+        document.getElementById('var2-val').textContent = var2.toFixed(1);
+        document.getElementById('cov12-val').textContent = cov12.toFixed(1);
+        
+        const rho = cov12 / Math.sqrt(var1 * var2);
+        document.getElementById('matriz-info').innerHTML = 
+            `\(\Sigma = \begin{pmatrix} ${var1.toFixed(2)} & ${cov12.toFixed(2)} \\ ${cov12.toFixed(2)} & ${var2.toFixed(2)} \end{pmatrix}\) | ρ = ${rho.toFixed(4)}`;
+        
+        // Dibujar elipse al 95% (contorno)
+        const centerX = w/2, centerY = h/2;
+        const escala = 2.447; // 95% para 2 df
+        const eigen1 = (var1 + var2 + Math.sqrt((var1-var2)*(var1-var2) + 4*cov12*cov12))/2;
+        const eigen2 = (var1 + var2 - Math.sqrt((var1-var2)*(var1-var2) + 4*cov12*cov12))/2;
+        const angulo = 0.5 * Math.atan2(2*cov12, var1 - var2);
+        const a = escala * Math.sqrt(eigen1);
+        const b = escala * Math.sqrt(eigen2);
+        
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(angulo);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, a*w/10, b*h/10, 0, 0, 2*Math.PI);
+        ctx.strokeStyle = '#f44336';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+        
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 5: Sumas aleatorias
+    // ============================================================
+    function simularElevador() {
+        const lambda = parseFloat(document.getElementById('lambda-poisson').value);
+        const pesoMean = parseFloat(document.getElementById('peso-mean').value);
+        const nSim = 1000;
+        const resultados = [];
+        
+        for(let sim=0; sim<nSim; sim++) {
+            // Poisson por aproximación
+            let N = 0;
+            let prod = Math.exp(-lambda);
+            let p = prod;
+            let u = Math.random();
+            while(u > p) {
+                N++;
+                prod *= lambda / N;
+                p += prod;
+            }
+            // Gamma con α=53, β=1.25 tendría media 66.25. Aproximamos con normal por simplicidad
+            let sumaPesos = 0;
+            for(let i=0; i<N; i++) {
+                // Normal truncada positiva
+                let peso = Math.max(30, pesoMean + (Math.random() - 0.5) * 20);
+                sumaPesos += peso;
+            }
+            resultados.push(sumaPesos);
+        }
+        
+        const media = resultados.reduce((a,b)=>a+b,0)/nSim;
+        const varianza = resultados.reduce((a,b)=>a+(b-media)*(b-media),0)/(nSim-1);
+        
+        // Histograma simple
+        const canvas = document.getElementById('elevadorCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const min = Math.min(...resultados);
+            const max = Math.max(...resultados);
+            const range = max - min;
+            const bins = new Array(30).fill(0);
+            for(let val of resultados) {
+                const idx = Math.min(29, Math.floor((val - min) / range * 30));
+                bins[idx]++;
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w / 30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i] / maxBin) * h * 0.8;
+                ctx.fillStyle = 'rgba(76, 175, 80, 0.7)';
+                ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
+            }
+        }
+        
+        document.getElementById('elevador-resultados').innerHTML = 
+            `Peso total medio: ${media.toFixed(2)} kg | Desviación: ${Math.sqrt(varianza).toFixed(2)} kg<br>
+            Teórico: E[S_N] = λ·μ = ${(lambda * pesoMean).toFixed(2)} kg`;
+    }
+    
+    // ============================================================
+    // MODULO 6: Mezcla de normales
+    // ============================================================
+    function dibujarMezcla() {
+        const canvas = document.getElementById('mezclaCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const isDark = document.body.classList.contains('dark-theme');
+        ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+        ctx.fillRect(0, 0, w, h);
+        
+        const p = parseFloat(document.getElementById('p-mezcla').value);
+        const sigma = parseFloat(document.getElementById('sigma-mezcla').value);
+        document.getElementById('p-val').textContent = p.toFixed(2);
+        document.getElementById('sigma-val').textContent = sigma.toFixed(1);
+        
+        const mediaMezcla = 0;
+        const varMezcla = p*1 + (1-p)*sigma*sigma;
+        document.getElementById('mezcla-info').innerHTML = 
+            `Mezcla: p·N(0,1) + (1-p)·N(0,${sigma.toFixed(1)}²)<br>
+            E[X] = 0 | Var(X) = ${varMezcla.toFixed(4)}`;
+        
+        // Dibujar la densidad
+        const xMin = -6, xMax = 6;
+        for(let px=0; px<w; px++) {
+            const x = xMin + (px / w) * (xMax - xMin);
+            const dens1 = Math.exp(-x*x/2) / Math.sqrt(2*Math.PI);
+            const dens2 = Math.exp(-x*x/(2*sigma*sigma)) / (sigma * Math.sqrt(2*Math.PI));
+            const dens = p * dens1 + (1-p) * dens2;
+            const y = h - (dens * 2.5 * h);
+            if(px === 0) ctx.moveTo(px, y);
+            else ctx.lineTo(px, y);
+        }
+        ctx.strokeStyle = '#1976d2';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+    }
+    
+    // ============================================================
+    // Inicialización y eventos
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // Módulo 1
+        const btnEsperanza = document.getElementById('calcular-esperanza');
+        if(btnEsperanza) btnEsperanza.addEventListener('click', calcularEsperanzaFuncion);
+        calcularEsperanzaFuncion();
+        
+        // Módulo 2
+        const rhoSlider = document.getElementById('rho-slider');
+        const btnGenerar = document.getElementById('generar-muestra');
+        if(rhoSlider) {
+            rhoSlider.addEventListener('input', () => {
+                document.getElementById('rho-valor').textContent = parseFloat(rhoSlider.value).toFixed(2);
+                puntosActuales = generarPuntosCorrelacion(parseFloat(rhoSlider.value));
+                dibujarCorrelacion();
+            });
+            puntosActuales = generarPuntosCorrelacion(0.8);
+            dibujarCorrelacion();
+        }
+        if(btnGenerar) btnGenerar.addEventListener('click', () => {
+            puntosActuales = generarPuntosCorrelacion(parseFloat(rhoSlider.value));
+            dibujarCorrelacion();
+        });
+        
+        // Módulo 3
+        const distSelect = document.getElementById('distribucion-muestra');
+        const nSlider = document.getElementById('n-muestra');
+        const btnGenerarMuestra = document.getElementById('generar-muestra-2');
+        if(nSlider) nSlider.addEventListener('input', () => document.getElementById('n-valor').textContent = nSlider.value);
+        const actualizarMuestra = () => {
+            const n = parseInt(nSlider.value);
+            const dist = distSelect.value;
+            muestraActual = generarMuestra(dist, n);
+            dibujarMuestra();
+        };
+        if(btnGenerarMuestra) btnGenerarMuestra.addEventListener('click', actualizarMuestra);
+        actualizarMuestra();
+        
+        // Módulo 4
+        const var1Slider = document.getElementById('var1');
+        const var2Slider = document.getElementById('var2');
+        const cov12Slider = document.getElementById('cov12');
+        const actualizarCovarianza = () => dibujarElipseCovarianza();
+        if(var1Slider) var1Slider.addEventListener('input', actualizarCovarianza);
+        if(var2Slider) var2Slider.addEventListener('input', actualizarCovarianza);
+        if(cov12Slider) cov12Slider.addEventListener('input', actualizarCovarianza);
+        actualizarCovarianza();
+        
+        // Módulo 5
+        const lambdaSlider = document.getElementById('lambda-poisson');
+        const pesoSlider = document.getElementById('peso-mean');
+        const btnElevador = document.getElementById('simular-elevador');
+        if(lambdaSlider) lambdaSlider.addEventListener('input', () => document.getElementById('lambda-val').textContent = lambdaSlider.value);
+        if(pesoSlider) pesoSlider.addEventListener('input', () => document.getElementById('peso-mean-val').textContent = pesoSlider.value);
+        if(btnElevador) btnElevador.addEventListener('click', simularElevador);
+        simularElevador();
+        
+        // Módulo 6
+        const pSlider = document.getElementById('p-mezcla');
+        const sigmaSlider = document.getElementById('sigma-mezcla');
+        const actualizarMezcla = () => dibujarMezcla();
+        if(pSlider) pSlider.addEventListener('input', actualizarMezcla);
+        if(sigmaSlider) sigmaSlider.addEventListener('input', actualizarMezcla);
+        actualizarMezcla();
+        
+        // Observador para cambio de tema
+        const observer = new MutationObserver(() => {
+            dibujarCorrelacion();
+            dibujarMuestra();
+            dibujarElipseCovarianza();
+            dibujarMezcla();
+        });
+        observer.observe(document.body, {attributes: true});
+        
+        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
+    });
+</script>
+</body>
+</html>
