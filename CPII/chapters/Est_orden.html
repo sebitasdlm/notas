@@ -1,1 +1,922 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Estadísticos de Orden - Capítulo 9</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Definición y ejemplos básicos                   -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Estadísticos de Orden - Definición</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Sea \(X_1, \ldots, X_n\) una <strong>muestra aleatoria</strong> (i.i.d.) de una población con función de distribución \(F\).
+                Los <strong>estadísticos de orden</strong> son las variables ordenadas:
+                \[
+                X_{(1)} \le X_{(2)} \le \cdots \le X_{(n)}
+                \]
+                donde \(X_{(1)} = \min\{X_i\}\), \(X_{(n)} = \max\{X_i\}\).
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Muestra aleatoria y estadísticos de orden</h4>
+                <div class="controles">
+                    <label>Tamaño de muestra n:</label>
+                    <input type="range" id="n-muestra" min="3" max="20" step="1" value="8">
+                    <span id="n-muestra-val">8</span>
+                    <label>Distribución:</label>
+                    <select id="dist-orden">
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="normal">Normal(0,1)</option>
+                        <option value="exponencial">Exponencial(1)</option>
+                    </select>
+                    <button id="generar-muestra">Generar nueva muestra</button>
+                </div>
+                <canvas id="muestraCanvas" width="500" height="300"></canvas>
+                <div id="orden-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Aplicaciones:</strong>
+                <ul>
+                    <li><strong>Sistemas en serie:</strong> El tiempo de vida es \(X_{(1)}\) (el más débil falla primero)</li>
+                    <li><strong>Sistemas en paralelo:</strong> El tiempo de vida es \(X_{(n)}\) (el último en fallar)</li>
+                    <li><strong>Control de calidad:</strong> El rango \(R = X_{(n)} - X_{(1)}\) mide la variabilidad</li>
+                </ul>
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué representa la mediana muestral en términos de estadísticos de orden?</strong>
+                <button onclick="mostrarRespuesta('respuesta-mediana')">Ver respuesta</button>
+                <div id="respuesta-mediana" class="respuesta">
+                    Si \(n\) es impar, la mediana es \(X_{((n+1)/2)}\) (el estadístico de orden central).
+                    Si \(n\) es par, la mediana es \(\frac{1}{2}(X_{(n/2)} + X_{(n/2+1)})\).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Distribución del Mínimo y Máximo                -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Distribución del Mínimo y Máximo</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Para el <strong>máximo</strong> \(X_{(n)}\):
+                \[
+                F_{X_{(n)}}(x) = [F(x)]^n, \quad f_{X_{(n)}}(x) = n f(x) [F(x)]^{n-1}
+                \]
+                Para el <strong>mínimo</strong> \(X_{(1)}\):
+                \[
+                F_{X_{(1)}}(x) = 1 - [1 - F(x)]^n, \quad f_{X_{(1)}}(x) = n f(x) [1 - F(x)]^{n-1}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Distribuciones del mínimo y máximo para Uniforme(0,1)</h4>
+                <div class="controles">
+                    <label>n (tamaño de muestra):</label>
+                    <input type="range" id="n-mm" min="1" max="50" step="1" value="10">
+                    <span id="n-mm-val">10</span>
+                </div>
+                <canvas id="minMaxCanvas" width="500" height="300"></canvas>
+                <div id="minmax-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración para el máximo:</strong>
+                \[
+                \begin{align*}
+                F_{X_{(n)}}(x) &= \mathbb{P}(X_{(n)} \le x) = \mathbb{P}(X_1 \le x, \ldots, X_n \le x) \\
+                &= \prod_{i=1}^n \mathbb{P}(X_i \le x) = [F(x)]^n
+                \end{align*}
+                \]
+                Derivando: \(f_{X_{(n)}}(x) = n f(x) [F(x)]^{n-1}\)
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF:</strong> Para uniformes en (0,1), \(F(x)=x\).
+                \[
+                f_{X_{(n)}}(x) = n x^{n-1}, \quad 0 \le x \le 1
+                \]
+                \[
+                f_{X_{(1)}}(x) = n (1-x)^{n-1}, \quad 0 \le x \le 1
+                \]
+                El mínimo tiende a 0 y el máximo tiende a 1 cuando \(n\) crece.
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Distribución del r-ésimo estadístico de orden   -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Distribución del r-ésimo Estadístico de Orden</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La función de densidad del <strong>r-ésimo estadístico de orden</strong> \(X_{(r)}\) es:
+                \[
+                f_{X_{(r)}}(x) = n \binom{n-1}{r-1} f(x) [F(x)]^{r-1} [1 - F(x)]^{n-r}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización: Densidad del percentil muestral</h4>
+                <div class="controles">
+                    <label>n (tamaño muestra):</label>
+                    <input type="range" id="n-r" min="2" max="30" step="1" value="10">
+                    <span id="n-r-val">10</span>
+                    <label>r (estadístico de orden):</label>
+                    <input type="range" id="r-orden" min="1" max="30" step="1" value="5">
+                    <span id="r-val">5</span>
+                </div>
+                <canvas id="rOrdenCanvas" width="500" height="300"></canvas>
+                <div id="r-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Interpretación intuitiva (argumento de Blitzstein & Hwang):</strong>
+                <br>
+                Para que \(X_{(r)}\) caiga en \([x, x+dx]\):
+                <ol>
+                    <li>Una observación cae en \(dx\): \(n f(x) dx\)</li>
+                    <li>Elegir \((r-1)\) observaciones de las \((n-1)\) restantes que caen a la izquierda: \(\binom{n-1}{r-1} [F(x)]^{r-1}\)</li>
+                    <li>Las \((n-r)\) observaciones restantes caen a la derecha: \([1-F(x)]^{n-r}\)</li>
+                </ol>
+                Multiplicando se obtiene la fórmula.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué distribución tiene la mediana muestral para uniformes?</strong>
+                <button onclick="mostrarRespuesta('respuesta-mediana-orden')">Ver respuesta</button>
+                <div id="respuesta-mediana-orden" class="respuesta">
+                    Para \(n\) impar, \(r = (n+1)/2\). En uniformes (0,1), la densidad de la mediana es
+                    \[
+                    f_{X_{(r)}}(x) = \frac{n!}{[(r-1)!]^2} x^{r-1} (1-x)^{r-1}
+                    \]
+                    ¡Es una distribución <strong>Beta(\(r, r\))</strong>!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Distribución Conjunta (Mínimo, Máximo) y Rango  -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Distribución del Rango</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                El <strong>rango</strong> de la muestra es \(R = X_{(n)} - X_{(1)}\).
+                Su densidad está dada por:
+                \[
+                f_R(r) = n(n-1) \int_{-\infty}^{\infty} f(u) f(r+u) [F(r+u) - F(u)]^{n-2} du, \quad r \ge 0
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Distribución del rango para Uniforme(0,1)</h4>
+                <div class="controles">
+                    <label>n (tamaño muestra):</label>
+                    <input type="range" id="n-rango" min="2" max="30" step="1" value="10">
+                    <span id="n-rango-val">10</span>
+                    <button id="simular-rango">Simular rango</button>
+                </div>
+                <canvas id="rangoCanvas" width="500" height="250"></canvas>
+                <div id="rango-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Derivación de la densidad conjunta de (X₁, Xₙ):</strong>
+                \[
+                \begin{align*}
+                F_{1n}(x,y) &= \mathbb{P}(X_{(1)} \le x, X_{(n)} \le y) \\
+                &= \mathbb{P}(X_{(n)} \le y) - \mathbb{P}(X_{(1)} > x, X_{(n)} \le y) \\
+                &= [F(y)]^n - [F(y) - F(x)]^n
+                \end{align*}
+                \]
+                Derivando: \(f_{1n}(x,y) = n(n-1) f(x) f(y) [F(y) - F(x)]^{n-2}\)
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo importante:</strong> Para uniformes en (0,1), la densidad del rango es
+                \[
+                f_R(r) = n(n-1) r^{n-2} (1-r), \quad 0 \le r \le 1
+                \]
+                ¡El rango tiene distribución <strong>Beta(\(n-1, 2\))</strong>!
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué pasa con el rango cuando n crece?</strong>
+                <button onclick="mostrarRespuesta('respuesta-rango')">Ver respuesta</button>
+                <div id="respuesta-rango" class="respuesta">
+                    Para uniformes (0,1), \(\mathbb{E}[R] = \frac{n-1}{n+1} \to 1\) cuando \(n \to \infty\).
+                    El rango tiende a 1 (cubre todo el intervalo). La varianza \(\operatorname{var}(R) = \frac{2(n-1)}{(n+1)^2(n+2)} \to 0\).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Densidad Conjunta de Todos los Estadísticos     -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Densidad Conjunta de los Estadísticos de Orden</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La densidad conjunta de todos los estadísticos de orden es:
+                \[
+                f_{X_{(1)},\ldots,X_{(n)}}(y_1,\ldots,y_n) = n! \prod_{i=1}^n f(y_i), \quad y_1 < y_2 < \cdots < y_n
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización: Espaciados de uniformes</h4>
+                <div class="controles">
+                    <label>n (tamaño muestra):</label>
+                    <input type="range" id="n-espaciados" min="2" max="10" step="1" value="5">
+                    <span id="n-espaciados-val">5</span>
+                    <button id="generar-espaciados">Generar espaciados</button>
+                </div>
+                <canvas id="espaciadosCanvas" width="500" height="250"></canvas>
+                <div id="espaciados-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración:</strong>
+                <br>
+                La transformación de \((X_1,\ldots,X_n)\) a \((X_{(1)},\ldots,X_{(n)})\) es una permutación.
+                Hay \(n!\) permutaciones posibles, cada una con determinante jacobiano 1.
+                Por el teorema de transformación multivariado:
+                \[
+                f_{Y}(y) = \sum_{\text{permutaciones}} f_X(h(y)) = n! \prod_{i=1}^n f(y_i), \quad y_1 < \cdots < y_n
+                \]
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Propiedad importante:</strong> Los <strong>espaciados</strong> \(D_i = X_{(i)} - X_{(i-1)}\) (con \(X_{(0)}=0\)) 
+                tienen propiedades especiales. Para uniformes (0,1), los vectores de espaciados tienen distribución
+                <strong>Dirichlet</strong> con parámetros \(\alpha_i = 1\).
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Cuál es la probabilidad de que \(X_k\) sea el mínimo de una muestra?</strong>
+                <button onclick="mostrarRespuesta('respuesta-minimo-especifico')">Ver respuesta</button>
+                <div id="respuesta-minimo-especifico" class="respuesta">
+                    Para exponenciales con tasas distintas:
+                    \[
+                    \mathbb{P}(X_k = \min\{X_1,\ldots,X_n\}) = \frac{\lambda_k}{\sum_{i=1}^n \lambda_i}
+                    \]
+                    (resultado demostrado en el PDF). Para i.i.d., la probabilidad es \(1/n\).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 6: Aplicación - Personas en una milla             -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>6. Aplicación: Personas en una milla (problema del PDF)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Problema:</strong> Se distribuyen \(n\) personas "al azar" a lo largo de una milla.
+                ¿Cuál es la probabilidad de que no haya dos personas a menos de \(d\) millas de distancia?
+            </div>
+
+            <div class="simulador">
+                <h4>Simulación del problema de las personas</h4>
+                <div class="controles">
+                    <label>n (número de personas):</label>
+                    <input type="range" id="n-personas" min="2" max="10" step="1" value="3">
+                    <span id="n-personas-val">3</span>
+                    <label>d (distancia mínima):</label>
+                    <input type="range" id="d-personas" min="0.05" max="0.5" step="0.01" value="0.2">
+                    <span id="d-personas-val">0.20</span>
+                    <button id="simular-personas">Simular</button>
+                </div>
+                <canvas id="personasCanvas" width="500" height="200"></canvas>
+                <div id="personas-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Solución teórica (del PDF):</strong>
+                <br>
+                La probabilidad es \(p = [1 - (n-1)d]^n\) para \(d < 1/(n-1)\).
+                <br>
+                Para \(n=3\), \(p = (1-2d)^3\).
+                <br>
+                La demostración usa la densidad conjunta de los estadísticos de orden:
+                \[
+                p = \int_0^{1-(n-1)d} \int_{y_1+d}^{1-(n-2)d} \cdots \int_{y_{n-1}+d}^{1} n! \, dy_n \cdots dy_1 = [1-(n-1)d]^n
+                \]
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué pasa cuando \(d\) es muy pequeño o muy grande?</strong>
+                <button onclick="mostrarRespuesta('respuesta-personas')">Ver respuesta</button>
+                <div id="respuesta-personas" class="respuesta">
+                    Si \(d \to 0\), \(p \to 1\) (es fácil que no haya dos personas cerca).
+                    Si \(d \ge 1/(n-1)\), \(p = 0\) (es imposible que todas estén separadas por esa distancia,
+                    pues \((n-1)d\) excede la longitud total de la milla).
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // Helper para toggle de módulos
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: Muestra y estadísticos de orden
+    // ============================================================
+    function generarMuestra() {
+        const n = parseInt(document.getElementById('n-muestra').value);
+        const dist = document.getElementById('dist-orden').value;
+        document.getElementById('n-muestra-val').textContent = n;
+        
+        let muestras = [];
+        for(let i=0; i<n; i++) {
+            let val;
+            if(dist === 'uniforme') val = Math.random();
+            else if(dist === 'normal') val = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            else val = -Math.log(Math.random());
+            muestras.push(val);
+        }
+        
+        const ordenadas = [...muestras].sort((a,b)=>a-b);
+        
+        const canvas = document.getElementById('muestraCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const minVal = Math.min(...muestras);
+            const maxVal = Math.max(...muestras);
+            const range = maxVal - minVal;
+            
+            for(let i=0; i<n; i++) {
+                const x = ((muestras[i] - minVal) / range) * w;
+                const y = 50 + (i % 2) * 20;
+                ctx.fillStyle = '#2196f3';
+                ctx.beginPath();
+                ctx.arc(x, y, 5, 0, 2*Math.PI);
+                ctx.fill();
+            }
+            
+            // Marcar estadísticos de orden
+            for(let i=0; i<n; i++) {
+                const x = ((ordenadas[i] - minVal) / range) * w;
+                const y = h - 30 - (i / n) * h * 0.6;
+                ctx.fillStyle = '#f44336';
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, 2*Math.PI);
+                ctx.fill();
+            }
+        }
+        
+        document.getElementById('orden-info').innerHTML = 
+            `Muestra: [${muestras.map(v=>v.toFixed(3)).join(', ')}]<br>
+            Ordenados: [${ordenadas.map(v=>v.toFixed(3)).join(', ')}]<br>
+            Mínimo = ${ordenadas[0].toFixed(3)} | Máximo = ${ordenadas[n-1].toFixed(3)} | Rango = ${(ordenadas[n-1]-ordenadas[0]).toFixed(3)}`;
+    }
+    
+    // ============================================================
+    // MODULO 2: Mínimo y máximo
+    // ============================================================
+    function dibujarMinMax() {
+        const n = parseInt(document.getElementById('n-mm').value);
+        document.getElementById('n-mm-val').textContent = n;
+        
+        const canvas = document.getElementById('minMaxCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            // Máximo
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const x = (i / w);
+                const dens = n * Math.pow(x, n-1);
+                const y = h - (dens / n) * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Mínimo
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const x = (i / w);
+                const dens = n * Math.pow(1-x, n-1);
+                const y = h - (dens / n) * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#4caf50';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        document.getElementById('minmax-info').innerHTML = 
+            `\(f_{X_{(n)}}(x) = ${n} x^{${n-1}}\) (máximo, rojo) | \(f_{X_{(1)}}(x) = ${n} (1-x)^{${n-1}}\) (mínimo, verde)`;
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 3: r-ésimo estadístico de orden
+    // ============================================================
+    function dibujarROrden() {
+        const n = parseInt(document.getElementById('n-r').value);
+        let r = parseInt(document.getElementById('r-orden').value);
+        if(r > n) r = n;
+        document.getElementById('n-r-val').textContent = n;
+        document.getElementById('r-val').textContent = r;
+        document.getElementById('r-orden').max = n;
+        
+        const canvas = document.getElementById('rOrdenCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            function comb(n,k) {
+                if(k<0 || k>n) return 0;
+                let res = 1;
+                for(let i=0; i<k; i++) res *= (n-i)/(i+1);
+                return res;
+            }
+            
+            const coef = n * comb(n-1, r-1);
+            
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const x = (i / w);
+                let dens = 0;
+                if(x>0 && x<1) {
+                    dens = coef * Math.pow(x, r-1) * Math.pow(1-x, n-r);
+                }
+                const y = h - (dens / (coef * Math.pow(0.5, n-1))) * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        document.getElementById('r-info').innerHTML = 
+            `\(f_{X_{(${r})}}(x) = ${n} \\binom{${n-1}}{${r-1}} x^{${r-1}} (1-x)^{${n-r}}\)`;
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 4: Rango
+    // ============================================================
+    function simularRango() {
+        const n = parseInt(document.getElementById('n-rango').value);
+        document.getElementById('n-rango-val').textContent = n;
+        
+        const nSim = 5000;
+        const rangos = [];
+        for(let s=0; s<nSim; s++) {
+            let muestra = [];
+            for(let i=0; i<n; i++) muestra.push(Math.random());
+            const min = Math.min(...muestra);
+            const max = Math.max(...muestra);
+            rangos.push(max - min);
+        }
+        
+        const canvas = document.getElementById('rangoCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(30).fill(0);
+            for(let r of rangos) {
+                const idx = Math.min(29, Math.floor(r * 30));
+                bins[idx]++;
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w / 30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i] / maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
+            }
+            
+            // Densidad teórica: Beta(n-1, 2)
+            ctx.beginPath();
+            const coef = (n-1)*n;
+            for(let i=0; i<w; i++) {
+                const r = (i / w);
+                let dens = 0;
+                if(r>0 && r<1) dens = coef * Math.pow(r, n-2) * (1-r);
+                const y = h - (dens / (coef * Math.pow(0.5, n-2) * 0.5)) * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        const mediaTeorica = (n-1)/(n+1);
+        document.getElementById('rango-info').innerHTML = 
+            `Distribución del rango: \(f_R(r) = ${n}(${n-1}) r^{${n-2}} (1-r)\)<br>
+            \(\\mathbb{E}[R] = ${mediaTeorica.toFixed(4)}\)`;
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 5: Espaciados
+    // ============================================================
+    function generarEspaciados() {
+        const n = parseInt(document.getElementById('n-espaciados').value);
+        document.getElementById('n-espaciados-val').textContent = n;
+        
+        const canvas = document.getElementById('espaciadosCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            let muestra = [];
+            for(let i=0; i<n; i++) muestra.push(Math.random());
+            muestra.sort((a,b)=>a-b);
+            
+            let espaciados = [muestra[0]];
+            for(let i=1; i<n; i++) espaciados.push(muestra[i] - muestra[i-1]);
+            espaciados.push(1 - muestra[n-1]);
+            
+            const barWidth = w / (n+1);
+            for(let i=0; i<=n; i++) {
+                const barHeight = espaciados[i] * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*barWidth + 2, h - barHeight, barWidth-4, barHeight);
+                ctx.fillStyle = '#333';
+                ctx.fillText(espaciados[i].toFixed(3), i*barWidth + 5, h - barHeight - 5);
+            }
+        }
+        
+        document.getElementById('espaciados-info').innerHTML = 
+            `Los espaciados de uniformes tienen distribución Dirichlet(1,...,1).<br>
+            Se distribuyen como exponenciales normalizadas.`;
+    }
+    
+    // ============================================================
+    // MODULO 6: Personas en una milla
+    // ============================================================
+    function simularPersonas() {
+        const n = parseInt(document.getElementById('n-personas').value);
+        const d = parseFloat(document.getElementById('d-personas').value);
+        document.getElementById('n-personas-val').textContent = n;
+        document.getElementById('d-personas-val').textContent = d.toFixed(2);
+        
+        const nSim = 5000;
+        let exitos = 0;
+        
+        for(let s=0; s<nSim; s++) {
+            let posiciones = [];
+            for(let i=0; i<n; i++) posiciones.push(Math.random());
+            posiciones.sort((a,b)=>a-b);
+            let ok = true;
+            for(let i=1; i<n; i++) {
+                if(posiciones[i] - posiciones[i-1] < d) {
+                    ok = false;
+                    break;
+                }
+            }
+            if(ok) exitos++;
+        }
+        
+        const probMuestral = exitos / nSim;
+        const probTeorica = d < 1/(n-1) ? Math.pow(1 - (n-1)*d, n) : 0;
+        
+        const canvas = document.getElementById('personasCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            // Mostrar una realización
+            let posiciones = [];
+            for(let i=0; i<n; i++) posiciones.push(Math.random());
+            posiciones.sort((a,b)=>a-b);
+            
+            for(let i=0; i<n; i++) {
+                const x = posiciones[i] * w;
+                ctx.fillStyle = '#2196f3';
+                ctx.beginPath();
+                ctx.arc(x, h/2, 8, 0, 2*Math.PI);
+                ctx.fill();
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 12px sans-serif';
+                ctx.fillText((i+1).toString(), x-4, h/2+4);
+            }
+        }
+        
+        document.getElementById('personas-info').innerHTML = 
+            `Probabilidad muestral: ${probMuestral.toFixed(4)} | Teórica: ${probTeorica.toFixed(4)}<br>
+            Fórmula: \(p = [1 - (n-1)d]^n = [1 - ${(n-1)*d}]^{${n}} = ${Math.pow(Math.max(0,1-(n-1)*d),n).toFixed(4)}\)`;
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // Inicialización
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // Módulo 1
+        document.getElementById('n-muestra')?.addEventListener('input', generarMuestra);
+        document.getElementById('dist-orden')?.addEventListener('change', generarMuestra);
+        document.getElementById('generar-muestra')?.addEventListener('click', generarMuestra);
+        generarMuestra();
+        
+        // Módulo 2
+        document.getElementById('n-mm')?.addEventListener('input', dibujarMinMax);
+        dibujarMinMax();
+        
+        // Módulo 3
+        document.getElementById('n-r')?.addEventListener('input', dibujarROrden);
+        document.getElementById('r-orden')?.addEventListener('input', dibujarROrden);
+        dibujarROrden();
+        
+        // Módulo 4
+        document.getElementById('n-rango')?.addEventListener('input', simularRango);
+        document.getElementById('simular-rango')?.addEventListener('click', simularRango);
+        simularRango();
+        
+        // Módulo 5
+        document.getElementById('n-espaciados')?.addEventListener('input', generarEspaciados);
+        document.getElementById('generar-espaciados')?.addEventListener('click', generarEspaciados);
+        generarEspaciados();
+        
+        // Módulo 6
+        document.getElementById('n-personas')?.addEventListener('input', simularPersonas);
+        document.getElementById('d-personas')?.addEventListener('input', simularPersonas);
+        document.getElementById('simular-personas')?.addEventListener('click', simularPersonas);
+        simularPersonas();
+        
+        // Observador para cambio de tema
+        const observer = new MutationObserver(() => {
+            dibujarMinMax();
+            dibujarROrden();
+        });
+        observer.observe(document.body, {attributes: true});
+        
+        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
+    });
+</script>
+</body>
+</html>
