@@ -133,6 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof window.inicializarModuloMultinomial === 'function') {
             window.inicializarModuloMultinomial();
         }
+         if (typeof window.inicializarModuloNormal === 'function') {
+            window.inicializarModuloNormal();
+        }
     }
 
     const loadContent = (filePath, chapter = null) => {
