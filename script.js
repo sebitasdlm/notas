@@ -127,6 +127,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof window.inicializarModuloEsperanza === 'function') {
             window.inicializarModuloEsperanza();
         }
+        if (typeof window.inicializarModuloFGM === 'function') {
+            window.inicializarModuloFGM();  
+        }
     }
 
     const loadContent = (filePath, chapter = null) => {
