@@ -1,0 +1,13 @@
+{
+    "chapters": {
+        "Espacios_Probabilidad.html": "Espacios de Probabilidad",
+        "Conteo.html": "Técnicas de Conteo",
+        "Prob_Condicional.html": "Probabilidad Condicional",
+        "VA.html": "Variables Aleatorias",
+        "VA_Carac.html": "Carácterísticas de una Variable Aleatoria",
+        "FGM.html": "Función Generadora de Momentos",
+        "Desigualdades1.html": "Desigualdades",
+        "Dist_Dis_Par.html": "Distribuciones Discretas Paramétricas",
+        "Dist_Cont_Par.html": "Distribuciones Continuas Paramétricas"
+    }
+}
