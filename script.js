@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let chapters = [];
     let chapterNames = [];
 
-    fetch('chapters.json')
+    fetch('CPII/chapters.json')
         .then(response => response.json())
         .then(data => {
             chapters = Object.keys(data.chapters);
