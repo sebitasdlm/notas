@@ -142,6 +142,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof window.inicializarModuloSumaCociente === 'function') {
             window.inicializarModuloSumaCociente();
         }
+        if (typeof window.inicializarModuloEstadisticos === 'function') {
+            window.inicializarModuloEstadisticos();
+        }
     }
 
     const loadContent = (filePath, chapter = null) => {
