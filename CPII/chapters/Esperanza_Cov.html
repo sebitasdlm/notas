@@ -556,7 +556,6 @@
     // ============================================================
     // MODULO 1: Esperanza de funciones
     // ============================================================
-    // Distribución conjunta de dados honestos (1/36 cada celda)
     function calcularEsperanzaFuncion() {
         const func = document.getElementById('funcion-selector').value;
         let suma = 0;
@@ -570,20 +569,19 @@
                 suma += g * (1/36);
             }
         }
-        const ex = (func === 'suma') ? 7 : (func === 'producto') ? 12.25 : null;
         document.getElementById('resultado-esperanza').innerHTML = 
-            `\(\mathbb{E}[${document.getElementById('funcion-selector').options[document.getElementById('funcion-selector').selectedIndex].text}] = ${suma.toFixed(4)}\)`;
+            `\\(\\mathbb{E}[${document.getElementById('funcion-selector').options[document.getElementById('funcion-selector').selectedIndex].text}] = ${suma.toFixed(4)}\\)`;
         
         let detalle = '';
         if(func === 'suma') detalle = 'E[X+Y] = E[X] + E[Y] = 3.5 + 3.5 = 7';
         else if(func === 'producto') detalle = 'E[XY] = 12.25. Nota: E[X]·E[Y] = 3.5·3.5 = 12.25 (son independientes)';
         else detalle = 'Calculado directamente sumando sobre los 36 pares.';
         document.getElementById('detalle-calculo').innerHTML = detalle;
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
-    // MODULO 2: Correlación (visualización con datos normales)
+    // MODULO 2: Correlación
     // ============================================================
     let puntosActuales = [];
     function generarPuntosCorrelacion(rho, n=200) {
@@ -610,7 +608,6 @@
         
         if(puntosActuales.length === 0) return;
         
-        // Escalar a [-3,3] en ambos ejes
         for(let p of puntosActuales) {
             const x = (p[0] + 3) / 6 * w;
             const y = h - (p[1] + 3) / 6 * h;
@@ -622,7 +619,6 @@
             }
         }
         
-        // Calcular correlación muestral
         let sumX=0, sumY=0, sumXY=0, sumX2=0, sumY2=0;
         for(let p of puntosActuales) {
             sumX += p[0];
@@ -687,12 +683,12 @@
         const media = muestraActual.reduce((a,b)=>a+b,0)/muestraActual.length;
         const varMuestral = muestraActual.reduce((a,b)=>a+(b-media)*(b-media),0)/(muestraActual.length-1);
         document.getElementById('resultados-muestra').innerHTML = 
-            `n = ${muestraActual.length} | \(\bar{x} = ${media.toFixed(4)}\) | \(s^2 = ${varMuestral.toFixed(4)}\) | \(s = ${Math.sqrt(varMuestral).toFixed(4)}\)`;
-        if(window.MathJax) MathJax.typeset();
+            `n = ${muestraActual.length} | \\(\\bar{x} = ${media.toFixed(4)}\\) | \\(s^2 = ${varMuestral.toFixed(4)}\\) | \\(s = ${Math.sqrt(varMuestral).toFixed(4)}\\)`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
-    // MODULO 4: Matriz de covarianzas (elipse)
+    // MODULO 4: Matriz de covarianzas
     // ============================================================
     function dibujarElipseCovarianza() {
         const canvas = document.getElementById('covarianzaCanvas');
@@ -714,11 +710,10 @@
         
         const rho = cov12 / Math.sqrt(var1 * var2);
         document.getElementById('matriz-info').innerHTML = 
-            `\(\Sigma = \begin{pmatrix} ${var1.toFixed(2)} & ${cov12.toFixed(2)} \\ ${cov12.toFixed(2)} & ${var2.toFixed(2)} \end{pmatrix}\) | ρ = ${rho.toFixed(4)}`;
+            `\\(\\Sigma = \\begin{pmatrix} ${var1.toFixed(2)} & ${cov12.toFixed(2)} \\\\ ${cov12.toFixed(2)} & ${var2.toFixed(2)} \\end{pmatrix}\\) | ρ = ${rho.toFixed(4)}`;
         
-        // Dibujar elipse al 95% (contorno)
         const centerX = w/2, centerY = h/2;
-        const escala = 2.447; // 95% para 2 df
+        const escala = 2.447;
         const eigen1 = (var1 + var2 + Math.sqrt((var1-var2)*(var1-var2) + 4*cov12*cov12))/2;
         const eigen2 = (var1 + var2 - Math.sqrt((var1-var2)*(var1-var2) + 4*cov12*cov12))/2;
         const angulo = 0.5 * Math.atan2(2*cov12, var1 - var2);
@@ -735,7 +730,7 @@
         ctx.stroke();
         ctx.restore();
         
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -748,7 +743,6 @@
         const resultados = [];
         
         for(let sim=0; sim<nSim; sim++) {
-            // Poisson por aproximación
             let N = 0;
             let prod = Math.exp(-lambda);
             let p = prod;
@@ -758,10 +752,8 @@
                 prod *= lambda / N;
                 p += prod;
             }
-            // Gamma con α=53, β=1.25 tendría media 66.25. Aproximamos con normal por simplicidad
             let sumaPesos = 0;
             for(let i=0; i<N; i++) {
-                // Normal truncada positiva
                 let peso = Math.max(30, pesoMean + (Math.random() - 0.5) * 20);
                 sumaPesos += peso;
             }
@@ -771,7 +763,6 @@
         const media = resultados.reduce((a,b)=>a+b,0)/nSim;
         const varianza = resultados.reduce((a,b)=>a+(b-media)*(b-media),0)/(nSim-1);
         
-        // Histograma simple
         const canvas = document.getElementById('elevadorCanvas');
         if(canvas) {
             const ctx = canvas.getContext('2d');
@@ -821,14 +812,13 @@
         document.getElementById('p-val').textContent = p.toFixed(2);
         document.getElementById('sigma-val').textContent = sigma.toFixed(1);
         
-        const mediaMezcla = 0;
         const varMezcla = p*1 + (1-p)*sigma*sigma;
         document.getElementById('mezcla-info').innerHTML = 
             `Mezcla: p·N(0,1) + (1-p)·N(0,${sigma.toFixed(1)}²)<br>
             E[X] = 0 | Var(X) = ${varMezcla.toFixed(4)}`;
         
-        // Dibujar la densidad
         const xMin = -6, xMax = 6;
+        ctx.beginPath();
         for(let px=0; px<w; px++) {
             const x = xMin + (px / w) * (xMax - xMin);
             const dens1 = Math.exp(-x*x/2) / Math.sqrt(2*Math.PI);
@@ -844,43 +834,60 @@
     }
     
     // ============================================================
-    // Inicialización y eventos
+    // FUNCIÓN PRINCIPAL DE INICIALIZACIÓN (se llama desde script.js)
     // ============================================================
-    document.addEventListener('DOMContentLoaded', () => {
+    window.inicializarModuloEsperanza = function() {
         // Módulo 1
         const btnEsperanza = document.getElementById('calcular-esperanza');
-        if(btnEsperanza) btnEsperanza.addEventListener('click', calcularEsperanzaFuncion);
+        if(btnEsperanza) {
+            btnEsperanza.removeEventListener('click', calcularEsperanzaFuncion);
+            btnEsperanza.addEventListener('click', calcularEsperanzaFuncion);
+        }
         calcularEsperanzaFuncion();
         
         // Módulo 2
         const rhoSlider = document.getElementById('rho-slider');
         const btnGenerar = document.getElementById('generar-muestra');
         if(rhoSlider) {
-            rhoSlider.addEventListener('input', () => {
+            const updateRho = () => {
                 document.getElementById('rho-valor').textContent = parseFloat(rhoSlider.value).toFixed(2);
                 puntosActuales = generarPuntosCorrelacion(parseFloat(rhoSlider.value));
                 dibujarCorrelacion();
-            });
+            };
+            rhoSlider.removeEventListener('input', updateRho);
+            rhoSlider.addEventListener('input', updateRho);
             puntosActuales = generarPuntosCorrelacion(0.8);
             dibujarCorrelacion();
         }
-        if(btnGenerar) btnGenerar.addEventListener('click', () => {
-            puntosActuales = generarPuntosCorrelacion(parseFloat(rhoSlider.value));
-            dibujarCorrelacion();
-        });
+        if(btnGenerar) {
+            btnGenerar.removeEventListener('click', () => {
+                puntosActuales = generarPuntosCorrelacion(parseFloat(rhoSlider.value));
+                dibujarCorrelacion();
+            });
+            btnGenerar.addEventListener('click', () => {
+                puntosActuales = generarPuntosCorrelacion(parseFloat(rhoSlider.value));
+                dibujarCorrelacion();
+            });
+        }
         
         // Módulo 3
         const distSelect = document.getElementById('distribucion-muestra');
         const nSlider = document.getElementById('n-muestra');
         const btnGenerarMuestra = document.getElementById('generar-muestra-2');
-        if(nSlider) nSlider.addEventListener('input', () => document.getElementById('n-valor').textContent = nSlider.value);
+        if(nSlider) {
+            nSlider.removeEventListener('input', () => {});
+            nSlider.addEventListener('input', () => document.getElementById('n-valor').textContent = nSlider.value);
+        }
         const actualizarMuestra = () => {
             const n = parseInt(nSlider.value);
             const dist = distSelect.value;
             muestraActual = generarMuestra(dist, n);
             dibujarMuestra();
         };
-        if(btnGenerarMuestra) btnGenerarMuestra.addEventListener('click', actualizarMuestra);
+        if(btnGenerarMuestra) {
+            btnGenerarMuestra.removeEventListener('click', actualizarMuestra);
+            btnGenerarMuestra.addEventListener('click', actualizarMuestra);
+        }
         actualizarMuestra();
         
         // Módulo 4
@@ -888,39 +895,61 @@
         const var2Slider = document.getElementById('var2');
         const cov12Slider = document.getElementById('cov12');
         const actualizarCovarianza = () => dibujarElipseCovarianza();
-        if(var1Slider) var1Slider.addEventListener('input', actualizarCovarianza);
-        if(var2Slider) var2Slider.addEventListener('input', actualizarCovarianza);
-        if(cov12Slider) cov12Slider.addEventListener('input', actualizarCovarianza);
+        if(var1Slider) {
+            var1Slider.removeEventListener('input', actualizarCovarianza);
+            var1Slider.addEventListener('input', actualizarCovarianza);
+        }
+        if(var2Slider) {
+            var2Slider.removeEventListener('input', actualizarCovarianza);
+            var2Slider.addEventListener('input', actualizarCovarianza);
+        }
+        if(cov12Slider) {
+            cov12Slider.removeEventListener('input', actualizarCovarianza);
+            cov12Slider.addEventListener('input', actualizarCovarianza);
+        }
         actualizarCovarianza();
         
         // Módulo 5
         const lambdaSlider = document.getElementById('lambda-poisson');
         const pesoSlider = document.getElementById('peso-mean');
         const btnElevador = document.getElementById('simular-elevador');
-        if(lambdaSlider) lambdaSlider.addEventListener('input', () => document.getElementById('lambda-val').textContent = lambdaSlider.value);
-        if(pesoSlider) pesoSlider.addEventListener('input', () => document.getElementById('peso-mean-val').textContent = pesoSlider.value);
-        if(btnElevador) btnElevador.addEventListener('click', simularElevador);
+        if(lambdaSlider) {
+            lambdaSlider.removeEventListener('input', () => {});
+            lambdaSlider.addEventListener('input', () => document.getElementById('lambda-val').textContent = lambdaSlider.value);
+        }
+        if(pesoSlider) {
+            pesoSlider.removeEventListener('input', () => {});
+            pesoSlider.addEventListener('input', () => document.getElementById('peso-mean-val').textContent = pesoSlider.value);
+        }
+        if(btnElevador) {
+            btnElevador.removeEventListener('click', simularElevador);
+            btnElevador.addEventListener('click', simularElevador);
+        }
         simularElevador();
         
         // Módulo 6
         const pSlider = document.getElementById('p-mezcla');
         const sigmaSlider = document.getElementById('sigma-mezcla');
         const actualizarMezcla = () => dibujarMezcla();
-        if(pSlider) pSlider.addEventListener('input', actualizarMezcla);
-        if(sigmaSlider) sigmaSlider.addEventListener('input', actualizarMezcla);
+        if(pSlider) {
+            pSlider.removeEventListener('input', actualizarMezcla);
+            pSlider.addEventListener('input', actualizarMezcla);
+        }
+        if(sigmaSlider) {
+            sigmaSlider.removeEventListener('input', actualizarMezcla);
+            sigmaSlider.addEventListener('input', actualizarMezcla);
+        }
         actualizarMezcla();
         
-        // Observador para cambio de tema
-        const observer = new MutationObserver(() => {
-            dibujarCorrelacion();
-            dibujarMuestra();
-            dibujarElipseCovarianza();
-            dibujarMezcla();
-        });
-        observer.observe(document.body, {attributes: true});
-        
-        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
-    });
+        if(window.MathJax) MathJax.typesetPromise();
+    };
+    
+    // Auto-inicializar cuando se carga el script
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.inicializarModuloEsperanza);
+    } else {
+        window.inicializarModuloEsperanza();
+    }
 </script>
 </body>
 </html>
