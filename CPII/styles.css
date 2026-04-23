@@ -1,0 +1,353 @@
+/* General settings */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #222; /* Default dark theme */
+    color: #f0f0f0;
+    counter-reset: section;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Light theme */
+body.light-theme {
+    background-color: #ffffff;
+    color: #333;
+}
+
+body.light-theme #sidebar {
+    background: #f4f4f4;
+    color: #333;
+    border-right: 1px solid #ddd;
+}
+
+body.light-theme #sidebar ul li a {
+    color: #333;
+}
+
+body.light-theme #sidebar ul li a:hover {
+    color: #4CAF50;
+}
+/* Ensure sidebar and header are blocks */
+header, #sidebar {
+    display: block;
+}
+/* Header */
+header {
+    background-color: #23712a;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    vertical-align: middle;
+}
+
+header a, img {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    vertical-align: middle;
+}
+
+header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2em;
+    cursor: pointer;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+/* Sidebar toggle button styling */
+#sidebar-toggle {
+    display: none; /* Hidden by default */
+}
+
+/* Show the toggle button on mobile */
+@media (max-width: 768px) {
+    #sidebar-toggle {
+        display: inline-block;
+        cursor: pointer;
+        font-size: 1.5rem;
+        background: none;
+        border: none;
+        color: white;
+        margin-right: 10px;
+    }
+}
+
+/* Sidebar visibility */
+#sidebar {
+    position: fixed;
+    left: 0;
+    width: 250px;
+    height: calc(100% - 60px);
+    background: #333;
+    color: #f0f0f0;
+    border-right: 1px solid #555;
+    padding: 15px;
+    overflow-y: auto;
+    transition: transform 0.3s ease;
+    transform: translateX(0);
+    /* Default visible */
+}
+
+/* Hide sidebar by default on mobile */
+@media (max-width: 768px) {
+    #sidebar.hidden {
+        transform: translateX(-260px);
+        /* Off-screen */
+    }
+}
+
+/* Show sidebar when the hidden class is toggled */
+#sidebar.hidden {
+    transform: translateX(-260px);
+    /* Slide in */
+}
+
+/* Sidebar toggle button styling */
+#sidebar-toggle {
+    display: none;
+    /* Hidden by default */
+}
+
+/* Show the toggle button on mobile */
+@media (max-width: 768px) {
+    #sidebar-toggle {
+        display: inline-block;
+        cursor: pointer;
+        font-size: 1.5rem;
+        background: none;
+        border: none;
+        color: white;
+        margin-right: 10px;
+    }
+
+}
+
+/* Sidebar content */
+#sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#sidebar ul li {
+    margin: 5px 0;
+}
+
+#sidebar ul.chapter-list > li {
+    font-weight: bold;
+}
+
+#sidebar ul.section-list {
+    margin-left: 15px;
+}
+
+#sidebar ul li a {
+    color: #f0f0f0;
+    text-decoration: none;
+}
+
+#sidebar ul li a:hover {
+    color: #4CAF50;
+}
+
+#home-link {
+    display: block;
+    color: #999;
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    text-align: center;
+    text-decoration: none;
+}
+#home-link:hover {
+    color: #4CAF50;
+}
+
+/* Main content */
+main {
+    margin-left: 280px;
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    main {
+        margin-left: 10px;
+    }
+}
+
+/* Numbered headings */
+h1 {
+    counter-reset: subsection;
+    margin: 20px 0 10px;
+    color: #4CAF50;
+}
+
+h2 {
+    counter-reset: subsubsection;
+    margin: 15px 0 10px;
+    color: #4CAF50;
+}
+
+h2::before {
+    /* content: counter(section) "." counter(subsection) " "; */
+    content: counter(subsection) ". ";
+    counter-increment: subsection;
+}
+
+h3 {
+    margin: 10px 0 10px;
+    color: #4CAF50;
+}
+
+h3::before {
+    content: counter(subsection) "." counter(subsubsection) " ";
+    counter-increment: subsubsection;
+}
+
+h4 {
+    margin: 20px 0px 10px;
+    color: #4CAF50;
+}
+
+h4::before {
+    content: "\25B6   ";
+}
+
+/* Exclude cover page headings from numbering */
+main.cover h1::before, 
+main.cover h2::before, 
+main.cover h3::before {
+    content: none !important;
+}
+
+/* Code blocks */
+pre {
+    background-color: #333;
+    color: #f0f0f0;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+/* Inline code */
+code {
+    background-color: #333;
+    color: #f0f0f0;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+/* Tables */
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+}
+
+table th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+}
+
+table th, table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+/* Links */
+a {
+    color: #80cc28;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+p.equation {
+    display: block;
+    width: 75%;
+    min-width: 300px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+p.todo {
+    background-color: #999;
+    color: #F00;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+/* Emphasized text */
+em {
+    margin: 5px;
+    padding: 2px 5px;
+    border: 1px solid #4CAF50;
+    border-radius: 3px;
+    display: inline-block;
+    max-width: 900px;
+}
+
+/* Bloque reutilizable para soluciones */
+.sol-toggle {
+    margin: 1rem 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+/* Encabezado clicable */
+.sol-toggle>summary {
+    list-style: none;
+    /* quita el marcador por defecto */
+    cursor: pointer;
+    padding: .6rem .9rem;
+    font-weight: 600;
+    color: #23712a;
+    user-select: none;
+    outline: none;
+}
+
+.sol-toggle>summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Flecha decorativa */
+.sol-toggle>summary::before {
+    content: "▶";
+    display: inline-block;
+    margin-right: .5rem;
+    transition: transform .2s ease;
+}
+
+.sol-toggle[open]>summary::before {
+    transform: rotate(90deg);
+}
+
+/* Texto dinámico Mostrar/Ocultar solo con CSS */
+.sol-toggle>summary .label::after {
+    content: "Mostrar solución";
+}
+
+.sol-toggle[open]>summary .label::after {
+    content: "Ocultar solución";
+}
+
+/* Contenido de la solución */
+.sol-content {
+    padding: .8rem .9rem 1rem;
+    border-top: 1px dashed #e5e7eb;
+    color: #1f2937;
+    background: #fff;
+}
