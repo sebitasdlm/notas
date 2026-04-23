@@ -1,1 +1,949 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Transformaciones de Variables - Capítulo 7</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Transformación Univariada (Teorema básico)      -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Transformación de Variables Aleatorias (Caso Univariado)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Si \(X\) es una variable aleatoria continua con densidad \(f_X\) y \(Y = g(X)\) es una transformación 
+                <strong>monótona</strong> (creciente o decreciente) y derivable, entonces:
+                \[
+                f_Y(y) = f_X(h(y)) \left| \frac{dh(y)}{dy} \right|, \quad \text{donde } h = g^{-1}
+                \]
+                Si \(g\) no es monótona, se particiona el soporte en regiones donde sí lo sea:
+                \[
+                f_Y(y) = \sum_{k=1}^{m} f_X(h_k(y)) \left| \frac{dh_k(y)}{dy} \right|
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Transformación de una uniforme a exponencial</h4>
+                <div class="controles">
+                    <label>λ (tasa exponencial):</label>
+                    <input type="range" id="lambda-exp" min="0.5" max="5" step="0.1" value="1">
+                    <span id="lambda-exp-val">1.0</span>
+                    <button id="generar-exp">Generar muestra exponencial</button>
+                </div>
+                <canvas id="expCanvas" width="500" height="250"></canvas>
+                <div id="exp-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Derivación: Transformación Uniforme → Exponencial</strong>
+                <br>
+                Sea \(U \sim \text{Unif}(0,1)\) y definimos \(Y = -\frac{1}{\lambda} \log(1-U)\).
+                <br>
+                \(F_U(u) = u\) para \(0<u<1\). La función inversa: \(u = h(y) = 1 - e^{-\lambda y}\).
+                <br>
+                \(\left| \frac{dh}{dy} \right| = \lambda e^{-\lambda y}\).
+                <br>
+                Entonces \(f_Y(y) = f_U(h(y)) \cdot \lambda e^{-\lambda y} = 1 \cdot \lambda e^{-\lambda y}\).
+                <br>
+                ¡Es la densidad de una exponencial con tasa λ!
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF: Transformación de una normal a lognormal</strong>
+                <br>
+                Si \(Y \sim N(\mu, \sigma^2)\) y \(X = e^Y\), entonces:
+                \[
+                f_X(x) = \frac{1}{x\sqrt{2\pi}\sigma} \exp\left\{-\frac{1}{2}\left(\frac{\log x - \mu}{\sigma}\right)^2\right\}, \quad x > 0
+                \]
+                Esta es la <strong>distribución Lognormal</strong>.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué pasa si aplicamos la transformación \(Y = X^2\) a una normal estándar?</strong>
+                <button onclick="mostrarRespuesta('respuesta-chi2')">Ver respuesta</button>
+                <div id="respuesta-chi2" class="respuesta">
+                    Si \(Z \sim N(0,1)\) y \(Y = Z^2\), la transformación no es monótona (tiene dos ramas: \(z = \pm\sqrt{y}\)).
+                    \[
+                    f_Y(y) = \frac{1}{2\sqrt{y}} [f_Z(\sqrt{y}) + f_Z(-\sqrt{y})] = \frac{1}{\sqrt{2\pi y}} e^{-y/2}, \quad y>0
+                    \]
+                    ¡Esta es la densidad de una \(\chi^2_1\) (Gamma con α=1/2, β=2)!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Distribución Lognormal                          -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Distribución Lognormal</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Una variable \(X\) tiene distribución <strong>lognormal</strong> con parámetros \(\mu\) y \(\sigma^2\) si
+                \(\log X \sim N(\mu, \sigma^2)\). Su densidad es:
+                \[
+                f_X(x) = \frac{1}{x\sqrt{2\pi}\sigma} \exp\left\{-\frac{1}{2}\left(\frac{\log x - \mu}{\sigma}\right)^2\right\}, \quad x > 0
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Explora la distribución Lognormal</h4>
+                <div class="controles">
+                    <label>μ (media en escala log):</label>
+                    <input type="range" id="mu-ln" min="-1" max="2" step="0.1" value="0">
+                    <span id="mu-ln-val">0.0</span>
+                    <label>σ (desviación en escala log):</label>
+                    <input type="range" id="sigma-ln" min="0.3" max="1.5" step="0.05" value="0.5">
+                    <span id="sigma-ln-val">0.50</span>
+                </div>
+                <canvas id="lognormalCanvas" width="500" height="300"></canvas>
+                <div id="lognormal-momentos" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedades de la Lognormal:</strong>
+                <ul>
+                    <li>\(\mathbb{E}[X] = \exp\left\{\mu + \frac{\sigma^2}{2}\right\}\)</li>
+                    <li>\(\operatorname{var}(X) = (e^{\sigma^2} - 1) e^{2\mu + \sigma^2}\)</li>
+                    <li>\(\mathbb{E}[X^r] = \exp\left\{r\mu + \frac{1}{2}r^2\sigma^2\right\}\) (todos los momentos finitos)</li>
+                    <li><strong>No tiene FGM</strong> (crece demasiado rápido)</li>
+                </ul>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración de los momentos:</strong>
+                <br>
+                Como \(\log X = Y \sim N(\mu, \sigma^2)\), la FGM de \(Y\) es \(m_Y(t) = e^{\mu t + \frac{1}{2}\sigma^2 t^2}\).
+                <br>
+                Entonces \(\mathbb{E}[X^r] = \mathbb{E}[e^{rY}] = m_Y(r) = \exp\left\{r\mu + \frac{1}{2}r^2\sigma^2\right\}\).
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué la lognormal no tiene FGM si tiene todos los momentos finitos?</strong>
+                <button onclick="mostrarRespuesta('respuesta-fgm-ln')">Ver respuesta</button>
+                <div id="respuesta-fgm-ln" class="respuesta">
+                    La FGM es \(m_X(t) = \mathbb{E}[e^{tX}]\). Para la lognormal, \(e^{tX}\) crece como 
+                    \(e^{t e^Y}\), que es super-exponencial. La integral diverge para cualquier \(t > 0\).
+                    Este es un contraejemplo clásico: tener todos los momentos finitos no garantiza la existencia de la FGM.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Transformación Integral de Probabilidad        -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Transformación Integral de Probabilidad</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Teorema fundamental de simulación:</strong>
+                <br>
+                Si \(X\) es una variable continua con función de distribución \(F_X\) estrictamente creciente,
+                entonces \(U = F_X(X) \sim \text{Unif}(0,1)\).
+                <br>
+                Recíprocamente, si \(U \sim \text{Unif}(0,1)\), entonces \(X = F_X^{-1}(U)\) tiene distribución \(F_X\).
+            </div>
+
+            <div class="simulador">
+                <h4>Demostración interactiva: de uniforme a cualquier distribución</h4>
+                <div class="controles">
+                    <label>Distribución objetivo:</label>
+                    <select id="dist-objetivo">
+                        <option value="exponencial">Exponencial(λ=1)</option>
+                        <option value="normal">Normal(μ=0, σ=1)</option>
+                        <option value="cauchy">Cauchy(0,1)</option>
+                    </select>
+                    <button id="simular-inversa">Generar muestra por inversa</button>
+                </div>
+                <canvas id="inversaCanvas" width="500" height="250"></canvas>
+                <div id="inversa-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración del teorema:</strong>
+                <br>
+                Para \(0 < u < 1\):
+                \[
+                F_U(u) = \mathbb{P}(U \le u) = \mathbb{P}(F_X(X) \le u) = \mathbb{P}(X \le F_X^{-1}(u)) = F_X(F_X^{-1}(u)) = u
+                \]
+                Por lo tanto, \(U \sim \text{Unif}(0,1)\).
+                <br>
+                Recíprocamente, si \(U \sim \text{Unif}(0,1)\) y \(X = F_X^{-1}(U)\), entonces:
+                \[
+                F_X(x) = \mathbb{P}(X \le x) = \mathbb{P}(F_X^{-1}(U) \le x) = \mathbb{P}(U \le F_X(x)) = F_X(x)
+                \]
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo:</strong> Para generar una exponencial con media θ, tomamos \(U \sim \text{Unif}(0,1)\) y hacemos
+                \[
+                X = F_X^{-1}(U) = -\theta \log(1-U)
+                \]
+                Este es el método empleado en el simulador del Módulo 1.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué es importante este teorema para la simulación computacional?</strong>
+                <button onclick="mostrarRespuesta('respuesta-simulacion')">Ver respuesta</button>
+                <div id="respuesta-simulacion" class="respuesta">
+                    Es la base de casi todos los generadores de números aleatorios no uniformes.
+                    La mayoría de los lenguajes de programación generan primero uniformes (fáciles de generar)
+                    y luego los transforman mediante \(F_X^{-1}\) para obtener muestras de cualquier distribución.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Transformaciones Multivariadas (Jacobiano)     -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Transformaciones Multivariadas y el Jacobiano</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Para transformaciones de vectores, la fórmula incluye el <strong>determinante jacobiano</strong>:
+                \[
+                f_Y(y) = f_X(h(y)) \cdot |J_h(y)|
+                \]
+                donde \(J_h(y) = \det\left( \frac{\partial h_i}{\partial y_j} \right)\).
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización: Transformación lineal de normales independientes</h4>
+                <div class="controles">
+                    <label>Matriz A (2x2):</label>
+                    <button id="transform-ejemplo1">A = [[1,1],[1,-1]] (suma y resta)</button>
+                    <button id="transform-ejemplo2">A = [[2,0],[0,1]] (escala)</button>
+                    <button id="transform-ejemplo3">A = [[cos θ, -sin θ],[sin θ, cos θ]] (rotación)</button>
+                </div>
+                <canvas id="transformCanvas" width="500" height="400"></canvas>
+                <div id="transform-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Ejemplo del PDF: \(X_1 = Z_1 + Z_2\), \(X_2 = Z_1 - Z_2\) con \(Z_i \sim N(0,1)\) i.i.d.</strong>
+                <br>
+                La transformación inversa: \(Z_1 = \frac{X_1+X_2}{2}\), \(Z_2 = \frac{X_1-X_2}{2}\)
+                <br>
+                Jacobiano: 
+                \[
+                J = \det\begin{pmatrix} 1/2 & 1/2 \\ 1/2 & -1/2 \end{pmatrix} = -\frac{1}{2}
+                \]
+                \[
+                f_X(x) = f_Z(h(x)) \cdot |J| = \frac{1}{2\pi} e^{-\frac{1}{2}\left[\left(\frac{x_1+x_2}{2}\right)^2 + \left(\frac{x_1-x_2}{2}\right)^2\right]} \cdot \frac{1}{2}
+                \]
+                Simplificando: \(f_X(x) = \frac{1}{\sqrt{2\pi}\sqrt{2}} e^{-x_1^2/4} \cdot \frac{1}{\sqrt{2\pi}\sqrt{2}} e^{-x_2^2/4}\)
+                <br>
+                ¡\(X_1\) y \(X_2\) son independientes \(N(0,2)\)!
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF: Transformación de uniformes a un rombo</strong>
+                <br>
+                Sean \(U_1, U_2 \sim \text{Unif}(0,1)\) independientes. Definimos \(X_1 = U_1 + U_2\), \(X_2 = U_1 - U_2\).
+                <br>
+                El soporte resultante es un rombo (ver figura en el PDF). La densidad conjunta es uniforme sobre el rombo:
+                \[
+                f_X(x) = \frac{1}{2} \mathbb{1}_{\{ |x_1| + |x_2| \le 2, |x_1| \le 2, |x_2| \le 1 \}}(x)
+                \]
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Distribución t de Student                       -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Distribución t de Student</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>distribución t de Student</strong> con \(n\) grados de libertad se define como:
+                \[
+                T = \frac{Z}{\sqrt{Y/n}}, \quad \text{donde } Z \sim N(0,1),\; Y \sim \chi^2_n \text{ independientes}
+                \]
+                Su densidad es:
+                \[
+                f_T(t) = \frac{\Gamma\left(\frac{n+1}{2}\right)}{\sqrt{n\pi}\,\Gamma\left(\frac{n}{2}\right)} \left(1 + \frac{t^2}{n}\right)^{-\frac{n+1}{2}}, \quad t \in \mathbb{R}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Comparativa: t-Student vs Normal</h4>
+                <div class="controles">
+                    <label>Grados de libertad n:</label>
+                    <input type="range" id="gl-t" min="1" max="50" step="1" value="5">
+                    <span id="gl-t-val">5</span>
+                </div>
+                <canvas id="tCanvas" width="500" height="300"></canvas>
+                <div id="t-propiedades" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedades de la distribución t:</strong>
+                <ul>
+                    <li>Simétrica alrededor de 0 (colas más pesadas que la normal)</li>
+                    <li>\(\mathbb{E}[T] = 0\) para \(n > 1\)</li>
+                    <li>\(\operatorname{var}(T) = \frac{n}{n-2}\) para \(n > 2\)</li>
+                    <li>Caso particular: \(t_1 \sim \text{Cauchy}(0,1)\) (varianza infinita)</li>
+                    <li>Cuando \(n \to \infty\), \(t_n \xrightarrow{D} N(0,1)\)</li>
+                </ul>
+            </div>
+
+            <div class="demostracion">
+                <strong>Derivación de la densidad t (resumida):</strong>
+                <br>
+                Usando la transformación \((T, U) = \left( \frac{Z}{\sqrt{Y/n}}, Y \right)\) con Jacobiano \(|J| = \sqrt{u/n}\).
+                <br>
+                Integrando sobre \(u\) se obtiene la forma cerrada de la densidad.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué la t tiene colas más pesadas que la normal?</strong>
+                <button onclick="mostrarRespuesta('respuesta-t')">Ver respuesta</button>
+                <div id="respuesta-t" class="respuesta">
+                    Porque \(Y\) (la chi-cuadrada en el denominador) introduce variabilidad adicional.
+                    Para grados de libertad pequeños, hay una probabilidad no despreciable de obtener valores pequeños de \(Y\),
+                    lo que hace que \(T\) sea más grande en magnitud.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 6: Transformación Box-Muller                       -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>6. Transformación Box-Muller</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>transformación Box-Muller</strong> (1958) permite generar dos normales estándar independientes
+                a partir de dos uniformes independientes:
+                \[
+                X_1 = \sqrt{-2\log U_1} \cos(2\pi U_2), \quad X_2 = \sqrt{-2\log U_1} \sin(2\pi U_2)
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Generador Box-Muller interactivo</h4>
+                <div class="controles">
+                    <button id="generar-boxmuller">Generar 1000 pares normales</button>
+                </div>
+                <canvas id="boxmullerCanvas" width="500" height="300"></canvas>
+                <div id="boxmuller-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración (esquema):</strong>
+                <br>
+                1. Primera transformación: \(R = \sqrt{-2\log U_1}\), \(\Theta = 2\pi U_2\)
+                <br>
+                Esto da \((R, \Theta)\) con densidad \(f_{R,\Theta}(r,\theta) = \frac{r}{2\pi} e^{-r^2/2}\) para \(r>0, 0<\theta<2\pi\).
+                <br>
+                2. Cambio a coordenadas cartesianas: \(X_1 = R\cos\Theta\), \(X_2 = R\sin\Theta\)
+                <br>
+                El Jacobiano de \((R,\Theta) \to (X_1,X_2)\) es \(1/r\), dando \(f_{X_1,X_2}(x_1,x_2) = \frac{1}{2\pi} e^{-(x_1^2+x_2^2)/2}\).
+                <br>
+                3. Esta es la densidad conjunta de dos normales estándar independientes.
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Importancia histórica:</strong> Antes de algoritmos más eficientes, Box-Muller era el método estándar
+                para generar normales. Hoy se usan métodos como el polar de Marsaglia o Ziggurat, 
+                pero Box-Muller sigue siendo elegante y didáctico.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué forma tiene la distribución conjunta de (X₁, X₂) generada por Box-Muller?</strong>
+                <button onclick="mostrarRespuesta('respuesta-boxmuller')">Ver respuesta</button>
+                <div id="respuesta-boxmuller" class="respuesta">
+                    Es una <strong>normal bivariada</strong> con media (0,0), varianzas 1 y correlación 0.
+                    Es decir, \(X_1\) y \(X_2\) son independientes \(N(0,1)\). ¡El gráfico de dispersión debe mostrar una nube circular!
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // Helper para toggle de módulos
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: Exponencial
+    // ============================================================
+    function generarExponencial() {
+        const lambda = parseFloat(document.getElementById('lambda-exp').value);
+        document.getElementById('lambda-exp-val').textContent = lambda.toFixed(1);
+        
+        const n = 5000;
+        const muestras = [];
+        for(let i=0; i<n; i++) {
+            const u = Math.random();
+            const y = -Math.log(1-u) / lambda;
+            muestras.push(y);
+        }
+        
+        const canvas = document.getElementById('expCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const max = Math.max(...muestras);
+            const bins = new Array(30).fill(0);
+            for(let val of muestras) {
+                const idx = Math.min(29, Math.floor(val / max * 30));
+                bins[idx]++;
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w / 30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i] / maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
+            }
+            
+            // Densidad teórica
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const x = (i / w) * max;
+                const dens = lambda * Math.exp(-lambda * x);
+                const y = h - (dens / lambda) * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        document.getElementById('exp-info').innerHTML = 
+            `Teoría: \(Y = -\\frac{1}{${lambda.toFixed(1)}} \\log(1-U)\) genera \(Y \\sim \\text{Exp}(${lambda.toFixed(1)})\)`;
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 2: Lognormal
+    // ============================================================
+    function actualizarLognormal() {
+        const mu = parseFloat(document.getElementById('mu-ln').value);
+        const sigma = parseFloat(document.getElementById('sigma-ln').value);
+        document.getElementById('mu-ln-val').textContent = mu.toFixed(1);
+        document.getElementById('sigma-ln-val').textContent = sigma.toFixed(2);
+        
+        const media = Math.exp(mu + sigma*sigma/2);
+        const varianza = (Math.exp(sigma*sigma)-1) * Math.exp(2*mu + sigma*sigma);
+        
+        document.getElementById('lognormal-momentos').innerHTML = 
+            `\(\\mathbb{E}[X] = ${media.toFixed(3)}\), \(\\operatorname{var}(X) = ${varianza.toFixed(3)}\)`;
+        
+        const canvas = document.getElementById('lognormalCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const xMax = Math.min(5, media + 3*Math.sqrt(varianza));
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const x = (i / w) * xMax;
+                if(x <= 0) continue;
+                const logx = Math.log(x);
+                const dens = Math.exp(-0.5 * Math.pow((logx - mu)/sigma, 2)) / (x * sigma * Math.sqrt(2*Math.PI));
+                const y = h - (dens * 2) * h;
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 3: Transformación inversa
+    // ============================================================
+    function generarPorInversa() {
+        const dist = document.getElementById('dist-objetivo').value;
+        const n = 5000;
+        const muestras = [];
+        
+        for(let i=0; i<n; i++) {
+            const u = Math.random();
+            if(dist === 'exponencial') {
+                muestras.push(-Math.log(1-u));
+            } else if(dist === 'normal') {
+                // Aproximación de la inversa normal (algoritmo de Box-Muller simplificado para una muestra)
+                const u2 = Math.random();
+                const z = Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*u2);
+                muestras.push(z);
+            } else if(dist === 'cauchy') {
+                muestras.push(Math.tan(Math.PI * (u - 0.5)));
+            }
+        }
+        
+        const canvas = document.getElementById('inversaCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const min = Math.min(...muestras);
+            const max = Math.max(...muestras);
+            const bins = new Array(30).fill(0);
+            for(let val of muestras) {
+                const idx = Math.min(29, Math.floor((val - min) / (max - min) * 30));
+                bins[idx]++;
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w / 30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i] / maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
+            }
+        }
+        
+        document.getElementById('inversa-info').innerHTML = 
+            `Generación por método de la inversa: \(X = F_X^{-1}(U)\) con \(U \\sim \\text{Unif}(0,1)\)`;
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 4: Transformaciones multivariadas
+    // ============================================================
+    let puntosOriginales = [];
+    let puntosTransformados = [];
+    
+    function generarPuntosNormales(n=500) {
+        const puntos = [];
+        for(let i=0; i<n; i++) {
+            let z1 = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            let z2 = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            puntos.push([z1, z2]);
+        }
+        return puntos;
+    }
+    
+    function aplicarTransformacion(matriz) {
+        puntosOriginales = generarPuntosNormales(500);
+        puntosTransformados = puntosOriginales.map(p => [
+            matriz[0][0]*p[0] + matriz[0][1]*p[1],
+            matriz[1][0]*p[0] + matriz[1][1]*p[1]
+        ]);
+        
+        const canvas = document.getElementById('transformCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            // Encontrar rangos
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+            for(let p of puntosTransformados) {
+                minX = Math.min(minX, p[0]);
+                maxX = Math.max(maxX, p[0]);
+                minY = Math.min(minY, p[1]);
+                maxY = Math.max(maxY, p[1]);
+            }
+            const rangeX = maxX - minX;
+            const rangeY = maxY - minY;
+            
+            for(let p of puntosTransformados) {
+                const x = ((p[0] - minX) / rangeX) * w;
+                const y = h - ((p[1] - minY) / rangeY) * h;
+                ctx.fillStyle = 'rgba(33,150,243,0.4)';
+                ctx.fillRect(x, y, 3, 3);
+            }
+        }
+    }
+    
+    // ============================================================
+    // MODULO 5: t de Student
+    // ============================================================
+    function dibujarTStudent() {
+        const n = parseInt(document.getElementById('gl-t').value);
+        document.getElementById('gl-t-val').textContent = n;
+        
+        const canvas = document.getElementById('tCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            // Densidad t
+            const tMin = -4, tMax = 4;
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const t = tMin + (i / w) * (tMax - tMin);
+                let dens;
+                if(n === 1) {
+                    dens = 1 / (Math.PI * (1 + t*t));
+                } else {
+                    const coef = Math.exp((Math.log(n+1)-Math.log(n))/2);
+                    dens = Math.pow(1 + t*t/n, -(n+1)/2);
+                    const norma = 1 / (Math.sqrt(n) * Math.exp((Math.log(n)+Math.log(Math.PI))/2));
+                    dens = dens * norma;
+                }
+                const y = h - (dens * 3) * h;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            // Densidad normal para comparar
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const t = tMin + (i / w) * (tMax - tMin);
+                const dens = Math.exp(-t*t/2) / Math.sqrt(2*Math.PI);
+                const y = h - (dens * 3) * h;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([5,5]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+        
+        const varTeorica = n > 2 ? (n/(n-2)).toFixed(3) : (n === 2 ? 'infinita' : 'no definida');
+        document.getElementById('t-propiedades').innerHTML = 
+            `\(t_{${n}}\) | \(\\mathbb{E}[T] = 0\) | \(\\operatorname{var}(T) = ${varTeorica}\)<br>
+            Línea roja discontinua: \(N(0,1)\) para comparación`;
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 6: Box-Muller
+    // ============================================================
+    function generarBoxMuller() {
+        const n = 1000;
+        const puntos = [];
+        for(let i=0; i<n; i++) {
+            const u1 = Math.random();
+            const u2 = Math.random();
+            const x1 = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+            const x2 = Math.sqrt(-2 * Math.log(u1)) * Math.sin(2 * Math.PI * u2);
+            puntos.push([x1, x2]);
+        }
+        
+        const canvas = document.getElementById('boxmullerCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            for(let p of puntos) {
+                const x = (p[0] + 3) / 6 * w;
+                const y = h - (p[1] + 3) / 6 * h;
+                if(x >= 0 && x <= w && y >= 0 && y <= h) {
+                    ctx.fillStyle = 'rgba(33,150,243,0.4)';
+                    ctx.fillRect(x, y, 2, 2);
+                }
+            }
+        }
+        
+        document.getElementById('boxmuller-info').innerHTML = 
+            `Transformación Box-Muller: de uniformes a normales independientes.<br>
+            \(X_1 = \\sqrt{-2\\log U_1} \\cos 2\\pi U_2\), \(X_2 = \\sqrt{-2\\log U_1} \\sin 2\\pi U_2\)`;
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // Inicialización
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // Módulo 1
+        document.getElementById('lambda-exp')?.addEventListener('input', generarExponencial);
+        document.getElementById('generar-exp')?.addEventListener('click', generarExponencial);
+        generarExponencial();
+        
+        // Módulo 2
+        document.getElementById('mu-ln')?.addEventListener('input', actualizarLognormal);
+        document.getElementById('sigma-ln')?.addEventListener('input', actualizarLognormal);
+        actualizarLognormal();
+        
+        // Módulo 3
+        document.getElementById('dist-objetivo')?.addEventListener('change', generarPorInversa);
+        document.getElementById('simular-inversa')?.addEventListener('click', generarPorInversa);
+        generarPorInversa();
+        
+        // Módulo 4
+        document.getElementById('transform-ejemplo1')?.addEventListener('click', () => aplicarTransformacion([[1,1],[1,-1]]));
+        document.getElementById('transform-ejemplo2')?.addEventListener('click', () => aplicarTransformacion([[2,0],[0,1]]));
+        document.getElementById('transform-ejemplo3')?.addEventListener('click', () => {
+            const angulo = 45 * Math.PI / 180;
+            aplicarTransformacion([[Math.cos(angulo), -Math.sin(angulo)], [Math.sin(angulo), Math.cos(angulo)]]);
+        });
+        aplicarTransformacion([[1,1],[1,-1]]);
+        
+        // Módulo 5
+        document.getElementById('gl-t')?.addEventListener('input', dibujarTStudent);
+        dibujarTStudent();
+        
+        // Módulo 6
+        document.getElementById('generar-boxmuller')?.addEventListener('click', generarBoxMuller);
+        generarBoxMuller();
+        
+        // Observador para cambio de tema
+        const observer = new MutationObserver(() => {
+            generarExponencial();
+            actualizarLognormal();
+            generarPorInversa();
+            dibujarTStudent();
+            generarBoxMuller();
+        });
+        observer.observe(document.body, {attributes: true});
+        
+        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
+    });
+</script>
+</body>
+</html>
