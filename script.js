@@ -148,6 +148,9 @@ document.addEventListener("DOMContentLoaded", () => {
          if (typeof window.inicializarModuloDesigualdades === 'function') {
             window.inicializarModuloDesigualdades();
          }
+        if (typeof window.inicializarModuloSucesiones === 'function') {
+            window.inicializarModuloSucesiones();
+        }
     }
 
     const loadContent = (filePath, chapter = null) => {
