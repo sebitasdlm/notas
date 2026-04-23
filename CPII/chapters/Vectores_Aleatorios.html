@@ -977,5 +977,110 @@ function resetMoneda() {
         
         if(window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
     });
+// ============================================================
+// INICIALIZACIÓN DE BOTONES (se llama después de cargar)
+// ============================================================
+
+window.inicializarMoneda = function() {
+    const monedaBtn = document.getElementById('moneda-lanzar');
+    const monedaReset = document.getElementById('moneda-reset');
+    if (monedaBtn) {
+        monedaBtn.removeEventListener('click', lanzarMoneda);
+        monedaBtn.addEventListener('click', lanzarMoneda);
+    }
+    if (monedaReset) {
+        monedaReset.removeEventListener('click', resetMoneda);
+        monedaReset.addEventListener('click', resetMoneda);
+    }
+};
+
+window.inicializarDados = function() {
+    const btnUna = document.getElementById('btn-lanzar-una');
+    const btnMuchas = document.getElementById('btn-lanzar-muchas');
+    const btnReset = document.getElementById('btn-resetear');
+    const cargaSlider = document.getElementById('carga-slider');
+    
+    if (btnUna) {
+        btnUna.removeEventListener('click', lanzarUnaVez);
+        btnUna.addEventListener('click', lanzarUnaVez);
+    }
+    if (btnMuchas) {
+        btnMuchas.removeEventListener('click', () => lanzarMuchas(500));
+        btnMuchas.addEventListener('click', () => lanzarMuchas(500));
+    }
+    if (btnReset) {
+        btnReset.removeEventListener('click', resetearLanzamientos);
+        btnReset.addEventListener('click', resetearLanzamientos);
+    }
+    if (cargaSlider) {
+        cargaSlider.removeEventListener('input', actualizarTablaCargada);
+        cargaSlider.addEventListener('input', actualizarTablaCargada);
+    }
+    
+    // Limpiar datos viejos
+    lanzamientos = Array(6).fill().map(() => Array(6).fill(0));
+    totalLanzamientos = 0;
+    actualizarHeatmap();
+    actualizarTablaCargada();
+};
+
+window.inicializarFPA = function() {
+    const fpaX = document.getElementById('fpa-x');
+    const fpaY = document.getElementById('fpa-y');
+    const selectorFPA = document.getElementById('selector-fpa');
+    
+    if (fpaX) {
+        fpaX.removeEventListener('input', actualizarFPA);
+        fpaX.addEventListener('input', actualizarFPA);
+    }
+    if (fpaY) {
+        fpaY.removeEventListener('input', actualizarFPA);
+        fpaY.addEventListener('input', actualizarFPA);
+    }
+    if (selectorFPA) {
+        selectorFPA.removeEventListener('change', actualizarEjemploFPA);
+        selectorFPA.addEventListener('change', actualizarEjemploFPA);
+    }
+    actualizarFPA();
+    actualizarEjemploFPA();
+};
+
+window.inicializarContinuos = function() {
+    const cuadradoX = document.getElementById('cuadrado-x');
+    const cuadradoY = document.getElementById('cuadrado-y');
+    const tSlider = document.getElementById('t-slider');
+    
+    if (cuadradoX) {
+        cuadradoX.removeEventListener('input', dibujarCuadrado);
+        cuadradoX.addEventListener('input', dibujarCuadrado);
+    }
+    if (cuadradoY) {
+        cuadradoY.removeEventListener('input', dibujarCuadrado);
+        cuadradoY.addEventListener('input', dibujarCuadrado);
+    }
+    if (tSlider) {
+        tSlider.removeEventListener('input', actualizarContinua);
+        tSlider.addEventListener('input', actualizarContinua);
+    }
+    dibujarCuadrado();
+    actualizarContinua();
+};
+
+window.inicializarIndependencia = function() {
+    const selectorIndep = document.getElementById('selector-independencia');
+    if (selectorIndep) {
+        selectorIndep.removeEventListener('change', (e) => dibujarIndependencia(e.target.value));
+        selectorIndep.addEventListener('change', (e) => dibujarIndependencia(e.target.value));
+        dibujarIndependencia(selectorIndep.value);
+    }
+};
+
+// También inicializar cuando el tema cambie
+document.addEventListener('themeChanged', () => {
+    if (typeof window.inicializarContinuos === 'function') window.inicializarContinuos();
+    if (typeof window.inicializarIndependencia === 'function') window.inicializarIndependencia();
+    if (typeof window.inicializarFPA === 'function') window.inicializarFPA();
+});
+            
 </script>
 </main>
