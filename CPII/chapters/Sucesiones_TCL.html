@@ -531,22 +531,24 @@
     }
 
     // ============================================================
-    // MODULO 1: Convergencia de la media
+    // MODULO 1: Convergencia de la media (Ley Débil)
     // ============================================================
     let ldMuestras = [];
     let ldPromedios = [];
     
     function actualizarLDN() {
         const dist = document.getElementById('dist-ldn').value;
+        ldMuestras = [];
+        ldPromedios = [];
         
-        for(let i=0; i<100; i++) {
+        for(let rep=0; rep<100; rep++) {
             let suma = 0;
             for(let j=0; j<500; j++) {
                 let val;
                 if(dist === 'normal') val = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
                 else if(dist === 'uniforme') val = Math.random();
                 else if(dist === 'exponencial') val = -Math.log(Math.random());
-                else val = Math.random() < 0.5 ? 1 : 0;
+                else val = Math.random() < 0.5 ? 1 : 0; // Bernoulli
                 suma += val;
                 if(j > 0 && j % 50 === 0) {
                     ldPromedios.push(suma / (j+1));
@@ -567,11 +569,12 @@
             for(let i=0; i<ldPromedios.length; i++) {
                 const x = (ldMuestras[i] / 500) * w;
                 const y = h - (ldPromedios[i] / 2) * h;
-                ctx.fillStyle = 'rgba(33,150,243,0.3)';
-                ctx.fillRect(x, y, 2, 2);
+                if(x >= 0 && x <= w && y >= 0 && y <= h) {
+                    ctx.fillStyle = 'rgba(33,150,243,0.3)';
+                    ctx.fillRect(x, y, 2, 2);
+                }
             }
             
-            // Media teórica
             let mediaTeorica;
             if(dist === 'normal') mediaTeorica = 0;
             else if(dist === 'uniforme') mediaTeorica = 0.5;
@@ -587,14 +590,14 @@
         }
         
         document.getElementById('ldn-info').innerHTML = 
-            `Convergencia de \(\\bar{X}_n\) a μ. La línea roja es la media poblacional teórica.`;
-        if(window.MathJax) MathJax.typeset();
+            `Convergencia de \\(\\bar{X}_n\\) a μ (Ley Débil de los Grandes Números). La línea roja es la media poblacional teórica.<br>
+            A medida que n crece, los promedios se concentran alrededor de μ.`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
-    // MODULO 2: Ley de Grandes Números
+    // MODULO 2: Ley de Grandes Números (trayectorias)
     // ============================================================
-    let lgnTrayectorias = [];
     let lgnPromedios = [];
     let lgnN = [];
     
@@ -637,8 +640,8 @@
             for(let i=0; i<lgnPromedios.length; i++) {
                 const x = (lgnN[i] / nMax) * w;
                 const y = h - (lgnPromedios[i] / 2) * h;
-                if(i===0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
+                if(i===0) ctx.moveTo(x, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(x, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#1976d2';
             ctx.lineWidth = 1.5;
@@ -654,8 +657,8 @@
         
         document.getElementById('lgn-info').innerHTML = 
             `Media muestral final: ${lgnPromedios[lgnPromedios.length-1].toFixed(4)} | Media poblacional: ${mediaTeorica}<br>
-            \(\\bar{X}_n \\xrightarrow{P} \\mu\) (Ley Débil) y \(\\bar{X}_n \\xrightarrow{c.s.} \\mu\) (Ley Fuerte)`;
-        if(window.MathJax) MathJax.typeset();
+            \\(\\bar{X}_n \\xrightarrow{P} \\mu\\) (Ley Débil) y \\(\\bar{X}_n \\xrightarrow{c.s.} \\mu\\) (Ley Fuerte)`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     function resetLGN() {
@@ -685,17 +688,18 @@
                 let val;
                 if(dist === 'uniforme') val = Math.random();
                 else if(dist === 'exponencial') val = -Math.log(Math.random());
-                else val = Math.random() < 0.2 ? 1 : 0;
+                else if(dist === 'bernoulli') val = Math.random() < 0.2 ? 1 : 0;
+                else val = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
                 suma += val;
             }
             medias.push(suma / n);
         }
         
-        // Estandarizar
         let mediaPob, varPob;
         if(dist === 'uniforme') { mediaPob = 0.5; varPob = 1/12; }
         else if(dist === 'exponencial') { mediaPob = 1; varPob = 1; }
-        else { mediaPob = 0.2; varPob = 0.2*0.8; }
+        else if(dist === 'bernoulli') { mediaPob = 0.2; varPob = 0.2*0.8; }
+        else { mediaPob = 0; varPob = 1; }
         
         const mediasStd = medias.map(m => (m - mediaPob) / Math.sqrt(varPob/n));
         
@@ -708,30 +712,29 @@
             ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
             ctx.fillRect(0, 0, w, h);
             
-            const min = -3, max = 3;
-            const bins = new Array(30).fill(0);
+            const min = -3.5, max = 3.5;
+            const bins = new Array(35).fill(0);
             for(let val of mediasStd) {
                 if(val >= min && val <= max) {
-                    const idx = Math.floor((val - min) / (max - min) * 30);
-                    bins[Math.min(29, Math.max(0, idx))]++;
+                    const idx = Math.floor((val - min) / (max - min) * 35);
+                    bins[Math.min(34, Math.max(0, idx))]++;
                 }
             }
             const maxBin = Math.max(...bins);
-            const binWidth = w / 30;
-            for(let i=0; i<30; i++) {
+            const binWidth = w / 35;
+            for(let i=0; i<35; i++) {
                 const barHeight = (bins[i] / maxBin) * h * 0.8;
                 ctx.fillStyle = '#4caf50';
                 ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
             }
             
-            // Densidad normal teórica
             ctx.beginPath();
             for(let i=0; i<w; i++) {
                 const z = min + (i / w) * (max - min);
                 const dens = Math.exp(-z*z/2) / Math.sqrt(2*Math.PI);
                 const y = h - (dens / 0.45) * h * 0.8;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#f44336';
             ctx.lineWidth = 2;
@@ -739,14 +742,15 @@
         }
         
         document.getElementById('tcl-info').innerHTML = 
-            `Distribución original: ${dist}<br>
+            `Distribución original: ${dist === 'bernoulli' ? 'Bernoulli(p=0.2)' : dist}<br>
             Media muestral tipificada. La curva roja es N(0,1).<br>
-            Teorema Central del Límite: \(Z_n = \\frac{\\bar{X}_n - \\mu}{\\sigma/\\sqrt{n}} \\xrightarrow{D} N(0,1)\)`;
-        if(window.MathJax) MathJax.typeset();
+            Teorema Central del Límite: \\(Z_n = \\frac{\\bar{X}_n - \\mu}{\\sigma/\\sqrt{n}} \\xrightarrow{D} N(0,1)\\)<br>
+            n = ${n} | Simulaciones: ${nSim}`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
-    // MODULO 4: Encuestas
+    // MODULO 4: Tamaño de muestra para encuestas
     // ============================================================
     function calcularEncuesta() {
         const p = parseFloat(document.getElementById('p-encuesta').value);
@@ -778,90 +782,142 @@
             ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
             ctx.fillRect(0, 0, w, h);
             
-            // Mostrar distribución muestral de p̂
             const se = Math.sqrt(p*(1-p)/n);
             ctx.beginPath();
             for(let i=0; i<w; i++) {
-                const x1 = p - 4*se;
-                const x2 = p + 4*se;
+                const x1 = Math.max(0, p - 4*se);
+                const x2 = Math.min(1, p + 4*se);
                 const px = x1 + (i/w) * (x2 - x1);
                 const dens = Math.exp(-Math.pow(px-p,2)/(2*se*se)) / (se * Math.sqrt(2*Math.PI));
-                const y = h - (dens / (1/(se*Math.sqrt(2*Math.PI)))) * h * 0.8;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                const maxDens = 1/(se * Math.sqrt(2*Math.PI));
+                const y = h - (dens / maxDens) * h * 0.8;
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#1976d2';
             ctx.lineWidth = 2;
             ctx.stroke();
             
-            // Marcar intervalo de confianza
-            const xE1 = (p - E - (p-4*se)) / (8*se) * w;
-            const xE2 = (p + E - (p-4*se)) / (8*se) * w;
-            ctx.fillStyle = 'rgba(76,175,80,0.3)';
-            ctx.fillRect(xE1, 0, xE2-xE1, h);
+            const xE1 = Math.max(0, (p - E - Math.max(0, p-4*se)) / (Math.min(1, p+4*se) - Math.max(0, p-4*se)) * w);
+            const xE2 = Math.min(w, (p + E - Math.max(0, p-4*se)) / (Math.min(1, p+4*se) - Math.max(0, p-4*se)) * w);
+            if(xE2 > xE1) {
+                ctx.fillStyle = 'rgba(76,175,80,0.3)';
+                ctx.fillRect(xE1, 0, xE2-xE1, h);
+            }
         }
         
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
-    // MODULO 5: Slutsky
+    // MODULO 5: Teorema de Slutsky
     // ============================================================
     function verificarSlutsky() {
-        const dist = document.getElementById('dist-slutsky').value;
-        const c = parseFloat(document.getElementById('c-slutsky').value);
-        document.getElementById('c-slutsky-val').textContent = c.toFixed(1);
-        
         document.getElementById('slutsky-resultado').innerHTML = 
-            `Teorema de Slutsky: Si \(X_n \\xrightarrow{D} X\) y \(Y_n \\xrightarrow{P} c\), entonces \(X_n + Y_n \\xrightarrow{D} X + c\).<br>
-            En la práctica, esto permite reemplazar parámetros poblacionales por estimadores consistentes.<br>
-            Por ejemplo: \( \\frac{\\bar{X}_n - \\mu}{S_n/\\sqrt{n}} \\xrightarrow{D} N(0,1) \) aunque \(S_n \\xrightarrow{P} \\sigma\).`;
-        if(window.MathJax) MathJax.typeset();
+            `**Teorema de Slutsky:** Si \\(X_n \\xrightarrow{D} X\\) y \\(Y_n \\xrightarrow{P} c\\), entonces:<br>
+            • \\(X_n + Y_n \\xrightarrow{D} X + c\\)<br>
+            • \\(X_n Y_n \\xrightarrow{D} cX\\)<br>
+            • \\(X_n / Y_n \\xrightarrow{D} X/c\\) (si \\(c \\neq 0\\)<br><br>
+            **Aplicación importante:** En estadística, el teorema de Slutsky permite reemplazar parámetros poblacionales por estimadores consistentes.<br>
+            Por ejemplo: \\(\\frac{\\bar{X}_n - \\mu}{S_n/\\sqrt{n}} \\xrightarrow{D} N(0,1)\\) aunque \\(S_n \\xrightarrow{P} \\sigma\\).<br><br>
+            ¡Es la base teórica de los intervalos de confianza y pruebas de hipótesis!`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
-    // Inicialización
+    // FUNCIÓN PRINCIPAL DE INICIALIZACIÓN
     // ============================================================
-    document.addEventListener('DOMContentLoaded', () => {
-        // Módulo 1
-        document.getElementById('dist-ldn')?.addEventListener('change', actualizarLDN);
-        document.getElementById('simular-ldn')?.addEventListener('click', actualizarLDN);
+    window.inicializarModuloSucesiones = function() {
+        // Módulo 1: Ley Débil
+        const distLDN = document.getElementById('dist-ldn');
+        const btnLDN = document.getElementById('simular-ldn');
+        if(distLDN) {
+            distLDN.removeEventListener('change', actualizarLDN);
+            distLDN.addEventListener('change', actualizarLDN);
+        }
+        if(btnLDN) {
+            btnLDN.removeEventListener('click', actualizarLDN);
+            btnLDN.addEventListener('click', actualizarLDN);
+        }
         actualizarLDN();
         
-        // Módulo 2
-        document.getElementById('dist-lgn')?.addEventListener('change', simularLGN);
-        document.getElementById('n-lgn')?.addEventListener('input', simularLGN);
-        document.getElementById('simular-lgn')?.addEventListener('click', simularLGN);
-        document.getElementById('reset-lgn')?.addEventListener('click', resetLGN);
+        // Módulo 2: Ley Fuerte (LGN)
+        const distLGN = document.getElementById('dist-lgn');
+        const nLGN = document.getElementById('n-lgn');
+        const btnLGN = document.getElementById('simular-lgn');
+        const btnResetLGN = document.getElementById('reset-lgn');
+        if(distLGN) {
+            distLGN.removeEventListener('change', simularLGN);
+            distLGN.addEventListener('change', simularLGN);
+        }
+        if(nLGN) {
+            nLGN.removeEventListener('input', simularLGN);
+            nLGN.addEventListener('input', simularLGN);
+        }
+        if(btnLGN) {
+            btnLGN.removeEventListener('click', simularLGN);
+            btnLGN.addEventListener('click', simularLGN);
+        }
+        if(btnResetLGN) {
+            btnResetLGN.removeEventListener('click', resetLGN);
+            btnResetLGN.addEventListener('click', resetLGN);
+        }
         simularLGN();
         
-        // Módulo 3
-        document.getElementById('dist-tcl')?.addEventListener('change', simularTCL);
-        document.getElementById('n-tcl')?.addEventListener('input', simularTCL);
-        document.getElementById('simular-tcl')?.addEventListener('click', simularTCL);
+        // Módulo 3: Teorema Central del Límite
+        const distTCL = document.getElementById('dist-tcl');
+        const nTCL = document.getElementById('n-tcl');
+        const btnTCL = document.getElementById('simular-tcl');
+        if(distTCL) {
+            distTCL.removeEventListener('change', simularTCL);
+            distTCL.addEventListener('change', simularTCL);
+        }
+        if(nTCL) {
+            nTCL.removeEventListener('input', simularTCL);
+            nTCL.addEventListener('input', simularTCL);
+        }
+        if(btnTCL) {
+            btnTCL.removeEventListener('click', simularTCL);
+            btnTCL.addEventListener('click', simularTCL);
+        }
         simularTCL();
         
-        // Módulo 4
-        document.getElementById('p-encuesta')?.addEventListener('input', calcularEncuesta);
-        document.getElementById('error-encuesta')?.addEventListener('input', calcularEncuesta);
-        document.getElementById('confianza-encuesta')?.addEventListener('change', calcularEncuesta);
+        // Módulo 4: Encuestas
+        const pEncuesta = document.getElementById('p-encuesta');
+        const errorEncuesta = document.getElementById('error-encuesta');
+        const confianzaEncuesta = document.getElementById('confianza-encuesta');
+        if(pEncuesta) {
+            pEncuesta.removeEventListener('input', calcularEncuesta);
+            pEncuesta.addEventListener('input', calcularEncuesta);
+        }
+        if(errorEncuesta) {
+            errorEncuesta.removeEventListener('input', calcularEncuesta);
+            errorEncuesta.addEventListener('input', calcularEncuesta);
+        }
+        if(confianzaEncuesta) {
+            confianzaEncuesta.removeEventListener('change', calcularEncuesta);
+            confianzaEncuesta.addEventListener('change', calcularEncuesta);
+        }
         calcularEncuesta();
         
-        // Módulo 5
-        document.getElementById('dist-slutsky')?.addEventListener('change', verificarSlutsky);
-        document.getElementById('c-slutsky')?.addEventListener('input', verificarSlutsky);
-        document.getElementById('verificar-slutsky')?.addEventListener('click', verificarSlutsky);
+        // Módulo 5: Slutsky
+        const btnSlutsky = document.getElementById('verificar-slutsky');
+        if(btnSlutsky) {
+            btnSlutsky.removeEventListener('click', verificarSlutsky);
+            btnSlutsky.addEventListener('click', verificarSlutsky);
+        }
         verificarSlutsky();
         
-        // Observador para cambio de tema
-        const observer = new MutationObserver(() => {
-            simularTCL();
-            calcularEncuesta();
-        });
-        observer.observe(document.body, {attributes: true});
-        
-        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
-    });
+        if(window.MathJax) MathJax.typesetPromise();
+    };
+    
+    // Auto-inicializar
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.inicializarModuloSucesiones);
+    } else {
+        window.inicializarModuloSucesiones();
+    }
 </script>
+    
 </body>
 </html>
