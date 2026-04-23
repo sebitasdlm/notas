@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Render MathJax equations
                 if (window.MathJax) {
-                    MathJax.typeset();
+                    MathJax.typesetPromise();
                 }
             })
             .then(() => {
