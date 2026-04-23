@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const sidebarContent = document.getElementById("sidebar-content");
     const mainContent = document.querySelector("main");
 
-    // Load chapters and names from external file (chapters.json)
     let chapters = [];
     let chapterNames = [];
 
@@ -20,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
             console.error('Error loading chapters.json:', error);
         });
 
-    // Apply light theme by default
     document.body.classList.add("light-theme");
 
     const checkScreenWidth = () => {
@@ -39,7 +37,6 @@ document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.remove("light-theme");
             document.body.classList.add("dark-theme");
         }
-        // Redibujar canvases después de cambiar tema
         const event = new CustomEvent('themeChanged');
         document.dispatchEvent(event);
     });
@@ -105,6 +102,30 @@ document.addEventListener("DOMContentLoaded", () => {
         sidebarContent.appendChild(chapterList);
     };
 
+    // Función para inicializar los botones del módulo actual
+    function inicializarModuloActual() {
+        // Módulo 1: Moneda
+        if (typeof window.inicializarMoneda === 'function') {
+            window.inicializarMoneda();
+        }
+        // Módulo 2: Dados
+        if (typeof window.inicializarDados === 'function') {
+            window.inicializarDados();
+        }
+        // Módulo 3: FPA
+        if (typeof window.inicializarFPA === 'function') {
+            window.inicializarFPA();
+        }
+        // Módulo 4: Continuos
+        if (typeof window.inicializarContinuos === 'function') {
+            window.inicializarContinuos();
+        }
+        // Módulo 5: Independencia
+        if (typeof window.inicializarIndependencia === 'function') {
+            window.inicializarIndependencia();
+        }
+    }
+
     const loadContent = (filePath, chapter = null) => {
         fetch(filePath)
             .then((response) => response.text())
@@ -112,7 +133,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, "text/html");
 
-                // Extract main content
                 const newMainContent = doc.querySelector("main");
                 if (newMainContent) {
                     mainContent.innerHTML = newMainContent.innerHTML;
@@ -120,7 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     mainContent.innerHTML = html;
                 }
 
-                // Extract and inject styles from the chapter
                 const chapterStyles = doc.querySelector("style");
                 let styleTag = document.getElementById("chapter-styles");
                 if (!styleTag) {
@@ -132,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     styleTag.innerHTML = chapterStyles.innerHTML;
                 }
 
-                // Extract and execute scripts from the chapter
+                // Ejecutar scripts del capítulo
                 const scripts = doc.querySelectorAll("script");
                 scripts.forEach(oldScript => {
                     const newScript = document.createElement("script");
@@ -153,7 +172,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 const sections = chapter ? Array.from(doc.querySelectorAll("h2, h3")) : [];
                 buildSidebar(chapter, sections);
 
-                // FORCE MathJax to render
+                // Inicializar los botones después de cargar el contenido
+                setTimeout(() => {
+                    inicializarModuloActual();
+                }, 100);
+
                 if (window.MathJax) {
                     MathJax.texReset();
                     MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
@@ -165,17 +188,4 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", checkScreenWidth);
     checkScreenWidth();
     loadContent("cover.html");
-
-    function injectGeogebra(elemID, materialID) {
-        const params = {
-            "material_id": materialID,
-            "width": "100%",
-            "height": "100%",
-            "showToolBar": false,
-            "showAlgebraInput": false,
-            "showMenuBar": false
-        };
-        const applet = new GGBApplet(params, true);
-        applet.inject(elemID);
-    }
 });
