@@ -9,22 +9,20 @@ document.addEventListener("DOMContentLoaded", () => {
     let chapters = [];
     let chapterNames = [];
 
-    fetch("CPII/chapters.json")
+    fetch('CPII/chapters.json')
         .then(response => response.json())
         .then(data => {
             chapters = Object.keys(data.chapters);
             chapterNames = Object.values(data.chapters);
-            // After loading chapters, build the sidebar for the first time
             buildSidebar();
         })
         .catch(error => {
             console.error('Error loading chapters.json:', error);
         });
 
-    // Apply dark theme by default
+    // Apply light theme by default
     document.body.classList.add("light-theme");
 
-    // Ensure the sidebar is visible by default on desktop
     const checkScreenWidth = () => {
         if (window.innerWidth > 768) {
             sidebar.classList.remove("hidden");
@@ -33,7 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    // Toggle theme
     toggleTheme.addEventListener("click", () => {
         if (document.body.classList.contains("dark-theme")) {
             document.body.classList.remove("dark-theme");
@@ -42,24 +39,22 @@ document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.remove("light-theme");
             document.body.classList.add("dark-theme");
         }
+        // Redibujar canvases después de cambiar tema
+        const event = new CustomEvent('themeChanged');
+        document.dispatchEvent(event);
     });
 
-    // Toggle sidebar visibility
     sidebarToggle.addEventListener("click", () => {
         sidebar.classList.toggle("hidden");
     });
 
-    // Build chapter list in the sidebar
     const buildSidebar = (currentChapter = null, sections = []) => {
         sidebarContent.innerHTML = "";
 
-        // Add chapter list
         const chapterList = document.createElement("ul");
         chapterList.classList.add("chapter-list");
 
         chapters.forEach((chapter, index) => {
-            const chap = index +1;
-            const chapterName = chapter.split(".")[0];
             const displayName = chapterNames[index];
             const listItem = document.createElement("li");
             const link = document.createElement("a");
@@ -67,15 +62,14 @@ document.addEventListener("DOMContentLoaded", () => {
             link.href = "#";
             link.addEventListener("click", (e) => {
                 e.preventDefault();
-                loadContent("CPII/chapters/${chapter}", chapter);
+                loadContent(`CPII/chapters/${chapter}`, chapter);
                 if(window.innerWidth <= 768){
-                    sidebar.classList.add("hidden"); // Hide sidebar after selecting a chapter on mobile
+                    sidebar.classList.add("hidden");
                 }
             });
             listItem.appendChild(link);
             chapterList.appendChild(listItem);
 
-            // If this is the current chapter, add its sections
             var seccount = 0;
             var subseccount = 0;
             if (currentChapter === chapter) {
@@ -93,12 +87,12 @@ document.addEventListener("DOMContentLoaded", () => {
                     sectionLink.textContent = seccount + '.';
                     if (section.tagName.toLowerCase() === "h3") {
                         subseccount++;
-                        sectionItem.style.fontSize = "smaller"; // Example of setting the style
-                        sectionItem.style.marginLeft = "15px"; // Example of setting the style
-                        sectionLink.textContent += subseccount ;
+                        sectionItem.style.fontSize = "smaller";
+                        sectionItem.style.marginLeft = "15px";
+                        sectionLink.textContent += subseccount;
                     }
-                    sectionLink.textContent += ' '+section.textContent;
-                    sectionLink.href = '#'+section.id;
+                    sectionLink.textContent += ' ' + section.textContent;
+                    sectionLink.href = '#' + section.id;
                     sectionItem.appendChild(sectionLink);
                     sectionList.appendChild(sectionItem);
                 });
@@ -111,7 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
         sidebarContent.appendChild(chapterList);
     };
 
-    // Function to load a file into the main content area
     const loadContent = (filePath, chapter = null) => {
         fetch(filePath)
             .then((response) => response.text())
@@ -119,54 +112,58 @@ document.addEventListener("DOMContentLoaded", () => {
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(html, "text/html");
 
-                // Replace main content
-                mainContent.innerHTML = doc.querySelector("main").innerHTML;
+                // Extract main content
+                const newMainContent = doc.querySelector("main");
+                if (newMainContent) {
+                    mainContent.innerHTML = newMainContent.innerHTML;
+                } else {
+                    mainContent.innerHTML = html;
+                }
 
-                // Add the 'cover' class only for the cover page
+                // Extract and inject styles from the chapter
+                const chapterStyles = doc.querySelector("style");
+                let styleTag = document.getElementById("chapter-styles");
+                if (!styleTag) {
+                    styleTag = document.createElement("style");
+                    styleTag.id = "chapter-styles";
+                    document.head.appendChild(styleTag);
+                }
+                if (chapterStyles) {
+                    styleTag.innerHTML = chapterStyles.innerHTML;
+                }
+
+                // Extract and execute scripts from the chapter
+                const scripts = doc.querySelectorAll("script");
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement("script");
+                    if (oldScript.src) {
+                        newScript.src = oldScript.src;
+                    } else {
+                        newScript.textContent = oldScript.textContent;
+                    }
+                    document.body.appendChild(newScript);
+                });
+
                 if (filePath === "cover.html") {
                     mainContent.classList.add("cover");
                 } else {
                     mainContent.classList.remove("cover");
                 }
 
-                // Identify sections for the current chapter
-                const sections = chapter
-                    ? Array.from(doc.querySelectorAll("h2, h3"))
-                    : [];
-
-                // Build sidebar with current chapter highlighted
+                const sections = chapter ? Array.from(doc.querySelectorAll("h2, h3")) : [];
                 buildSidebar(chapter, sections);
 
-                // Render MathJax equations
+                // FORCE MathJax to render
                 if (window.MathJax) {
-                    MathJax.texReset();           // Reinicia MathJax
-                    MathJax.typesetPromise()      // Procesa todo el contenido nuevo
-                        .then(() => console.log('MathJax renderizado correctamente'))
-                        .catch(err => console.log('Error en MathJax:', err));
-                } else {
-                    console.log('MathJax no está disponible');
+                    MathJax.texReset();
+                    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
                 }
             })
-            .then(() => {
-                // Inject Geogebra applets
-                const geogebraElements = document.querySelectorAll(".ggb-element");
-                geogebraElements.forEach((elem) => {
-                    const materialID = elem.dataset.materialId;
-                    injectGeogebra(elem.id, materialID);
-                });
-            })
             .catch((error) => console.error("Error loading content:", error));
-
-
     };
 
-    // Add resize event listener to handle screen size changes
     window.addEventListener("resize", checkScreenWidth);
-
-    // Initial check for screen width
     checkScreenWidth();
-
-    // Load the cover page initially
     loadContent("cover.html");
 
     function injectGeogebra(elemID, materialID) {
@@ -180,8 +177,5 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         const applet = new GGBApplet(params, true);
         applet.inject(elemID);
-    };
-
-
-    
+    }
 });
