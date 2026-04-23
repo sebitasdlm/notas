@@ -130,6 +130,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof window.inicializarModuloFGM === 'function') {
             window.inicializarModuloFGM();  
         }
+        if (typeof window.inicializarModuloMultinomial === 'function') {
+            window.inicializarModuloMultinomial();
+        }
     }
 
     const loadContent = (filePath, chapter = null) => {
