@@ -139,6 +139,9 @@ document.addEventListener("DOMContentLoaded", () => {
          if (typeof window.inicializarModuloTransformaciones === 'function') {
             window.inicializarModuloTransformaciones();
          }
+        if (typeof window.inicializarModuloSumaCociente === 'function') {
+            window.inicializarModuloSumaCociente();
+        }
     }
 
     const loadContent = (filePath, chapter = null) => {
