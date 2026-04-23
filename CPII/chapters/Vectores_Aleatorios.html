@@ -552,19 +552,19 @@
 // ============================================================
 // MODULO 1: Moneda
 // ============================================================
-let lanzamientosMoneda = { águila: 0, sol: 0 };
+let lanzamientosMoneda = { aguila: 0, sol: 0 };
 
 function actualizarMoneda() {
-    const total = lanzamientosMoneda.águila + lanzamientosMoneda.sol;
-    const pÁguila = total === 0 ? 0 : lanzamientosMoneda.águila / total;
+    const total = lanzamientosMoneda.aguila + lanzamientosMoneda.sol;
+    const pAguila = total === 0 ? 0 : lanzamientosMoneda.aguila / total;
     document.getElementById('moneda-frecuencias').innerHTML = 
-        `Águilas: ${lanzamientosMoneda.águila} (${(pÁguila*100).toFixed(1)}%) | Soles: ${lanzamientosMoneda.sol} (${((1-pÁguila)*100).toFixed(1)}%)`;
+        `Águilas: ${lanzamientosMoneda.aguila} (${(pAguila*100).toFixed(1)}%) | Soles: ${lanzamientosMoneda.sol} (${((1-pAguila)*100).toFixed(1)}%)`;
 }
 
 function lanzarMoneda() {
     const esAguila = Math.random() < 0.5;
-    if(esÁguila) {
-        lanzamientosMoneda.Águila++;
+    if(esAguila) {
+        lanzamientosMoneda.aguila++;
         document.getElementById('moneda-resultado').innerHTML = '🪙 Águila';
     } else {
         lanzamientosMoneda.sol++;
@@ -574,7 +574,7 @@ function lanzarMoneda() {
 }
 
 function resetMoneda() {
-    lanzamientosMoneda = { águila: 0, sol: 0 };
+    lanzamientosMoneda = { aguila: 0, sol: 0 };
     document.getElementById('moneda-resultado').innerHTML = '🪙';
     actualizarMoneda();
 }
