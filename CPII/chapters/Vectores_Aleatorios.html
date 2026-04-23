@@ -1,264 +1,3 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taller: Vectores Aleatorios - Capítulo 1</title>
-    <style>
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f5f5f5;
-            --text-primary: #212121;
-            --text-secondary: #616161;
-            --border: #e0e0e0;
-            --accent: #1976d2;
-            --accent-light: #e3f2fd;
-            --success: #4caf50;
-            --warning: #ff9800;
-            --danger: #f44336;
-            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        body.dark-theme {
-            --bg-primary: #1e1e1e;
-            --bg-secondary: #2d2d2d;
-            --text-primary: #e0e0e0;
-            --text-secondary: #b0b0b0;
-            --border: #404040;
-            --accent: #42a5f5;
-            --accent-light: #1a2a3a;
-            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .taller-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-
-        .modulo {
-            background: var(--bg-primary);
-            border-radius: 12px;
-            margin-bottom: 2rem;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            box-shadow: var(--card-shadow);
-        }
-
-        .modulo-header {
-            background: var(--accent-light);
-            padding: 1rem 1.5rem;
-            border-bottom: 2px solid var(--accent);
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .modulo-header h3 {
-            margin: 0;
-            color: var(--accent);
-        }
-
-        .modulo-content {
-            padding: 1.5rem;
-            display: block;
-        }
-
-        .modulo-content.collapsed {
-            display: none;
-        }
-
-        .explicacion-intro {
-            background: var(--bg-secondary);
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            border-left: 4px solid var(--accent);
-            font-size: 1.05rem;
-            line-height: 1.5;
-        }
-
-        .explicacion-formal {
-            background: var(--bg-secondary);
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            border: 1px dashed var(--border);
-        }
-
-        .simulador {
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-        }
-
-        .controles {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            align-items: center;
-        }
-
-        .controles label {
-            font-weight: bold;
-        }
-
-        input[type="range"] {
-            flex: 1;
-            min-width: 150px;
-        }
-
-        button {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
-        button:hover {
-            opacity: 0.9;
-        }
-
-        .grid-dados {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .dado {
-            width: 80px;
-            height: 80px;
-            background: white;
-            border: 2px solid var(--border);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            font-weight: bold;
-            box-shadow: var(--card-shadow);
-        }
-
-        .heatmap {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 4px;
-            max-width: 400px;
-            margin: 1rem auto;
-        }
-
-        .heatmap-cell {
-            aspect-ratio: 1;
-            background: #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-
-        body.dark-theme .heatmap-cell {
-            background: #404040;
-        }
-
-        .tabla-editable {
-            overflow-x: auto;
-        }
-
-        .tabla-editable table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-        }
-
-        .tabla-editable td, .tabla-editable th {
-            border: 1px solid var(--border);
-            padding: 0.5rem;
-            text-align: center;
-        }
-
-        .tabla-editable input {
-            width: 70px;
-            padding: 0.3rem;
-            text-align: center;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-            border-radius: 4px;
-        }
-
-        canvas {
-            display: block;
-            margin: 1rem auto;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--bg-primary);
-            cursor: crosshair;
-        }
-
-        .pregunta-exploratoria {
-            background: var(--accent-light);
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-            border-left: 4px solid var(--warning);
-        }
-
-        .pregunta-exploratoria button {
-            background: var(--warning);
-            margin-top: 0.5rem;
-        }
-
-        .respuesta {
-            margin-top: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 6px;
-            display: none;
-        }
-
-        .respuesta.mostrar {
-            display: block;
-        }
-
-        .valor-actual {
-            font-family: monospace;
-            font-weight: bold;
-            color: var(--accent);
-        }
-
-        .fila-ejes {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        hr {
-            margin: 2rem 0;
-            border-color: var(--border);
-        }
-
-        @media (max-width: 768px) {
-            .modulo-content {
-                padding: 1rem;
-            }
-            .controles {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-    </style>
-</head>
-<body>
 <main>
 <div class="taller-container">
 
@@ -381,7 +120,7 @@
         <div class="modulo-content">
             <div class="explicacion-intro">
                 La <strong>función de distribución acumulada (FPA)</strong> se obtiene acumulando toda la probabilidad hacia abajo 
-              y hacia la izquierda desde el punto (x,y): 
+                y hacia la izquierda desde el punto (x,y): 
                 \(F_{XY}(x,y) = \mathbb{P}(X \le x, Y \le y)\).
             </div>
 
@@ -652,7 +391,7 @@
         let w = carga / (carga + 5);
         let resto = (1 - w) / 30;
         
-        let html = '</table><thead>96<th>X\\Y</th>';
+        let html = '</td><thead><tr><th>X\\Y</th>';
         for(let y=1; y<=6; y++) html += `<th>${y}</th>`;
         html += '<th>P(X=x)</th></tr></thead><tbody>';
         
@@ -689,7 +428,6 @@
         document.getElementById('fpa-x-val').textContent = `x = ${x}`;
         document.getElementById('fpa-y-val').textContent = `y = ${y}`;
         
-        // Para dados justos: F(x,y) = (x/6)*(y/6) para x,y≤6, truncado
         let fx = Math.min(x, 6) / 6;
         let fy = Math.min(y, 6) / 6;
         if(x<0) fx = 0;
@@ -697,7 +435,6 @@
         const fxy = fx * fy;
         document.getElementById('fpa-valor').innerHTML = `F(${x},${y}) = P(X≤${x}, Y≤${y}) = ${fxy.toFixed(4)}`;
         
-        // Visualizar región en un grid 6x6
         const container = document.getElementById('fpa-region');
         let gridHtml = '<div style="display:grid; grid-template-columns:repeat(6,30px); gap:2px;">';
         for(let i=0; i<6; i++) {
@@ -732,7 +469,7 @@
                     }
                 }
             }
-            veredicto.innerHTML = '✅ F(x,y) = (1-e^{-x})(1-e^{-y}) SÍ es una FPA válida (cumple todas las propiedades).';
+            veredicto.innerHTML = 'F(x,y) = (1-e^{-x})(1-e^{-y}) SÍ es una FPA válida (cumple todas las propiedades).';
             veredicto.style.background = 'rgba(76,175,80,0.2)';
         } else {
             div.innerHTML = '<canvas id="fpaCanvas" width="400" height="300"></canvas>';
@@ -752,7 +489,7 @@
                     }
                 }
             }
-            veredicto.innerHTML = '❌ F(x,y) = 1_{x+y≥0} NO es válida. La propiedad 5 falla: da probabilidades negativas.';
+            veredicto.innerHTML = 'F(x,y) = 1_{x+y≥0} NO es válida. La propiedad 5 falla: da probabilidades negativas.';
             veredicto.style.background = 'rgba(244,67,54,0.2)';
         }
     }
@@ -851,9 +588,9 @@
         document.getElementById('t-valor').textContent = t.toFixed(2);
         const prob = calcularProbContinua(t);
         document.getElementById('prob-continua').innerHTML = 
-            `\(\mathbb{P}(X+Y \le ${t.toFixed(2)}) = ${prob.toFixed(4)}\)`;
+            `\\(\\mathbb{P}(X+Y \\le ${t.toFixed(2)}) = ${prob.toFixed(4)}\\)`;
         dibujarRegionContinua(t);
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
 
     // ============================================================
@@ -982,8 +719,6 @@
         });
         observer.observe(document.body, {attributes: true});
         
-        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
+        if(window.MathJax) setTimeout(() => MathJax.typesetPromise(), 100);
     });
 </script>
-</body>
-</html>
