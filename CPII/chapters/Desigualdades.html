@@ -587,10 +587,10 @@
         const cotaMarkov = media / c;
         
         document.getElementById('markov-resultado').innerHTML = 
-            `\(\mathbb{P}(X \\ge ${c.toFixed(1)})\) real ≈ ${probReal.toFixed(4)}<br>
-            Cota de Markov: \( \\le ${cotaMarkov.toFixed(4)} \)<br>
-            ${probReal <= cotaMarkov ? '✓ Se cumple la desigualdad' : '⚠ Error numérico, revise'}`;
-        if(window.MathJax) MathJax.typeset();
+            `\\(\\mathbb{P}(X \\ge ${c.toFixed(1)})\\) real ≈ ${probReal.toFixed(4)}<br>
+            Cota de Markov: \\( \\le ${cotaMarkov.toFixed(4)} \\)<br>
+            ${probReal <= cotaMarkov + 0.001 ? '✓ Se cumple la desigualdad' : '⚠ Error numérico, revise'}`;
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -624,6 +624,7 @@
         } else if(dist === 'cauchy') {
             document.getElementById('chebyshev-resultado').innerHTML = 
                 '⚠ La distribución Cauchy <strong>no tiene varianza finita</strong>. No se puede aplicar Chebyshev.';
+            if(window.MathJax) MathJax.typesetPromise();
             return;
         }
         
@@ -631,11 +632,10 @@
         const cotaChebyshev = 1 / (k*k);
         
         document.getElementById('chebyshev-resultado').innerHTML = 
-            `\(\mathbb{P}(|X-\\mu| \\ge ${k.toFixed(1)}\\sigma)\) real ≈ ${probReal.toFixed(4)}<br>
-            Cota de Chebyshev: \( \\le ${cotaChebyshev.toFixed(4)} \)<br>
-            ${probReal <= cotaChebyshev ? '✓ Se cumple la desigualdad' : '⚠ Error numérico'}`;
+            `\\(\\mathbb{P}(|X-\\mu| \\ge ${k.toFixed(1)}\\sigma)\\) real ≈ ${probReal.toFixed(4)}<br>
+            Cota de Chebyshev: \\( \\le ${cotaChebyshev.toFixed(4)} \\)<br>
+            ${probReal <= cotaChebyshev + 0.001 ? '✓ Se cumple la desigualdad' : '⚠ Error numérico'}`;
         
-        // Dibujar histograma
         const canvas = document.getElementById('chebyshevCanvas');
         if(canvas) {
             const ctx = canvas.getContext('2d');
@@ -660,7 +660,6 @@
                 ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
             }
             
-            // Marcar región |x-μ| ≥ kσ
             const x1 = Math.max(0, (media - k*sigma - min) / (max - min) * w);
             const x2 = Math.min(w, (media + k*sigma - min) / (max - min) * w);
             ctx.fillStyle = 'rgba(244,67,54,0.3)';
@@ -668,11 +667,11 @@
             ctx.fillRect(x2, 0, w-x2, h);
         }
         
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
-    // MODULO 3: Chebyshev Unilateral
+    // MODULO 3: Chebyshev Unilateral (Cantelli)
     // ============================================================
     function verificarUnilateral() {
         const mu = parseFloat(document.getElementById('mu-unilateral').value);
@@ -687,11 +686,11 @@
         const cotaBilateral = sigma*sigma / (a*a);
         
         document.getElementById('unilateral-resultado').innerHTML = 
-            `Para \(\\mathbb{P}(X - \\mu \\ge ${a.toFixed(1)})\):<br>
-            Chebyshev unilateral (Cantelli): \( \\le ${cotaUnilateral.toFixed(4)} \)<br>
-            Chebyshev bilateral: \( \\le ${cotaBilateral.toFixed(4)} \) (menos ajustada)<br>
+            `Para \\(\\mathbb{P}(X - \\mu \\ge ${a.toFixed(1)})\\):<br>
+            Chebyshev unilateral (Cantelli): \\( \\le ${cotaUnilateral.toFixed(4)} \\)<br>
+            Chebyshev bilateral: \\( \\le ${cotaBilateral.toFixed(4)} \\) (menos ajustada)<br>
             La cota unilateral es siempre más pequeña (mejor) para una cola.`;
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -721,27 +720,30 @@
             let hx = 0;
             if(func === 'cuadratica') { hx = x*x; esConvexa = true; }
             else if(func === 'exponencial') { hx = Math.exp(x); esConvexa = true; }
-            else if(func === 'logaritmo') { hx = Math.log(Math.max(0.001, x)); esConvexa = false; mediaX = Math.max(0.001, mediaX); }
-            else if(func === 'raiz') { hx = Math.sqrt(Math.max(0, x)); esConvexa = false; mediaX = Math.max(0, mediaX); }
+            else if(func === 'logaritmo') { hx = Math.log(Math.max(0.001, x)); esConvexa = false; }
+            else if(func === 'raiz') { hx = Math.sqrt(Math.max(0, x)); esConvexa = false; }
             mediaH += hx;
         }
         mediaH /= nSim;
         
-        if(func === 'cuadratica') hMedia = mediaX * mediaX;
-        else if(func === 'exponencial') hMedia = Math.exp(mediaX);
-        else if(func === 'logaritmo') hMedia = Math.log(Math.max(0.001, mediaX));
-        else if(func === 'raiz') hMedia = Math.sqrt(Math.max(0, mediaX));
+        let mediaXAdjusted = mediaX;
+        if(func === 'logaritmo') mediaXAdjusted = Math.max(0.001, mediaX);
+        if(func === 'raiz') mediaXAdjusted = Math.max(0, mediaX);
         
-        const cumple = esConvexa ? (mediaH >= hMedia) : (mediaH <= hMedia);
+        if(func === 'cuadratica') hMedia = mediaXAdjusted * mediaXAdjusted;
+        else if(func === 'exponencial') hMedia = Math.exp(mediaXAdjusted);
+        else if(func === 'logaritmo') hMedia = Math.log(mediaXAdjusted);
+        else if(func === 'raiz') hMedia = Math.sqrt(mediaXAdjusted);
+        
+        const cumple = esConvexa ? (mediaH >= hMedia - 0.001) : (mediaH <= hMedia + 0.001);
         
         document.getElementById('jensen-resultado').innerHTML = 
-            `\(\\mathbb{E}[X] = ${mediaX.toFixed(4)}\)<br>
-            \(h(\\mathbb{E}[X]) = ${hMedia.toFixed(4)}\)<br>
-            \(\\mathbb{E}[h(X)] = ${mediaH.toFixed(4)}\)<br>
+            `\\(\\mathbb{E}[X] = ${mediaX.toFixed(4)}\\)<br>
+            \\(h(\\mathbb{E}[X]) = ${hMedia.toFixed(4)}\\)<br>
+            \\(\\mathbb{E}[h(X)] = ${mediaH.toFixed(4)}\\)<br>
             ${esConvexa ? 'h es convexa ⇒ E[h(X)] ≥ h(E[X])' : 'h es cóncava ⇒ E[h(X)] ≤ h(E[X])'}<br>
             ${cumple ? '✓ Se cumple la desigualdad de Jensen' : '⚠ Error numérico'}`;
         
-        // Dibujar función
         const canvas = document.getElementById('jensenCanvas');
         if(canvas) {
             const ctx = canvas.getContext('2d');
@@ -765,15 +767,14 @@
                 else if(func === 'logaritmo') yVal = Math.log(Math.max(0.001, x));
                 else if(func === 'raiz') yVal = Math.sqrt(Math.max(0, x));
                 const y = h - (yVal / 10) * h * 0.8;
-                if(i===0) ctx.moveTo(i, y);
-                else ctx.lineTo(i, y);
+                if(i===0) ctx.moveTo(i, Math.max(0, Math.min(h, y)));
+                else ctx.lineTo(i, Math.max(0, Math.min(h, y)));
             }
             ctx.strokeStyle = '#1976d2';
             ctx.lineWidth = 2;
             ctx.stroke();
             
-            // Marcar punto E[X]
-            const xE = (mediaX - xMin) / (xMax - xMin) * w;
+            let xE = (Math.min(Math.max(xMin, mediaX), xMax) - xMin) / (xMax - xMin) * w;
             let yE = 0;
             if(func === 'cuadratica') yE = mediaX*mediaX;
             else if(func === 'exponencial') yE = Math.exp(mediaX);
@@ -782,11 +783,11 @@
             const yEpx = h - (yE / 10) * h * 0.8;
             ctx.fillStyle = '#f44336';
             ctx.beginPath();
-            ctx.arc(xE, yEpx, 5, 0, 2*Math.PI);
+            ctx.arc(xE, Math.max(0, Math.min(h, yEpx)), 5, 0, 2*Math.PI);
             ctx.fill();
         }
         
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
@@ -806,12 +807,11 @@
         const cotaCantelli = (sigma*sigma) / (sigma*sigma + a*a);
         
         document.getElementById('comparacion-resultado').innerHTML = 
-            `Para \(\\mathbb{P}(X \\ge ${a.toFixed(1)})\) con μ=${mu.toFixed(1)}, σ=${sigma.toFixed(1)}:<br>
-            📊 Markov: \( \\le ${cotaMarkov.toFixed(4)} \)<br>
-            📊 Chebyshev (bilateral): \( \\le ${cotaChebyshev.toFixed(4)} \)<br>
-            📊 Cantelli (unilateral): \( \\le ${cotaCantelli.toFixed(4)} \) ← más ajustada`;
+            `Para \\(\\mathbb{P}(X \\ge ${a.toFixed(1)})\\) con μ=${mu.toFixed(1)}, σ=${sigma.toFixed(1)}:<br>
+            📊 Markov: \\( \\le ${cotaMarkov.toFixed(4)} \\)<br>
+            📊 Chebyshev (bilateral): \\( \\le ${cotaChebyshev.toFixed(4)} \\)<br>
+            📊 Cantelli (unilateral): \\( \\le ${cotaCantelli.toFixed(4)} \\) ← más ajustada`;
         
-        // Gráfico de barras
         const canvas = document.getElementById('comparacionCanvas');
         if(canvas) {
             const ctx = canvas.getContext('2d');
@@ -836,56 +836,124 @@
             }
         }
         
-        if(window.MathJax) MathJax.typeset();
+        if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
-    // Inicialización
+    // FUNCIÓN PRINCIPAL DE INICIALIZACIÓN
     // ============================================================
-    document.addEventListener('DOMContentLoaded', () => {
-        // Módulo 1
-        document.getElementById('c-markov')?.addEventListener('input', verificarMarkov);
-        document.getElementById('dist-markov')?.addEventListener('change', verificarMarkov);
-        document.getElementById('verificar-markov')?.addEventListener('click', verificarMarkov);
+    window.inicializarModuloDesigualdades = function() {
+        // Módulo 1: Markov
+        const cMarkov = document.getElementById('c-markov');
+        const distMarkov = document.getElementById('dist-markov');
+        const btnMarkov = document.getElementById('verificar-markov');
+        if(cMarkov) {
+            cMarkov.removeEventListener('input', verificarMarkov);
+            cMarkov.addEventListener('input', verificarMarkov);
+        }
+        if(distMarkov) {
+            distMarkov.removeEventListener('change', verificarMarkov);
+            distMarkov.addEventListener('change', verificarMarkov);
+        }
+        if(btnMarkov) {
+            btnMarkov.removeEventListener('click', verificarMarkov);
+            btnMarkov.addEventListener('click', verificarMarkov);
+        }
         verificarMarkov();
         
-        // Módulo 2
-        document.getElementById('k-chebyshev')?.addEventListener('input', verificarChebyshev);
-        document.getElementById('dist-chebyshev')?.addEventListener('change', verificarChebyshev);
-        document.getElementById('verificar-chebyshev')?.addEventListener('click', verificarChebyshev);
+        // Módulo 2: Chebyshev
+        const kChebyshev = document.getElementById('k-chebyshev');
+        const distChebyshev = document.getElementById('dist-chebyshev');
+        const btnChebyshev = document.getElementById('verificar-chebyshev');
+        if(kChebyshev) {
+            kChebyshev.removeEventListener('input', verificarChebyshev);
+            kChebyshev.addEventListener('input', verificarChebyshev);
+        }
+        if(distChebyshev) {
+            distChebyshev.removeEventListener('change', verificarChebyshev);
+            distChebyshev.addEventListener('change', verificarChebyshev);
+        }
+        if(btnChebyshev) {
+            btnChebyshev.removeEventListener('click', verificarChebyshev);
+            btnChebyshev.addEventListener('click', verificarChebyshev);
+        }
         verificarChebyshev();
         
-        // Módulo 3
-        document.getElementById('mu-unilateral')?.addEventListener('input', verificarUnilateral);
-        document.getElementById('sigma-unilateral')?.addEventListener('input', verificarUnilateral);
-        document.getElementById('a-unilateral')?.addEventListener('input', verificarUnilateral);
-        document.getElementById('verificar-unilateral')?.addEventListener('click', verificarUnilateral);
+        // Módulo 3: Unilateral
+        const muUni = document.getElementById('mu-unilateral');
+        const sigmaUni = document.getElementById('sigma-unilateral');
+        const aUni = document.getElementById('a-unilateral');
+        const btnUni = document.getElementById('verificar-unilateral');
+        if(muUni) {
+            muUni.removeEventListener('input', verificarUnilateral);
+            muUni.addEventListener('input', verificarUnilateral);
+        }
+        if(sigmaUni) {
+            sigmaUni.removeEventListener('input', verificarUnilateral);
+            sigmaUni.addEventListener('input', verificarUnilateral);
+        }
+        if(aUni) {
+            aUni.removeEventListener('input', verificarUnilateral);
+            aUni.addEventListener('input', verificarUnilateral);
+        }
+        if(btnUni) {
+            btnUni.removeEventListener('click', verificarUnilateral);
+            btnUni.addEventListener('click', verificarUnilateral);
+        }
         verificarUnilateral();
         
-        // Módulo 4
-        document.getElementById('funcion-jensen')?.addEventListener('change', verificarJensen);
-        document.getElementById('dist-jensen')?.addEventListener('change', verificarJensen);
-        document.getElementById('verificar-jensen')?.addEventListener('click', verificarJensen);
+        // Módulo 4: Jensen
+        const funcJensen = document.getElementById('funcion-jensen');
+        const distJensen = document.getElementById('dist-jensen');
+        const btnJensen = document.getElementById('verificar-jensen');
+        if(funcJensen) {
+            funcJensen.removeEventListener('change', verificarJensen);
+            funcJensen.addEventListener('change', verificarJensen);
+        }
+        if(distJensen) {
+            distJensen.removeEventListener('change', verificarJensen);
+            distJensen.addEventListener('change', verificarJensen);
+        }
+        if(btnJensen) {
+            btnJensen.removeEventListener('click', verificarJensen);
+            btnJensen.addEventListener('click', verificarJensen);
+        }
         verificarJensen();
         
-        // Módulo 5
-        document.getElementById('mu-comp')?.addEventListener('input', compararCotas);
-        document.getElementById('sigma-comp')?.addEventListener('input', compararCotas);
-        document.getElementById('a-comp')?.addEventListener('input', compararCotas);
-        document.getElementById('comparar-cotas')?.addEventListener('click', compararCotas);
+        // Módulo 5: Comparación
+        const muComp = document.getElementById('mu-comp');
+        const sigmaComp = document.getElementById('sigma-comp');
+        const aComp = document.getElementById('a-comp');
+        const btnComp = document.getElementById('comparar-cotas');
+        if(muComp) {
+            muComp.removeEventListener('input', compararCotas);
+            muComp.addEventListener('input', compararCotas);
+        }
+        if(sigmaComp) {
+            sigmaComp.removeEventListener('input', compararCotas);
+            sigmaComp.addEventListener('input', compararCotas);
+        }
+        if(aComp) {
+            aComp.removeEventListener('input', compararCotas);
+            aComp.addEventListener('input', compararCotas);
+        }
+        if(btnComp) {
+            btnComp.removeEventListener('click', compararCotas);
+            btnComp.addEventListener('click', compararCotas);
+        }
         compararCotas();
         
-        // Observador para cambio de tema
-        const observer = new MutationObserver(() => {
-            verificarChebyshev();
-            verificarJensen();
-            compararCotas();
-        });
-        observer.observe(document.body, {attributes: true});
-        
-        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
-    });
+        if(window.MathJax) MathJax.typesetPromise();
+    };
+    
+    // Auto-inicializar
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.inicializarModuloDesigualdades);
+    } else {
+        window.inicializarModuloDesigualdades();
+    }
 </script>
+                    
 </body>
 </html>
        
