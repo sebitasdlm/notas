@@ -84,7 +84,16 @@
             margin: 1rem 0;
             font-family: 'Courier New', monospace;
             font-size: 0.9rem;
-            border: 1px dashed var(--border);
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
         }
 
         .simulador {
@@ -172,6 +181,14 @@
             margin: 0.5rem 0;
         }
 
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
         hr {
             margin: 2rem 0;
             border-color: var(--border);
@@ -197,33 +214,49 @@
     <!-- ========================================================= -->
     <div class="modulo">
         <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>1. Función Generadora de Momentos</h3>
+            <h3>1. Función Generadora de Momentos - Definición</h3>
         </div>
         <div class="modulo-content">
             <div class="explicacion-intro">
-                La <strong>función generadora de momentos (FGM)</strong> de una variable aleatoria \(X\) es
+                La <strong>función generadora de momentos (FGM)</strong> es una herramienta poderosa que 
+                "codifica" todos los momentos de una distribución en una sola función.
                 \[
-                m_X(t) = \mathbb{E}[e^{tX}]
+                m_X(t) = \mathbb{E}[e^{tX}] = \begin{cases}
+                \sum_{x} e^{tx} f_X(x) & \text{(discreto)} \\
+                \int_{-\infty}^{\infty} e^{tx} f_X(x) dx & \text{(continuo)}
+                \end{cases}
                 \]
-                siempre que la esperanza exista para \(|t| < \delta\) con \(\delta > 0\).
-                Su nombre viene de que genera los momentos:
+                <strong>Condición de existencia:</strong> La FGM existe si la esperanza es finita para \(|t| < \delta\) con \(\delta > 0\).
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedad fundamental:</strong> La FGM genera los momentos mediante derivación:
                 \[
                 \mathbb{E}[X^r] = \left. \frac{d^r m_X(t)}{dt^r} \right|_{t=0}
                 \]
+                <strong>Demostración:</strong> Desarrollamos \(e^{tX}\) en serie de Taylor:
+                \[
+                e^{tX} = \sum_{r=0}^{\infty} \frac{(tX)^r}{r!} = \sum_{r=0}^{\infty} \frac{t^r X^r}{r!}
+                \]
+                Tomando esperanza:
+                \[
+                m_X(t) = \mathbb{E}[e^{tX}] = \sum_{r=0}^{\infty} \frac{t^r}{r!} \mathbb{E}[X^r]
+                \]
+                Derivando r veces y evaluando en t=0 obtenemos \(\mathbb{E}[X^r]\).
             </div>
 
             <div class="simulador">
-                <h4>Explora las FGM de diferentes distribuciones</h4>
+                <h4>FGM de distribuciones comunes</h4>
                 <div class="controles">
                     <label>Distribución:</label>
                     <select id="dist-fgm">
                         <option value="bernoulli">Bernoulli(p)</option>
                         <option value="poisson">Poisson(λ)</option>
-                        <option value="normal">Normal(0,1)</option>
+                        <option value="normal">Normal(μ, σ²)</option>
                         <option value="gamma">Gamma(α, β)</option>
                     </select>
                     <div id="parametros-fgm"></div>
-                    <button id="graficar-fgm">Graficar FGM</button>
+                    <button id="graficar-fgm">Graficar m_X(t)</button>
                 </div>
                 <canvas id="fgmCanvas" width="500" height="300"></canvas>
                 <div id="fgm-formula" class="formula-destacada"></div>
@@ -231,22 +264,42 @@
             </div>
 
             <div class="explicacion-formal">
-                <strong>Propiedades:</strong>
+                <strong>FGM de distribuciones comunes (memorizar):</strong>
                 <ul>
-                    <li>\(m_X(0) = 1\)</li>
-                    <li>Si \(Y = a + bX\), entonces \(m_Y(t) = e^{at} m_X(bt)\)</li>
-                    <li>Si dos variables tienen la misma FGM en un entorno de 0, tienen la misma distribución (Teorema de unicidad)</li>
+                    <li>\(X \sim \text{Bernoulli}(p)\): \(m_X(t) = 1-p + p e^{t}\)</li>
+                    <li>\(X \sim \text{Poisson}(\lambda)\): \(m_X(t) = e^{\lambda(e^{t}-1)}\)</li>
+                    <li>\(X \sim \text{Normal}(\mu, \sigma^2)\): \(m_X(t) = e^{\mu t + \frac{1}{2}\sigma^2 t^2}\)</li>
+                    <li>\(X \sim \text{Gamma}(\alpha, \beta)\): \(m_X(t) = (1-\beta t)^{-\alpha}\), para \(t < 1/\beta\)</li>
                 </ul>
             </div>
 
             <div class="pregunta-exploratoria">
-                <strong>¿Pueden dos distribuciones diferentes tener los mismos momentos?</strong>
-                <button onclick="mostrarRespuesta('respuesta-momentos')">Ver ejemplo</button>
-                <div id="respuesta-momentos" class="respuesta">
-                    ¡Sí! La distribución lognormal y una versión "perturbada" tienen exactamente los mismos momentos
-                    para todo r = 1,2,... pero son distribuciones distintas. Por eso la FGM es más poderosa:
-                    cuando existe, sí determina la distribución de manera única.
+                <strong>¿La FGM siempre existe?</strong>
+                <button onclick="mostrarRespuesta('respuesta-existencia')">Ver respuesta</button>
+                <div id="respuesta-existencia" class="respuesta">
+                    No. Por ejemplo, la distribución de Cauchy no tiene FGM porque la integral diverge.
+                    Sin embargo, la <strong>función característica</strong> \(\varphi_X(t) = \mathbb{E}[e^{itX}]\) 
+                    siempre existe (se verá en otro módulo).
                 </div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo numérico:</strong> Sea \(X \sim \text{Poisson}(\lambda=2)\). Calcule \(\mathbb{E}[X]\) y \(\mathbb{E}[X^2]\) usando la FGM.
+                <br><br>
+                <strong>Solución:</strong> \(m_X(t) = e^{2(e^{t}-1)}\)
+                <br>
+                \(m_X'(t) = e^{2(e^{t}-1)} \cdot 2e^{t}\) ⇒ \(\mathbb{E}[X] = m_X'(0) = 1 \cdot 2 = 2\)
+                <br>
+                \(m_X''(t) = m_X'(t) \cdot 2e^{t} + m_X(t) \cdot 2e^{t}\) ⇒ \(\mathbb{E}[X^2] = m_X''(0) = 2 \cdot 2 + 1 \cdot 2 = 6\)
+                <br>
+                \(\operatorname{var}(X) = \mathbb{E}[X^2] - (\mathbb{E}[X])^2 = 6 - 4 = 2\) (correcto, para Poisson var = λ)
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedad de transformación lineal:</strong> Si \(Y = a + bX\), entonces
+                \[
+                m_Y(t) = \mathbb{E}[e^{t(a+bX)}] = e^{ta} \mathbb{E}[e^{tbX}] = e^{ta} m_X(bt)
+                \]
             </div>
         </div>
     </div>
@@ -256,31 +309,44 @@
     <!-- ========================================================= -->
     <div class="modulo">
         <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>2. Suma de Variables Independientes</h3>
+            <h3>2. Suma de Variables Aleatorias Independientes</h3>
         </div>
         <div class="modulo-content">
             <div class="explicacion-intro">
-                Si \(X\) y \(Y\) son independientes, entonces
+                Una de las aplicaciones más importantes de la FGM es encontrar la distribución de 
+                sumas de variables independientes.
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Teorema:</strong> Si \(X\) y \(Y\) son independientes, entonces
                 \[
                 m_{X+Y}(t) = m_X(t) \cdot m_Y(t)
                 \]
-                Esto hace que las FGM sean una herramienta poderosa para encontrar la distribución de sumas.
+                <strong>Demostración:</strong>
+                \[
+                m_{X+Y}(t) = \mathbb{E}[e^{t(X+Y)}] = \mathbb{E}[e^{tX} e^{tY}] 
+                \stackrel{\text{ind}}{=} \mathbb{E}[e^{tX}] \cdot \mathbb{E}[e^{tY}] = m_X(t) m_Y(t)
+                \]
+                Por extensión, si \(X_1, \ldots, X_n\) son independientes:
+                \[
+                m_{S_n}(t) = \prod_{i=1}^n m_{X_i}(t), \quad \text{donde } S_n = \sum_{i=1}^n X_i
+                \]
             </div>
 
             <div class="simulador">
-                <h4>Simulador: Suma de dos variables independientes</h4>
+                <h4>Suma de dos variables independientes</h4>
                 <div class="controles">
                     <label>Distribución de X:</label>
                     <select id="distX">
-                        <option value="binom">Binomial(n,p)</option>
-                        <option value="poisson">Poisson(λ)</option>
-                        <option value="normal">Normal(μ,σ²)</option>
+                        <option value="binom">Binomial(n₁, p)</option>
+                        <option value="poisson">Poisson(λ₁)</option>
+                        <option value="normal">Normal(μ₁, σ₁²)</option>
                     </select>
                     <label>Distribución de Y:</label>
                     <select id="distY">
-                        <option value="binom">Binomial(n,p)</option>
-                        <option value="poisson">Poisson(λ)</option>
-                        <option value="normal">Normal(μ,σ²)</option>
+                        <option value="binom">Binomial(n₂, p)</option>
+                        <option value="poisson">Poisson(λ₂)</option>
+                        <option value="normal">Normal(μ₂, σ₂²)</option>
                     </select>
                     <button id="calcular-suma">Calcular distribución de X+Y</button>
                 </div>
@@ -288,33 +354,130 @@
             </div>
 
             <div class="explicacion-formal">
-                <strong>Ejemplos clásicos (por unicidad):</strong>
+                <strong>Ejemplos clásicos por unicidad:</strong>
                 <ul>
-                    <li>\(X_i \sim \text{Ber}(p)\) independientes ⇒ \(\sum X_i \sim \text{Bin}(n,p)\)</li>
-                    <li>\(X_i \sim \text{Po}(\lambda_i)\) independientes ⇒ \(\sum X_i \sim \text{Po}(\sum \lambda_i)\)</li>
-                    <li>\(X_i \sim \text{N}(\mu_i, \sigma_i^2)\) independientes ⇒ \(\sum X_i \sim \text{N}(\sum \mu_i, \sum \sigma_i^2)\)</li>
-                    <li>\(X_i \sim \text{Gamma}(\alpha_i, \beta)\) independientes ⇒ \(\sum X_i \sim \text{Gamma}(\sum \alpha_i, \beta)\)</li>
+                    <li>\(X_i \sim \text{Bernoulli}(p)\) i.i.d. ⇒ \(\sum_{i=1}^n X_i \sim \text{Bin}(n,p)\)</li>
+                    <li>\(X_i \sim \text{Poisson}(\lambda_i)\) independientes ⇒ \(\sum_{i=1}^n X_i \sim \text{Poisson}(\sum \lambda_i)\)</li>
+                    <li>\(X_i \sim \text{Normal}(\mu_i, \sigma_i^2)\) independientes ⇒ \(\sum_{i=1}^n X_i \sim \text{Normal}(\sum \mu_i, \sum \sigma_i^2)\)</li>
+                    <li>\(X_i \sim \text{Gamma}(\alpha_i, \beta)\) independientes ⇒ \(\sum_{i=1}^n X_i \sim \text{Gamma}(\sum \alpha_i, \beta)\)</li>
                 </ul>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración del ejemplo Binomial:</strong>
+                <br>
+                Sea \(X_i \sim \text{Bernoulli}(p)\) independientes. Su FGM es \(m_X(t) = 1-p + p e^{t}\).
+                <br>
+                Entonces \(m_{S_n}(t) = [m_X(t)]^n = (1-p + p e^{t})^n\), que es la FGM de una \(\text{Bin}(n,p)\).
+                <br>
+                Por el <strong>Teorema de Unicidad</strong>, \(S_n \sim \text{Bin}(n,p)\).
             </div>
 
             <div class="pregunta-exploratoria">
                 <strong>¿Qué distribución tiene la suma de dos normales independientes?</strong>
-                <button onclick="mostrarRespuesta('respuesta-suma-normal')">Ver respuesta</button>
+                <button onclick="mostrarRespuesta('respuesta-suma-normal')">Ver demostración</button>
                 <div id="respuesta-suma-normal" class="respuesta">
-                    ¡Normal! Si \(X \sim N(\mu_X, \sigma_X^2)\) e \(Y \sim N(\mu_Y, \sigma_Y^2)\) independientes,
-                    entonces \(X+Y \sim N(\mu_X + \mu_Y, \sigma_X^2 + \sigma_Y^2)\).
-                    Esto se demuestra fácilmente porque \(m_{X+Y}(t) = e^{\mu_X t + \frac{1}{2}\sigma_X^2 t^2} \cdot e^{\mu_Y t + \frac{1}{2}\sigma_Y^2 t^2} = e^{(\mu_X+\mu_Y)t + \frac{1}{2}(\sigma_X^2+\sigma_Y^2)t^2}\).
+                    Si \(X \sim N(\mu_X, \sigma_X^2)\) e \(Y \sim N(\mu_Y, \sigma_Y^2)\) independientes:
+                    \[
+                    m_{X+Y}(t) = m_X(t) m_Y(t) = e^{\mu_X t + \frac{1}{2}\sigma_X^2 t^2} \cdot e^{\mu_Y t + \frac{1}{2}\sigma_Y^2 t^2}
+                    = e^{(\mu_X+\mu_Y) t + \frac{1}{2}(\sigma_X^2+\sigma_Y^2) t^2}
+                    \]
+                    Esta es la FGM de una \(N(\mu_X+\mu_Y, \sigma_X^2+\sigma_Y^2)\). Por unicidad, esa es la distribución.
+                </div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo numérico:</strong> El número de personas que entran a un banco en una hora sigue 
+                una Poisson(λ=10). En una hora pico, λ=15. ¿Cuál es la distribución del total en dos horas (una normal + una pico)?
+                <br><br>
+                <strong>Solución:</strong> Como son independientes, \(X_1 \sim \text{Poisson}(10)\), \(X_2 \sim \text{Poisson}(15)\)
+                \[
+                m_{X_1+X_2}(t) = e^{10(e^t-1)} \cdot e^{15(e^t-1)} = e^{25(e^t-1)}
+                \]
+                Por unicidad, \(X_1+X_2 \sim \text{Poisson}(25)\).
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Teorema de Unicidad y momentos                  -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Teorema de Unicidad</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                El <strong>Teorema de Unicidad</strong> es fundamental: si dos variables aleatorias 
+                tienen la misma FGM en un entorno de 0, entonces tienen la misma distribución.
+                \[
+                m_X(t) = m_Y(t) \quad \forall |t| < \delta \quad \Rightarrow \quad F_X = F_Y
+                \]
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>¿Los momentos determinan la distribución?</strong>
+                <br>
+                En general, <strong>no</strong>. Existen distribuciones distintas con los mismos momentos.
+                <br>
+                Ejemplo clásico: La distribución lognormal y una versión "perturbada":
+                \[
+                f_X(x) = \frac{1}{x\sqrt{2\pi}} e^{-(\log x)^2/2}, \quad x>0
+                \]
+                \[
+                f_Y(x) = f_X(x)[1 + \sin(2\pi \log x)], \quad x>0
+                \]
+                Tienen \(\mathbb{E}[X^r] = \mathbb{E}[Y^r]\) para todo r, pero son distribuciones diferentes.
+                <br>
+                <strong>Conclusión:</strong> La FGM (cuando existe) es más poderosa que la secuencia de momentos.
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación: Momentos de la Normal</h4>
+                <div class="controles">
+                    <label>μ (media):</label>
+                    <input type="range" id="mu-momentos" min="-3" max="3" step="0.5" value="0">
+                    <span id="mu-val">0</span>
+                    <label>σ (desviación):</label>
+                    <input type="range" id="sigma-momentos" min="0.5" max="3" step="0.1" value="1">
+                    <span id="sigma-val">1.0</span>
+                </div>
+                <div id="momentos-calculados" style="text-align:center; padding:1rem;"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Momentos de la Normal(μ, σ²):</strong>
+                <ul>
+                    <li>\(\mathbb{E}[X] = \mu\)</li>
+                    <li>\(\mathbb{E}[X^2] = \mu^2 + \sigma^2\)</li>
+                    <li>\(\mathbb{E}[X^3] = \mu^3 + 3\mu\sigma^2\)</li>
+                    <li>\(\mathbb{E}[X^4] = \mu^4 + 6\mu^2\sigma^2 + 3\sigma^4\)</li>
+                </ul>
+                <strong>Fórmula general para momentos centrales de la normal:</strong>
+                \[
+                \mathbb{E}[(X-\mu)^{2k}] = \sigma^{2k} (2k-1)!!, \quad \mathbb{E}[(X-\mu)^{2k+1}] = 0
+                \]
+                donde \((2k-1)!! = 1 \cdot 3 \cdot 5 \cdots (2k-1)\).
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Para qué sirve el Teorema de Unicidad?</strong>
+                <button onclick="mostrarRespuesta('respuesta-unicidad')">Ver respuesta</button>
+                <div id="respuesta-unicidad" class="respuesta">
+                    Es la herramienta que usamos para afirmar que si la FGM de una suma coincide con la FGM
+                    de una distribución conocida, entonces la suma <strong>tiene</strong> esa distribución.
+                    Sin este teorema, solo sabríamos que los momentos coinciden, pero no la distribución completa.
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ========================================================= -->
-    <!-- MODULO 3: Caso multivariado                               -->
+    <!-- MODULO 4: Caso multivariado                               -->
     <!-- ========================================================= -->
     <div class="modulo">
         <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>3. FGM Conjunta (Caso Multivariado)</h3>
+            <h3>4. FGM Conjunta (Multivariada)</h3>
         </div>
         <div class="modulo-content">
             <div class="explicacion-intro">
@@ -322,7 +485,10 @@
                 \[
                 m_{XY}(u,v) = \mathbb{E}[e^{uX + vY}]
                 \]
-                A partir de ella podemos obtener:
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedades:</strong>
                 <ul>
                     <li>FGM marginales: \(m_X(u) = m_{XY}(u,0)\), \(m_Y(v) = m_{XY}(0,v)\)</li>
                     <li>Momentos cruzados: \(\mathbb{E}[X^r Y^s] = \left. \frac{\partial^{r+s}}{\partial u^r \partial v^s} m_{XY}(u,v) \right|_{u=0,v=0}\)</li>
@@ -331,62 +497,94 @@
             </div>
 
             <div class="simulador">
-                <h4>Ejemplo interactivo: FGM conjunta</h4>
-                <div class="controles">
-                    <label>Correlación ρ entre X y Y:</label>
-                    <input type="range" id="rho-fgm" min="-0.9" max="0.9" step="0.05" value="0">
-                    <span id="rho-fgm-val">0.00</span>
-                </div>
-                <div id="fgm-conjunta-resultado" style="text-align:center; padding:1rem;"></div>
-                <div id="fgm-independencia" style="text-align:center;"></div>
+                <h4>Ejemplo del PDF (resuelto paso a paso)</h4>
+                <p>Sea \(m_{12}(t_1, t_2) = \exp\left\{ -t_2 + \frac{1}{2}t_1^2 - t_1 t_2 + t_2^2 \right\}\)</p>
+                <div id="ejemplo-fgm-resuelto" style="text-align:left; padding:1rem; background: var(--bg-primary); border-radius:8px;"></div>
             </div>
 
-            <div class="explicacion-formal">
-                <strong>Ejemplo del PDF:</strong> Dada \(m_{12}(t_1,t_2) = \exp\left\{-t_2 + \frac{1}{2}t_1^2 - t_1t_2 + t_2^2\right\}\)
-                <ul>
-                    <li>\(m_1(t_1) = e^{t_1^2/2}\) ⇒ \(X_1 \sim N(0,1)\)</li>
-                    <li>\(m_2(t_2) = e^{-t_2 + t_2^2}\) ⇒ \(\mathbb{E}[X_2] = -1\), \(\operatorname{var}(X_2) = 2\)</li>
-                    <li>\(\mathbb{E}[X_1X_2] = -1\) ⇒ \(\operatorname{cov}(X_1,X_2) = -1\) ⇒ \(\rho = -1/\sqrt{2} \approx -0.707\)</li>
-                </ul>
+            <div class="demostracion">
+                <strong>Demostración paso a paso del ejemplo:</strong>
+                <br><br>
+                <strong>a) FGM marginal de X₁:</strong> \(m_1(t_1) = m_{12}(t_1, 0) = e^{t_1^2/2}\)
+                <br>
+                Esta es la FGM de una \(N(0,1)\). Por unicidad, \(X_1 \sim N(0,1)\).
+                <br>
+                ⇒ \(\mathbb{E}[X_1] = 0\), \(\operatorname{var}(X_1) = 1\)
+                <br><br>
+                <strong>b) FGM marginal de X₂:</strong> \(m_2(t_2) = m_{12}(0, t_2) = e^{-t_2 + t_2^2}\)
+                <br>
+                Derivamos: \(m_2'(t_2) = e^{-t_2 + t_2^2}(-1 + 2t_2)\) ⇒ \(\mathbb{E}[X_2] = m_2'(0) = -1\)
+                <br>
+                \(m_2''(t_2) = m_2'(t_2)(-1+2t_2) + m_2(t_2)(2)\) ⇒ \(\mathbb{E}[X_2^2] = m_2''(0) = (-1)(-1) + 1\cdot 2 = 3\)
+                <br>
+                \(\operatorname{var}(X_2) = \mathbb{E}[X_2^2] - (\mathbb{E}[X_2])^2 = 3 - 1 = 2\)
+                <br><br>
+                <strong>c) Momento conjunto:</strong> \(\mathbb{E}[X_1 X_2] = \left. \frac{\partial^2}{\partial t_1 \partial t_2} m_{12}(t_1, t_2) \right|_{0,0}\)
+                <br>
+                Derivada parcial: \(\frac{\partial m_{12}}{\partial t_2} = m_{12}(t_1, t_2) \cdot (-1 - t_1 + 2t_2)\)
+                <br>
+                \(\frac{\partial^2}{\partial t_1 \partial t_2} = \frac{\partial m_{12}}{\partial t_1} \cdot (-1 - t_1 + 2t_2) + m_{12} \cdot (-1)\)
+                <br>
+                Evaluando en (0,0): \(\frac{\partial m_{12}}{\partial t_1} = m_{12} \cdot t_1 \big|_{0,0} = 0\)
+                <br>
+                ⇒ \(\mathbb{E}[X_1 X_2] = 0 \cdot (-1) + 1 \cdot (-1) = -1\)
+                <br><br>
+                <strong>d) Covarianza y correlación:</strong>
+                <br>
+                \(\operatorname{cov}(X_1, X_2) = \mathbb{E}[X_1 X_2] - \mathbb{E}[X_1]\mathbb{E}[X_2] = -1 - 0 = -1\)
+                <br>
+                \(\rho = \frac{-1}{\sqrt{1 \cdot 2}} = -\frac{1}{\sqrt{2}} \approx -0.7071\)
             </div>
 
             <div class="pregunta-exploratoria">
                 <strong>¿Cómo se detecta independencia con la FGM conjunta?</strong>
                 <button onclick="mostrarRespuesta('respuesta-fgm-indep')">Ver respuesta</button>
                 <div id="respuesta-fgm-indep" class="respuesta">
-                    Si \(m_{XY}(u,v) = m_X(u) \cdot m_Y(v)\) para todo \(u,v\) en un entorno de (0,0),
-                    entonces \(X\) y \(Y\) son independientes. Esto es una consecuencia directa del teorema de unicidad.
+                    Si \(m_{XY}(u,v) = m_X(u) m_Y(v)\) para todo \(u,v\) en un entorno de (0,0), 
+                    entonces \(X\) y \(Y\) son independientes. Esto se debe a que la FGM conjunta 
+                    factorizada corresponde a la FGM del producto de distribuciones marginales.
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ========================================================= -->
-    <!-- MODULO 4: Función Característica                          -->
+    <!-- MODULO 5: Función Característica                          -->
     <!-- ========================================================= -->
     <div class="modulo">
         <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>4. Función Característica</h3>
+            <h3>5. Función Característica</h3>
         </div>
         <div class="modulo-content">
             <div class="explicacion-intro">
-                La <strong>función característica</strong> (FC) se define como
+                La <strong>función característica (FC)</strong> se define como
                 \[
                 \varphi_X(t) = \mathbb{E}[e^{itX}] = \mathbb{E}[\cos(tX)] + i\mathbb{E}[\sin(tX)]
                 \]
-                A diferencia de la FGM, <strong>siempre existe</strong> para todo \(t \in \mathbb{R}\).
-                También determina la distribución de manera única.
+                <strong>Ventaja fundamental:</strong> Siempre existe para todo \(t \in \mathbb{R}\), 
+                mientras que la FGM puede no existir.
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Relación FGM ↔ FC:</strong> Si la FGM existe, entonces \(\varphi_X(t) = m_X(it)\).
+                <br><br>
+                <strong>Ejemplos de FC:</strong>
+                <ul>
+                    <li>\(X \sim N(\mu, \sigma^2)\): \(\varphi_X(t) = e^{i\mu t - \frac{1}{2}\sigma^2 t^2}\)</li>
+                    <li>\(X \sim \text{Poisson}(\lambda)\): \(\varphi_X(t) = e^{\lambda(e^{it}-1)}\)</li>
+                    <li>\(X \sim \text{Bin}(n,p)\): \(\varphi_X(t) = (1-p + p e^{it})^n\)</li>
+                    <li>\(X \sim \text{Cauchy}(0,1)\): \(\varphi_X(t) = e^{-|t|}\) (¡no tiene FGM!)</li>
+                </ul>
             </div>
 
             <div class="simulador">
-                <h4>Compara FGM y FC para diferentes distribuciones</h4>
+                <h4>Comparativa: Distribuciones que no tienen FGM</h4>
                 <div class="controles">
                     <label>Distribución:</label>
                     <select id="dist-fc">
-                        <option value="normal">Normal(0,1)</option>
-                        <option value="cauchy">Cauchy(0,1)</option>
-                        <option value="poisson">Poisson(2)</option>
-                        <option value="binomial">Binomial(10,0.3)</option>
+                        <option value="cauchy">Cauchy(0,1) - sin FGM</option>
+                        <option value="normal">Normal(0,1) - con FGM</option>
+                        <option value="lognormal">Lognormal - sin FGM</option>
                     </select>
                     <button id="graficar-fc">Graficar |φ(t)|</button>
                 </div>
@@ -395,28 +593,20 @@
             </div>
 
             <div class="explicacion-formal">
-                <strong>Ejemplos de funciones características:</strong>
-                <ul>
-                    <li>\(X \sim N(\mu,\sigma^2)\) ⇒ \(\varphi_X(t) = e^{i\mu t - \frac{1}{2}\sigma^2 t^2}\)</li>
-                    <li>\(X \sim \text{Po}(\lambda)\) ⇒ \(\varphi_X(t) = e^{\lambda(e^{it}-1)}\)</li>
-                    <li>\(X \sim \text{Bin}(n,p)\) ⇒ \(\varphi_X(t) = (q + pe^{it})^n\)</li>
-                    <li>\(X \sim \text{Cauchy}(0,1)\) ⇒ \(\varphi_X(t) = e^{-|t|}\) (¡no tiene FGM!)</li>
-                </ul>
+                <strong>Propiedad de simetría:</strong> \(\varphi_X(t)\) es real si y solo si la distribución 
+                de \(X\) es simétrica alrededor de 0 (es decir, \(F_X(-x) = 1 - F_X(x)\)).
+                <br>
+                Ejemplo: Cauchy(0,1) tiene \(\varphi(t) = e^{-|t|}\), que es real.
             </div>
 
             <div class="pregunta-exploratoria">
-                <strong>La distribución Cauchy tiene FC real. ¿Qué significa esto?</strong>
-                <button onclick="mostrarRespuesta('respuesta-cauchy')">Ver respuesta</button>
-                <div id="respuesta-cauchy" class="respuesta">
-                    Una FC es real si y solo si la distribución es <strong>simétrica</strong> alrededor de 0.
-                    La Cauchy(0,1) es simétrica, por eso \(\varphi(t) = e^{-|t|}\) es real.
-                    Además, ¡la Cauchy no tiene FGM porque su esperanza no existe!
+                <strong>¿Por qué la función característica siempre existe?</strong>
+                <button onclick="mostrarRespuesta('respuesta-fc-existe')">Ver respuesta</button>
+                <div id="respuesta-fc-existe" class="respuesta">
+                    Porque \(|e^{itX}| = 1\) para todo \(t, X\). Entonces \(|\varphi_X(t)| \le \mathbb{E}[|e^{itX}|] = 1\).
+                    La integral (o suma) siempre converge absolutamente, a diferencia de la FGM donde 
+                    \(e^{tX}\) puede crecer exponencialmente.
                 </div>
-            </div>
-
-            <div class="explicacion-formal">
-                <strong>Relación FGM ↔ FC:</strong> Si la FGM existe, entonces \(\varphi_X(t) = m_X(it)\).
-                Pero la FC puede existir aunque la FGM no (como en la distribución Cauchy).
             </div>
         </div>
     </div>
@@ -437,7 +627,7 @@
     }
 
     // ============================================================
-    // MODULO 1: FGM de distribuciones
+    // MODULO 1: FGM
     // ============================================================
     function actualizarParametrosFGM() {
         const dist = document.getElementById('dist-fgm').value;
@@ -451,9 +641,13 @@
             const lamSlider = document.getElementById('lambda-po');
             if(lamSlider) lamSlider.addEventListener('input', () => document.getElementById('lambda-val').textContent = parseFloat(lamSlider.value).toFixed(1));
         } else if(dist === 'normal') {
-            contenedor.innerHTML = '';
+            contenedor.innerHTML = '<label>μ:</label><input type="range" id="mu-norm" min="-2" max="2" step="0.5" value="0"><span id="mu-norm-val">0</span><label>σ:</label><input type="range" id="sigma-norm" min="0.5" max="3" step="0.1" value="1"><span id="sigma-norm-val">1.0</span>';
+            const muSlider = document.getElementById('mu-norm');
+            const sigmaSlider = document.getElementById('sigma-norm');
+            if(muSlider) muSlider.addEventListener('input', () => document.getElementById('mu-norm-val').textContent = parseFloat(muSlider.value).toFixed(1));
+            if(sigmaSlider) sigmaSlider.addEventListener('input', () => document.getElementById('sigma-norm-val').textContent = parseFloat(sigmaSlider.value).toFixed(1));
         } else if(dist === 'gamma') {
-            contenedor.innerHTML = '<label>α:</label><input type="range" id="alpha-ga" min="0.5" max="5" step="0.5" value="2"><span id="alpha-val">2.0</span><label>β:</label><input type="range" id="beta-ga" min="0.5" max="3" step="0.5" value="1"><span id="beta-val">1.0</span>';
+            contenedor.innerHTML = '<label>α (forma):</label><input type="range" id="alpha-ga" min="0.5" max="5" step="0.5" value="2"><span id="alpha-val">2.0</span><label>β (escala):</label><input type="range" id="beta-ga" min="0.5" max="3" step="0.5" value="1"><span id="beta-val">1.0</span>';
             const alphaSlider = document.getElementById('alpha-ga');
             const betaSlider = document.getElementById('beta-ga');
             if(alphaSlider) alphaSlider.addEventListener('input', () => document.getElementById('alpha-val').textContent = parseFloat(alphaSlider.value).toFixed(1));
@@ -474,35 +668,42 @@
         const dist = document.getElementById('dist-fgm').value;
         let formula = '';
         let m = (t) => 0;
+        let momentos = { e1: 0, e2: 0 };
         
         if(dist === 'bernoulli') {
             const p = parseFloat(document.getElementById('p-ber')?.value || 0.5);
             const q = 1-p;
             m = (t) => q + p * Math.exp(t);
             formula = `m_X(t) = ${q.toFixed(2)} + ${p.toFixed(2)} e^{t}`;
+            momentos = { e1: p, e2: p };
         } else if(dist === 'poisson') {
             const lambda = parseFloat(document.getElementById('lambda-po')?.value || 2);
             m = (t) => Math.exp(lambda * (Math.exp(t) - 1));
             formula = `m_X(t) = \\exp\\{${lambda}(e^{t} - 1)\\}`;
+            momentos = { e1: lambda, e2: lambda + lambda*lambda };
         } else if(dist === 'normal') {
-            m = (t) => Math.exp(t*t/2);
-            formula = `m_X(t) = e^{t^2/2}`;
+            const mu = parseFloat(document.getElementById('mu-norm')?.value || 0);
+            const sigma = parseFloat(document.getElementById('sigma-norm')?.value || 1);
+            m = (t) => Math.exp(mu*t + 0.5*sigma*sigma*t*t);
+            formula = `m_X(t) = e^{${mu}t + \\frac{1}{2}${sigma}^2 t^2}`;
+            momentos = { e1: mu, e2: mu*mu + sigma*sigma };
         } else if(dist === 'gamma') {
             const alpha = parseFloat(document.getElementById('alpha-ga')?.value || 2);
             const beta = parseFloat(document.getElementById('beta-ga')?.value || 1);
             m = (t) => Math.pow(1 - beta*t, -alpha);
             formula = `m_X(t) = (1 - ${beta}t)^{-${alpha}}`;
+            momentos = { e1: alpha*beta, e2: alpha*beta*beta + alpha*alpha*beta*beta };
         }
         
-        // Graficar en t ∈ [-1, 1] o hasta donde exista
+        // Graficar en t ∈ [-1, 1]
         ctx.beginPath();
         let first = true;
         for(let px=0; px<w; px++) {
-            const t = -1.5 + (px / w) * 3;
+            const t = -1 + (px / w) * 2;
             let val;
             try {
                 val = m(t);
-                if(!isFinite(val) || val > 10) val = 10;
+                if(!isFinite(val) || val > 8) val = 8;
             } catch(e) {
                 val = 0;
             }
@@ -519,79 +720,89 @@
         ctx.stroke();
         
         document.getElementById('fgm-formula').innerHTML = `\\(${formula}\\)`;
-        
-        // Derivada numérica para momentos
-        const dt = 0.001;
-        const m0 = m(0);
-        const m1 = (m(dt) - m(-dt)) / (2*dt);
-        const m2 = (m(dt) - 2*m0 + m(-dt)) / (dt*dt);
         document.getElementById('momentos-fgm').innerHTML = 
-            `m_X(0)=${m0.toFixed(2)} | E[X] ≈ ${m1.toFixed(4)} | E[X²] ≈ ${m2.toFixed(4)}`;
+            `\\(\\mathbb{E}[X] = ${momentos.e1.toFixed(4)}\\) | \\(\\mathbb{E}[X^2] = ${momentos.e2.toFixed(4)}\\) | \\(\\operatorname{var}(X) = ${(momentos.e2 - momentos.e1*momentos.e1).toFixed(4)}\\)`;
         
         if(window.MathJax) MathJax.typeset();
     }
     
     // ============================================================
-    // MODULO 2: Suma de variables
+    // MODULO 2: Suma
     // ============================================================
     function actualizarSuma() {
         const distX = document.getElementById('distX').value;
         const distY = document.getElementById('distY').value;
         let resultado = '';
+        let demostracion = '';
         
         if(distX === 'binom' && distY === 'binom') {
             resultado = 'Binomial(n₁+n₂, p) si tienen el mismo parámetro p';
+            demostracion = 'Demostración: m_X(t) = (1-p+pe^t)^{n₁}, m_Y(t) = (1-p+pe^t)^{n₂} ⇒ producto = (1-p+pe^t)^{n₁+n₂}';
         } else if(distX === 'poisson' && distY === 'poisson') {
             resultado = 'Poisson(λ₁+λ₂)';
+            demostracion = 'Demostración: m_X(t)=e^{λ₁(e^t-1)}, m_Y(t)=e^{λ₂(e^t-1)} ⇒ producto = e^{(λ₁+λ₂)(e^t-1)}';
         } else if(distX === 'normal' && distY === 'normal') {
             resultado = 'Normal(μ₁+μ₂, σ₁²+σ₂²)';
-        } else if(distX === 'binom' && distY === 'poisson') {
+            demostracion = 'Demostración: m_X(t)=e^{μ₁t+½σ₁²t²}, m_Y(t)=e^{μ₂t+½σ₂²t²} ⇒ producto = e^{(μ₁+μ₂)t+½(σ₁²+σ₂²)t²}';
+        } else {
             resultado = 'No hay forma cerrada simple (diferentes familias)';
-        } else if(distX === 'poisson' && distY === 'binom') {
-            resultado = 'No hay forma cerrada simple (diferentes familias)';
-        } else if(distX === 'normal' && distY === 'binom') {
-            resultado = 'No hay forma cerrada simple (diferentes familias)';
-        } else if(distX === 'normal' && distY === 'poisson') {
-            resultado = 'No hay forma cerrada simple (diferentes familias)';
-        } else if(distX === 'binom' && distY === 'normal') {
-            resultado = 'No hay forma cerrada simple (diferentes familias)';
-        } else if(distX === 'poisson' && distY === 'normal') {
-            resultado = 'No hay forma cerrada simple (diferentes familias)';
+            demostracion = 'La FGM del producto se puede calcular, pero no coincide con ninguna FGM conocida simple.';
         }
         
         document.getElementById('resultado-suma').innerHTML = 
-            `<strong>X+Y:</strong> ${resultado}<br>
-            <small>La FGM de la suma es el producto de las FGM individuales. Si el producto coincide con la FGM de una distribución conocida, por unicidad, esa es la distribución de la suma.</small>`;
+            `<strong>X+Y ∼ ${resultado}</strong><br><small>${demostracion}</small>`;
     }
     
     // ============================================================
-    // MODULO 3: FGM conjunta
+    // MODULO 3: Momentos de la normal
     // ============================================================
-    function actualizarFGMConjunta() {
-        const rho = parseFloat(document.getElementById('rho-fgm').value);
-        document.getElementById('rho-fgm-val').textContent = rho.toFixed(2);
+    function actualizarMomentos() {
+        const mu = parseFloat(document.getElementById('mu-momentos').value);
+        const sigma = parseFloat(document.getElementById('sigma-momentos').value);
+        document.getElementById('mu-val').textContent = mu;
+        document.getElementById('sigma-val').textContent = sigma;
         
-        // Para normales bivariadas estándar con correlación ρ
-        const m1 = (u) => Math.exp(u*u/2);
-        const m2 = (v) => Math.exp(v*v/2);
-        const m12 = (u,v) => Math.exp((u*u + 2*rho*u*v + v*v)/2);
+        const e1 = mu;
+        const e2 = mu*mu + sigma*sigma;
+        const e3 = mu*mu*mu + 3*mu*sigma*sigma;
+        const e4 = mu*mu*mu*mu + 6*mu*mu*sigma*sigma + 3*sigma*sigma*sigma*sigma;
         
-        let esIndependiente = (Math.abs(rho) < 0.01);
-        document.getElementById('fgm-conjunta-resultado').innerHTML = 
-            `\(m_X(u) = e^{u^2/2}\)<br>
-             \(m_Y(v) = e^{v^2/2}\)<br>
-             \(m_{XY}(u,v) = e^{(u^2 + 2${rho.toFixed(2)}uv + v^2)/2}\)`;
-        
-        document.getElementById('fgm-independencia').innerHTML = 
-            esIndependiente ? 
-            'm_{XY}(u,v) = m_X(u)·m_Y(v) ⇒ X y Y son independientes' :
-            'm_{XY}(u,v) ≠ m_X(u)·m_Y(v) ⇒ X y Y NO son independientes (están correlacionadas)';
-        
+        document.getElementById('momentos-calculados').innerHTML = 
+            `\\(\\mathbb{E}[X] = ${e1.toFixed(4)}\\)<br>
+             \\(\\mathbb{E}[X^2] = ${e2.toFixed(4)}\\)<br>
+             \\(\\mathbb{E}[X^3] = ${e3.toFixed(4)}\\)<br>
+             \\(\\mathbb{E}[X^4] = ${e4.toFixed(4)}\\)<br>
+             \\(\\operatorname{var}(X) = ${sigma*sigma.toFixed(4)}\\)`;
         if(window.MathJax) MathJax.typeset();
     }
     
     // ============================================================
-    // MODULO 4: Función característica
+    // MODULO 4: Ejemplo FGM conjunta
+    // ============================================================
+    function mostrarEjemploFGM() {
+        document.getElementById('ejemplo-fgm-resuelto').innerHTML = `
+            <strong>Ejemplo resuelto (del PDF):</strong><br><br>
+            Dada la FGM conjunta: \(m_{12}(t_1,t_2) = \exp\{ -t_2 + \frac{1}{2}t_1^2 - t_1t_2 + t_2^2 \}\)<br><br>
+            <strong>Paso 1: FGM marginal de X₁</strong><br>
+            \(m_1(t_1) = m_{12}(t_1,0) = e^{t_1^2/2}\) ⇒ \(X_1 \sim N(0,1)\) ⇒ \(\mathbb{E}[X_1]=0\), \(\operatorname{var}(X_1)=1\)<br><br>
+            <strong>Paso 2: FGM marginal de X₂</strong><br>
+            \(m_2(t_2) = m_{12}(0,t_2) = e^{-t_2 + t_2^2}\)<br>
+            \(m_2'(t_2) = (-1+2t_2)e^{-t_2+t_2^2}\) ⇒ \(\mathbb{E}[X_2] = m_2'(0) = -1\)<br>
+            \(m_2''(t_2) = [(-1+2t_2)^2 + 2]e^{-t_2+t_2^2}\) ⇒ \(\mathbb{E}[X_2^2] = m_2''(0) = 1 + 2 = 3\)<br>
+            \(\operatorname{var}(X_2) = 3 - 1 = 2\)<br><br>
+            <strong>Paso 3: Momento conjunto \(\mathbb{E}[X_1X_2]\)</strong><br>
+            \(\frac{\partial m_{12}}{\partial t_2} = m_{12} \cdot (-1 - t_1 + 2t_2)\)<br>
+            \(\frac{\partial^2}{\partial t_1 \partial t_2} = \frac{\partial m_{12}}{\partial t_1} \cdot (-1 - t_1 + 2t_2) + m_{12} \cdot (-1)\)<br>
+            En \((0,0)\): \(\frac{\partial m_{12}}{\partial t_1} = m_{12} \cdot t_1 = 0\) ⇒ \(\mathbb{E}[X_1X_2] = 0 \cdot (-1) + 1 \cdot (-1) = -1\)<br><br>
+            <strong>Paso 4: Covarianza y correlación</strong><br>
+            \(\operatorname{cov}(X_1,X_2) = -1 - 0 = -1\)<br>
+            \(\rho = \frac{-1}{\sqrt{1 \cdot 2}} = -\frac{1}{\sqrt{2}} \approx -0.7071\)
+        `;
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 5: Función característica
     // ============================================================
     function graficarFC() {
         const canvas = document.getElementById('fcCanvas');
@@ -607,22 +818,16 @@
         let phiAbs = (t) => 0;
         let explicacion = '';
         
-        if(dist === 'normal') {
-            phiAbs = (t) => Math.exp(-t*t/2);
-            explicacion = 'Normal(0,1): φ(t) = e^{-t²/2} (real, decrece rápido)';
-        } else if(dist === 'cauchy') {
+        if(dist === 'cauchy') {
             phiAbs = (t) => Math.exp(-Math.abs(t));
-            explicacion = 'Cauchy(0,1): φ(t) = e^{-|t|} (real, decaimiento más lento) ¡No tiene FGM!';
-        } else if(dist === 'poisson') {
-            const lambda = 2;
-            phiAbs = (t) => Math.abs(Math.exp(lambda * (Math.cos(t)-1) + 1i*lambda*Math.sin(t)));
-            // Aproximación: módulo de e^{λ(e^{it}-1)} = e^{λ(cos t -1)}
-            phiAbs = (t) => Math.exp(lambda * (Math.cos(t)-1));
-            explicacion = 'Poisson(2): |φ(t)| = e^{λ(cos t -1)} (decrece y oscila)';
-        } else if(dist === 'binomial') {
-            const n = 10, p = 0.3;
-            phiAbs = (t) => Math.pow(Math.sqrt(Math.pow(1-p + p*Math.cos(t),2) + Math.pow(p*Math.sin(t),2)), n);
-            explicacion = 'Binomial(10,0.3): |φ(t)| = |q + pe^{it}|ⁿ (oscila)';
+            explicacion = 'Cauchy(0,1): φ(t) = e^{-|t|}. ¡No tiene FGM! La FC existe para todo t.';
+        } else if(dist === 'normal') {
+            phiAbs = (t) => Math.exp(-t*t/2);
+            explicacion = 'Normal(0,1): φ(t) = e^{-t²/2}. Tiene FGM (m(t)=e^{t²/2}) y FC.';
+        } else if(dist === 'lognormal') {
+            // La lognormal no tiene FGM pero sí FC (aproximación)
+            phiAbs = (t) => Math.exp(-Math.abs(t)*0.8);
+            explicacion = 'Lognormal: ¡No tiene FGM porque los momentos crecen muy rápido! La FC existe.';
         }
         
         ctx.beginPath();
@@ -646,7 +851,7 @@
     }
     
     // ============================================================
-    // Inicialización y eventos
+    // Inicialización
     // ============================================================
     document.addEventListener('DOMContentLoaded', () => {
         // Módulo 1
@@ -672,11 +877,16 @@
         actualizarSuma();
         
         // Módulo 3
-        const rhoFGM = document.getElementById('rho-fgm');
-        if(rhoFGM) rhoFGM.addEventListener('input', actualizarFGMConjunta);
-        actualizarFGMConjunta();
+        const muMomentos = document.getElementById('mu-momentos');
+        const sigmaMomentos = document.getElementById('sigma-momentos');
+        if(muMomentos) muMomentos.addEventListener('input', actualizarMomentos);
+        if(sigmaMomentos) sigmaMomentos.addEventListener('input', actualizarMomentos);
+        actualizarMomentos();
         
         // Módulo 4
+        mostrarEjemploFGM();
+        
+        // Módulo 5
         const distFC = document.getElementById('dist-fc');
         const btnFC = document.getElementById('graficar-fc');
         if(distFC) distFC.addEventListener('change', graficarFC);
