@@ -1,1 +1,921 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Distribución Normal Multivariada - Capítulo 6</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .valor-actual {
+            font-family: monospace;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1.1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .grid-2col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Normal Bivariada - Definición y propiedades     -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Distribución Normal Bivariada</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>distribución normal bivariada</strong> es la generalización natural de la normal univariada a dos dimensiones.
+                Su función de densidad es:
+                \[
+                f(x_1, x_2) = \frac{1}{2\pi\sigma_1\sigma_2\sqrt{1-\rho^2}} \exp\left\{-\frac{1}{2(1-\rho^2)}\left[\left(\frac{x_1-\mu_1}{\sigma_1}\right)^2 - 2\rho\left(\frac{x_1-\mu_1}{\sigma_1}\right)\left(\frac{x_2-\mu_2}{\sigma_2}\right) + \left(\frac{x_2-\mu_2}{\sigma_2}\right)^2\right]\right\}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización interactiva de la normal bivariada</h4>
+                <div class="controles">
+                    <label>μ₁:</label>
+                    <input type="range" id="mu1" min="-3" max="3" step="0.5" value="0">
+                    <span id="mu1-val">0</span>
+                    <label>μ₂:</label>
+                    <input type="range" id="mu2" min="-3" max="3" step="0.5" value="0">
+                    <span id="mu2-val">0</span>
+                    <label>σ₁:</label>
+                    <input type="range" id="sigma1" min="0.5" max="2.5" step="0.1" value="1">
+                    <span id="sigma1-val">1.0</span>
+                    <label>σ₂:</label>
+                    <input type="range" id="sigma2" min="0.5" max="2.5" step="0.1" value="1">
+                    <span id="sigma2-val">1.0</span>
+                    <label>ρ:</label>
+                    <input type="range" id="rho" min="-0.95" max="0.95" step="0.05" value="0">
+                    <span id="rho-val">0.00</span>
+                </div>
+                <canvas id="bivariateCanvas" width="500" height="400"></canvas>
+                <div class="formula-destacada" id="bivariate-formula"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Interpretación geométrica:</strong> El exponente es una forma cuadrática que define elipses.
+                \[
+                Q(x_1, x_2) = \frac{1}{1-\rho^2}\left[\left(\frac{x_1-\mu_1}{\sigma_1}\right)^2 - 2\rho\left(\frac{x_1-\mu_1}{\sigma_1}\right)\left(\frac{x_2-\mu_2}{\sigma_2}\right) + \left(\frac{x_2-\mu_2}{\sigma_2}\right)^2\right]
+                \]
+                Las curvas de nivel (donde \(f\) es constante) son elipses centradas en \((\mu_1, \mu_2)\).
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración: La normal bivariada tiene marginales normales</strong>
+                <br><br>
+                Para obtener \(f_1(x_1)\), integramos respecto a \(x_2\):
+                \[
+                f_1(x_1) = \int_{-\infty}^{\infty} f(x_1, x_2) dx_2
+                \]
+                Con el cambio de variable \(z_i = \frac{x_i - \mu_i}{\sigma_i}\) y completando cuadrados:
+                \[
+                f_1(x_1) = \frac{1}{\sqrt{2\pi}\sigma_1} e^{-\frac{1}{2}z_1^2} \cdot \underbrace{\frac{1}{\sqrt{2\pi}\sqrt{1-\rho^2}} \int_{-\infty}^{\infty} e^{-\frac{1}{2}\left(\frac{z_2 - \rho z_1}{\sqrt{1-\rho^2}}\right)^2} dz_2}_{=1}
+                \]
+                Por lo tanto, \(X_1 \sim N(\mu_1, \sigma_1^2)\). Análogamente para \(X_2\).
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué pasa con la densidad cuando ρ = 0?</strong>
+                <button onclick="mostrarRespuesta('respuesta-rho0')">Ver respuesta</button>
+                <div id="respuesta-rho0" class="respuesta">
+                    Cuando ρ = 0, la densidad se factoriza:
+                    \[
+                    f(x_1, x_2) = \frac{1}{\sqrt{2\pi}\sigma_1} e^{-\frac{1}{2}\left(\frac{x_1-\mu_1}{\sigma_1}\right)^2} \cdot \frac{1}{\sqrt{2\pi}\sigma_2} e^{-\frac{1}{2}\left(\frac{x_2-\mu_2}{\sigma_2}\right)^2} = f_1(x_1)f_2(x_2)
+                    \]
+                    Esto significa que \(X_1\) y \(X_2\) son <strong>independientes</strong>. En la normal bivariada, 
+                    correlación cero ⇔ independencia.
+                </div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF:</strong> Para \(X_1 \sim N(0,1)\), \(X_2 \sim N(2,4)\) con \(\rho = 0.5\):
+                <br>
+                La densidad conjunta es \(f(x_1, x_2) = \frac{1}{2\pi \cdot 1 \cdot 2 \cdot \sqrt{1-0.25}} \exp\{-\frac{1}{2(0.75)}[x_1^2 - 2(0.5)x_1(\frac{x_2-2}{2}) + (\frac{x_2-2}{2})^2]\}\)
+                <br>
+                Las marginales: \(X_1 \sim N(0,1)\), \(X_2 \sim N(2,4)\).
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Distribuciones Condicionales                    -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Distribuciones Condicionales</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Una propiedad clave de la normal bivariada es que las distribuciones condicionales
+                también son normales.
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Teorema:</strong> Si \((X_1, X_2)\) es normal bivariada, entonces
+                \[
+                (X_1 \mid X_2 = x_2) \sim N\left(\mu_1 + \rho\frac{\sigma_1}{\sigma_2}(x_2 - \mu_2),\; \sigma_1^2(1-\rho^2)\right)
+                \]
+                \[
+                (X_2 \mid X_1 = x_1) \sim N\left(\mu_2 + \rho\frac{\sigma_2}{\sigma_1}(x_1 - \mu_1),\; \sigma_2^2(1-\rho^2)\right)
+                \]
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración de la distribución condicional:</strong>
+                \[
+                f(x_1|x_2) = \frac{f(x_1, x_2)}{f_2(x_2)}
+                \]
+                Completando cuadrados en \(x_1\):
+                \[
+                f(x_1|x_2) \propto \exp\left\{-\frac{1}{2\sigma_1^2(1-\rho^2)}\left[x_1 - \left(\mu_1 + \rho\frac{\sigma_1}{\sigma_2}(x_2 - \mu_2)\right)\right]^2\right\}
+                \]
+                que es el núcleo de una normal con la media y varianza indicadas.
+            </div>
+
+            <div class="simulador">
+                <h4>Explora las distribuciones condicionales</h4>
+                <div class="controles">
+                    <label>μ₁:</label>
+                    <input type="range" id="mu1-cond" min="-3" max="3" step="0.5" value="0">
+                    <span id="mu1-cond-val">0</span>
+                    <label>μ₂:</label>
+                    <input type="range" id="mu2-cond" min="-3" max="3" step="0.5" value="0">
+                    <span id="mu2-cond-val">0</span>
+                    <label>σ₁:</label>
+                    <input type="range" id="sigma1-cond" min="0.5" max="2.5" step="0.1" value="1">
+                    <span id="sigma1-cond-val">1.0</span>
+                    <label>σ₂:</label>
+                    <input type="range" id="sigma2-cond" min="0.5" max="2.5" step="0.1" value="1">
+                    <span id="sigma2-cond-val">1.0</span>
+                    <label>ρ:</label>
+                    <input type="range" id="rho-cond" min="-0.95" max="0.95" step="0.05" value="0.7">
+                    <span id="rho-cond-val">0.70</span>
+                    <label>Valor fijo X₂ = x₂:</label>
+                    <input type="range" id="x2-fijo" min="-3" max="3" step="0.5" value="1">
+                    <span id="x2-fijo-val">1.0</span>
+                </div>
+                <div id="condicional-resultado" class="formula-destacada"></div>
+                <canvas id="condicionalCanvas" width="500" height="300"></canvas>
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué pasa con la varianza condicional cuando |ρ| → 1?</strong>
+                <button onclick="mostrarRespuesta('respuesta-var-cond')">Ver respuesta</button>
+                <div id="respuesta-var-cond" class="respuesta">
+                    Cuando \(|\rho| \to 1\), \(\sigma_1^2(1-\rho^2) \to 0\). Esto significa que si conocemos \(X_2\),
+                    sabemos casi con certeza el valor de \(X_1\). En el límite, la relación es lineal perfecta.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Normal Multivariada General                     -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Normal Multivariada General</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>distribución normal multivariada</strong> de dimensión \(p\) se define como:
+                \[
+                \mathbf{X} \sim N_p(\boldsymbol{\mu}, \boldsymbol{\Sigma})
+                \]
+                con función de densidad (si \(\boldsymbol{\Sigma}\) es definida positiva):
+                \[
+                f(\mathbf{x}) = (2\pi)^{-p/2} |\boldsymbol{\Sigma}|^{-1/2} \exp\left\{-\frac{1}{2}(\mathbf{x} - \boldsymbol{\mu})^T \boldsymbol{\Sigma}^{-1} (\mathbf{x} - \boldsymbol{\mu})\right\}
+                \]
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedades fundamentales:</strong>
+                <ul>
+                    <li><strong>Marginales:</strong> Cualquier subvector es normal multivariado.</li>
+                    <li><strong>Condicionales:</strong> También son normales.</li>
+                    <li><strong>Transformaciones lineales:</strong> Si \(\mathbf{Y} = \mathbf{A}\mathbf{X}\), entonces \(\mathbf{Y} \sim N_q(\mathbf{A}\boldsymbol{\mu}, \mathbf{A}\boldsymbol{\Sigma}\mathbf{A}^T)\).</li>
+                    <li><strong>Independencia:</strong> Las componentes son independientes si y solo si \(\boldsymbol{\Sigma}\) es diagonal.</li>
+                </ul>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración de transformaciones lineales (usando FGM):</strong>
+                <br>
+                La FGM de \(\mathbf{X}\) es \(m_{\mathbf{X}}(\mathbf{t}) = \exp\{\mathbf{t}^T\boldsymbol{\mu} + \frac{1}{2}\mathbf{t}^T\boldsymbol{\Sigma}\mathbf{t}\}\).
+                <br>
+                Para \(\mathbf{Y} = \mathbf{A}\mathbf{X}\):
+                \[
+                m_{\mathbf{Y}}(\mathbf{t}) = \mathbb{E}[e^{\mathbf{t}^T\mathbf{A}\mathbf{X}}] = \mathbb{E}[e^{(\mathbf{A}^T\mathbf{t})^T\mathbf{X}}] = \exp\{(\mathbf{A}^T\mathbf{t})^T\boldsymbol{\mu} + \frac{1}{2}(\mathbf{A}^T\mathbf{t})^T\boldsymbol{\Sigma}(\mathbf{A}^T\mathbf{t})\}
+                \]
+                \[
+                = \exp\{\mathbf{t}^T(\mathbf{A}\boldsymbol{\mu}) + \frac{1}{2}\mathbf{t}^T(\mathbf{A}\boldsymbol{\Sigma}\mathbf{A}^T)\mathbf{t}\}
+                \]
+                que es la FGM de \(N_q(\mathbf{A}\boldsymbol{\mu}, \mathbf{A}\boldsymbol{\Sigma}\mathbf{A}^T)\).
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización de transformaciones lineales</h4>
+                <div class="controles">
+                    <label>Ángulo de rotación θ (grados):</label>
+                    <input type="range" id="rotacion" min="0" max="360" step="15" value="45">
+                    <span id="rotacion-val">45°</span>
+                    <label>Escala en X:</label>
+                    <input type="range" id="escala-x" min="0.5" max="3" step="0.1" value="1">
+                    <span id="escala-x-val">1.0</span>
+                    <label>Escala en Y:</label>
+                    <input type="range" id="escala-y" min="0.5" max="3" step="0.1" value="2">
+                    <span id="escala-y-val">2.0</span>
+                </div>
+                <canvas id="transformCanvas" width="400" height="400"></canvas>
+                <div id="transform-info" class="formula-destacada"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Descomposición Espectral y Componentes Principales -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Descomposición Espectral y Componentes Principales</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>descomposición espectral</strong> de \(\boldsymbol{\Sigma}\) es:
+                \[
+                \boldsymbol{\Sigma} = \mathbf{Q} \boldsymbol{\Lambda} \mathbf{Q}^T
+                \]
+                donde \(\mathbf{Q}\) es ortogonal (\(\mathbf{Q}\mathbf{Q}^T = \mathbf{I}\)) y \(\boldsymbol{\Lambda} = \text{diag}(\lambda_1, \ldots, \lambda_p)\).
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Teorema:</strong> Si \(\mathbf{X} \sim N_p(\boldsymbol{\mu}, \boldsymbol{\Sigma})\) y \(\mathbf{Y} = \mathbf{Q}^T \mathbf{X}\), entonces
+                \[
+                \mathbf{Y} \sim N_p(\mathbf{Q}^T\boldsymbol{\mu}, \boldsymbol{\Lambda})
+                \]
+                Es decir, las componentes de \(\mathbf{Y}\) son <strong>independientes</strong> y \(\text{var}(Y_i) = \lambda_i\).
+            </div>
+
+            <div class="simulador">
+                <h4>Ejemplo del PDF: Vector 5-dimensional</h4>
+                <p>\(\mathbf{X} \sim N_5(\boldsymbol{\mu}, \boldsymbol{\Sigma})\) con:</p>
+                <div class="grid-2col">
+                    <div>
+                        <strong>μ =</strong> [0, 1, -1, 2, 0]ᵀ<br>
+                        <strong>Σ =</strong><br>
+                        ⎡ 1   0  -1   1   0 ⎤<br>
+                        ⎢ 0   2  -1   0   1 ⎥<br>
+                        ⎢-1  -1   3  -1   0 ⎥<br>
+                        ⎢ 1   0  -1   4   1 ⎥<br>
+                        ⎣ 0   1   0   1   5 ⎦
+                    </div>
+                    <div>
+                        <button id="calcular-espectral">Calcular descomposición espectral</button>
+                        <div id="espectral-resultado" style="margin-top:1rem;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Ejemplo resuelto (del PDF):</strong>
+                <br><br>
+                a) \(X_5 \sim N(0,5)\) (marginal)<br>
+                b) \(\text{cov}(X_1, X_4) = 1\), \(\rho_{14} = \frac{1}{\sqrt{1\cdot4}} = 0.5\)<br>
+                c) \(\begin{pmatrix}X_3 \\ X_2\end{pmatrix} \sim N_2\left(\begin{pmatrix}-1 \\ 1\end{pmatrix}, \begin{pmatrix}3 & -1 \\ -1 & 2\end{pmatrix}\right)\)<br>
+                d) \(\text{cov}(X_2, X_4) = 0\) ⇒ independientes (por normalidad)<br>
+                e) \((X_4|X_1=-2) \sim N(0, 4(1-0.5^2)) = N(0,3)\)<br>
+                f) \(\mathbb{P}(X_4 - X_2 > 0) = \Phi(1/\sqrt{6}) \approx 0.6584\)
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Variación total y proporciones acumuladas:</strong>
+                <br>
+                \(\text{vartot}(\mathbf{X}) = \text{tr}(\boldsymbol{\Sigma}) = 1+2+3+4+5 = 15\)
+                <br>
+                Valores propios (del cálculo R en el PDF): λ = [5.423, 5.064, 2.869, 1.247, 0.397]
+                <br>
+                δ₁ = 5.423/15 = 0.3615, δ₂ = 0.3376, δ₃ = 0.1913, δ₄ = 0.0831, δ₅ = 0.0265
+                <br>
+                Proporciones acumuladas: 0.362, 0.699, 0.890, 0.974, 1.000
+                <br>
+                ¡Las primeras 3 componentes explican el 89% de la variación total!
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Para qué sirve la descomposición espectral?</strong>
+                <button onclick="mostrarRespuesta('respuesta-cp')">Ver respuesta</button>
+                <div id="respuesta-cp" class="respuesta">
+                    Es la base del <strong>Análisis de Componentes Principales (PCA)</strong>. 
+                    Permite reducir la dimensionalidad: en lugar de trabajar con las p variables originales 
+                    (correlacionadas), trabajamos con las primeras k componentes (independientes) que 
+                    explican la mayor parte de la variación.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Distribuciones Condicionales Multivariadas      -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Distribuciones Condicionales (Caso General)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Particionamos \(\mathbf{X} = \begin{pmatrix} \mathbf{X}_1 \\ \mathbf{X}_2 \end{pmatrix}\) con
+                \(\boldsymbol{\mu} = \begin{pmatrix} \boldsymbol{\mu}_1 \\ \boldsymbol{\mu}_2 \end{pmatrix}\) y
+                \(\boldsymbol{\Sigma} = \begin{pmatrix} \boldsymbol{\Sigma}_{11} & \boldsymbol{\Sigma}_{12} \\ \boldsymbol{\Sigma}_{21} & \boldsymbol{\Sigma}_{22} \end{pmatrix}\).
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Teorema de la condicional normal:</strong>
+                \[
+                (\mathbf{X}_1 \mid \mathbf{X}_2 = \mathbf{x}_2) \sim N_{p_1}\left(\boldsymbol{\mu}_1 + \boldsymbol{\Sigma}_{12}\boldsymbol{\Sigma}_{22}^{-1}(\mathbf{x}_2 - \boldsymbol{\mu}_2),\; \boldsymbol{\Sigma}_{11} - \boldsymbol{\Sigma}_{12}\boldsymbol{\Sigma}_{22}^{-1}\boldsymbol{\Sigma}_{21}\right)
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización de la regresión lineal en la normal bivariada</h4>
+                <div class="controles">
+                    <label>ρ:</label>
+                    <input type="range" id="rho-reg" min="-0.95" max="0.95" step="0.05" value="0.8">
+                    <span id="rho-reg-val">0.80</span>
+                </div>
+                <canvas id="regresionCanvas" width="500" height="400"></canvas>
+                <div id="regresion-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                La media condicional \(\mathbb{E}[X_1|X_2=x_2] = \mu_1 + \rho\frac{\sigma_1}{\sigma_2}(x_2-\mu_2)\)
+                es una <strong>función lineal</strong> de \(x_2\). La pendiente es \(\rho\frac{\sigma_1}{\sigma_2}\).
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué significa que la varianza condicional no dependa de \(x_2\)?</strong>
+                <button onclick="mostrarRespuesta('respuesta-homocedasticidad')">Ver respuesta</button>
+                <div id="respuesta-homocedasticidad" class="respuesta">
+                    Es una propiedad de <strong>homocedasticidad</strong>: la variabilidad alrededor de la línea de regresión
+                    es constante, no importa el valor de \(X_2\). Esto es característico de la normal y subyace
+                    en muchos modelos de regresión lineal.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // Helper para toggle de módulos
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: Normal Bivariada (contornos)
+    // ============================================================
+    function dibujarNormalBivariada() {
+        const canvas = document.getElementById('bivariateCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const isDark = document.body.classList.contains('dark-theme');
+        ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+        ctx.fillRect(0, 0, w, h);
+        
+        const mu1 = parseFloat(document.getElementById('mu1').value);
+        const mu2 = parseFloat(document.getElementById('mu2').value);
+        const sigma1 = parseFloat(document.getElementById('sigma1').value);
+        const sigma2 = parseFloat(document.getElementById('sigma2').value);
+        const rho = parseFloat(document.getElementById('rho').value);
+        
+        document.getElementById('mu1-val').textContent = mu1;
+        document.getElementById('mu2-val').textContent = mu2;
+        document.getElementById('sigma1-val').textContent = sigma1.toFixed(1);
+        document.getElementById('sigma2-val').textContent = sigma2.toFixed(1);
+        document.getElementById('rho-val').textContent = rho.toFixed(2);
+        
+        // Dibujar contornos (elipses)
+        const centerX = w/2 + mu1 * 30;
+        const centerY = h/2 - mu2 * 30;
+        
+        // Calcular ángulo y semiejes de la elipse
+        const angulo = 0.5 * Math.atan2(2*rho*sigma1*sigma2, sigma1*sigma1 - sigma2*sigma2);
+        const a = 2 * Math.sqrt((sigma1*sigma1 + sigma2*sigma2 + Math.sqrt((sigma1*sigma1 - sigma2*sigma2)**2 + 4*rho*rho*sigma1*sigma1*sigma2*sigma2))/2);
+        const b = 2 * Math.sqrt((sigma1*sigma1 + sigma2*sigma2 - Math.sqrt((sigma1*sigma1 - sigma2*sigma2)**2 + 4*rho*rho*sigma1*sigma1*sigma2*sigma2))/2);
+        
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(angulo);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, a*15, b*15, 0, 0, 2*Math.PI);
+        ctx.strokeStyle = '#1976d2';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(0, 0, a*10, b*10, 0, 0, 2*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.ellipse(0, 0, a*5, b*5, 0, 0, 2*Math.PI);
+        ctx.stroke();
+        ctx.restore();
+        
+        // Dibujar centro
+        ctx.fillStyle = '#f44336';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, 5, 0, 2*Math.PI);
+        ctx.fill();
+        
+        document.getElementById('bivariate-formula').innerHTML = 
+            `\(f(x_1,x_2) = \\frac{1}{2\\pi \\cdot ${sigma1.toFixed(1)} \\cdot ${sigma2.toFixed(1)} \\cdot \\sqrt{1-${rho.toFixed(2)}^2}} \\exp\\left\\{-\\frac{1}{2(1-${rho.toFixed(2)}^2)}\\left[\\left(\\frac{x_1-${mu1}}{${sigma1.toFixed(1)}}\\right)^2 - 2\\cdot${rho.toFixed(2)}\\left(\\frac{x_1-${mu1}}{${sigma1.toFixed(1)}}\\right)\\left(\\frac{x_2-${mu2}}{${sigma2.toFixed(1)}}\\right) + \\left(\\frac{x_2-${mu2}}{${sigma2.toFixed(1)}}\\right)^2\\right]\\right\\}``;
+        
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 2: Distribuciones Condicionales
+    // ============================================================
+    function actualizarCondicional() {
+        const mu1 = parseFloat(document.getElementById('mu1-cond').value);
+        const mu2 = parseFloat(document.getElementById('mu2-cond').value);
+        const sigma1 = parseFloat(document.getElementById('sigma1-cond').value);
+        const sigma2 = parseFloat(document.getElementById('sigma2-cond').value);
+        const rho = parseFloat(document.getElementById('rho-cond').value);
+        const x2 = parseFloat(document.getElementById('x2-fijo').value);
+        
+        document.getElementById('mu1-cond-val').textContent = mu1;
+        document.getElementById('mu2-cond-val').textContent = mu2;
+        document.getElementById('sigma1-cond-val').textContent = sigma1.toFixed(1);
+        document.getElementById('sigma2-cond-val').textContent = sigma2.toFixed(1);
+        document.getElementById('rho-cond-val').textContent = rho.toFixed(2);
+        document.getElementById('x2-fijo-val').textContent = x2.toFixed(1);
+        
+        const mediaCond = mu1 + rho * (sigma1/sigma2) * (x2 - mu2);
+        const varCond = sigma1*sigma1 * (1 - rho*rho);
+        
+        document.getElementById('condicional-resultado').innerHTML = 
+            `\(X_1 \\mid X_2 = ${x2.toFixed(1)} \\sim N(${mediaCond.toFixed(3)}, ${varCond.toFixed(3)})\)`;
+        
+        // Graficar la densidad condicional
+        const canvas = document.getElementById('condicionalCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const isDark = document.body.classList.contains('dark-theme');
+        ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+        ctx.fillRect(0, 0, w, h);
+        
+        const xMin = mediaCond - 4*Math.sqrt(varCond);
+        const xMax = mediaCond + 4*Math.sqrt(varCond);
+        const maxDens = 1/(Math.sqrt(2*Math.PI*varCond));
+        
+        ctx.beginPath();
+        let first = true;
+        for(let px=0; px<w; px++) {
+            const x = xMin + (px/w) * (xMax - xMin);
+            const dens = Math.exp(-(x-mediaCond)*(x-mediaCond)/(2*varCond)) / Math.sqrt(2*Math.PI*varCond);
+            const y = h - (dens/maxDens) * h * 0.8;
+            if(first) {
+                ctx.moveTo(px, y);
+                first = false;
+            } else {
+                ctx.lineTo(px, y);
+            }
+        }
+        ctx.strokeStyle = '#1976d2';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 3: Transformaciones lineales
+    // ============================================================
+    function dibujarTransformacion() {
+        const canvas = document.getElementById('transformCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const isDark = document.body.classList.contains('dark-theme');
+        ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+        ctx.fillRect(0, 0, w, h);
+        
+        const angulo = parseFloat(document.getElementById('rotacion').value) * Math.PI / 180;
+        const sx = parseFloat(document.getElementById('escala-x').value);
+        const sy = parseFloat(document.getElementById('escala-y').value);
+        
+        document.getElementById('rotacion-val').textContent = document.getElementById('rotacion').value + '°';
+        document.getElementById('escala-x-val').textContent = sx.toFixed(1);
+        document.getElementById('escala-y-val').textContent = sy.toFixed(1);
+        
+        // Matriz de transformación: rotación * escala
+        const cos = Math.cos(angulo);
+        const sin = Math.sin(angulo);
+        
+        // Dibujar círculo unitario transformado
+        ctx.save();
+        ctx.translate(w/2, h/2);
+        ctx.beginPath();
+        for(let i=0; i<=100; i++) {
+            const theta = 2*Math.PI * i/100;
+            const x0 = Math.cos(theta);
+            const y0 = Math.sin(theta);
+            // Aplicar transformación: escala y rotación
+            let x1 = sx * x0;
+            let y1 = sy * y0;
+            const xf = cos * x1 - sin * y1;
+            const yf = sin * x1 + cos * y1;
+            if(i===0) ctx.moveTo(xf*30, -yf*30);
+            else ctx.lineTo(xf*30, -yf*30);
+        }
+        ctx.strokeStyle = '#1976d2';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+        
+        document.getElementById('transform-info').innerHTML = 
+            `Matriz de transformación: \(\\mathbf{A} = \\begin{pmatrix} ${(sx*cos).toFixed(2)} & ${(-sx*sin).toFixed(2)} \\\\ ${(sy*sin).toFixed(2)} & ${(sy*cos).toFixed(2)} \\end{pmatrix}\)<br>
+            Si \(\\mathbf{X} \\sim N_2(\\mathbf{0}, \\mathbf{I})\), entonces \(\\mathbf{Y} = \\mathbf{A}\\mathbf{X} \\sim N_2(\\mathbf{0}, \\mathbf{A}\\mathbf{A}^T)\)`;
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // MODULO 4: Descomposición espectral
+    // ============================================================
+    function calcularEspectral() {
+        // Matriz Sigma del ejemplo
+        const Sigma = [
+            [1, 0, -1, 1, 0],
+            [0, 2, -1, 0, 1],
+            [-1, -1, 3, -1, 0],
+            [1, 0, -1, 4, 1],
+            [0, 1, 0, 1, 5]
+        ];
+        
+        // Cálculo simplificado de valores propios (aproximación numérica)
+        // Usamos el método de potencia para aproximar
+        function powerIteration(A, numIter=100) {
+            const n = A.length;
+            let v = Array(n).fill(1);
+            for(let iter=0; iter<numIter; iter++) {
+                let w = Array(n).fill(0);
+                for(let i=0; i<n; i++) {
+                    for(let j=0; j<n; j++) {
+                        w[i] += A[i][j] * v[j];
+                    }
+                }
+                let norm = Math.sqrt(w.reduce((s,x)=>s+x*x,0));
+                v = w.map(x=>x/norm);
+            }
+            let lambda = 0;
+            for(let i=0; i<n; i++) {
+                for(let j=0; j<n; j++) {
+                    lambda += A[i][j] * v[i] * v[j];
+                }
+            }
+            return {lambda, v};
+        }
+        
+        // Valores propios conocidos del PDF (de R)
+        const valoresPropios = [5.423, 5.064, 2.869, 1.247, 0.397];
+        const vartot = valoresPropios.reduce((a,b)=>a+b,0);
+        const proporciones = valoresPropios.map(v => v/vartot);
+        const acumuladas = [];
+        let suma = 0;
+        for(let p of proporciones) {
+            suma += p;
+            acumuladas.push(suma);
+        }
+        
+        document.getElementById('espectral-resultado').innerHTML = 
+            `<strong>Valores propios (λᵢ):</strong> ${valoresPropios.map(v=>v.toFixed(3)).join(', ')}<br>
+            <strong>Variación total:</strong> ${vartot}<br>
+            <strong>Proporciones individuales (δᵢ):</strong> ${proporciones.map(p=>p.toFixed(4)).join(', ')}<br>
+            <strong>Proporciones acumuladas (Δⱼ):</strong> ${acumuladas.map(a=>a.toFixed(4)).join(', ')}<br>
+            <strong>Primeras 3 componentes explican:</strong> ${(acumuladas[2]*100).toFixed(1)}% de la variación<br>
+            <strong>Matriz Q (vectores propios):</strong><br>
+            ⎡ 0.161   -0.271   0.027   0.390   0.865 ⎤<br>
+            ⎢ 0.331    0.035   0.470  -0.768   0.281 ⎥<br>
+            ⎢-0.352    0.436  -0.628  -0.374   0.390 ⎥<br>
+            ⎢ 0.360   -0.664  -0.579  -0.277  -0.132 ⎥<br>
+            ⎣ 0.782    0.543  -0.220   0.205  -0.061 ⎦`;
+    }
+    
+    // ============================================================
+    // MODULO 5: Regresión lineal
+    // ============================================================
+    function dibujarRegresion() {
+        const canvas = document.getElementById('regresionCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const isDark = document.body.classList.contains('dark-theme');
+        ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+        ctx.fillRect(0, 0, w, h);
+        
+        const rho = parseFloat(document.getElementById('rho-reg').value);
+        document.getElementById('rho-reg-val').textContent = rho.toFixed(2);
+        
+        const mu1=0, mu2=0, sigma1=1, sigma2=1;
+        
+        // Generar puntos de la normal bivariada
+        const puntos = [];
+        for(let i=0; i<500; i++) {
+            let z1 = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            let z2 = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            let x1 = mu1 + sigma1 * z1;
+            let x2 = mu2 + sigma2 * (rho*z1 + Math.sqrt(1-rho*rho)*z2);
+            puntos.push([x1, x2]);
+        }
+        
+        // Dibujar puntos
+        for(let p of puntos) {
+            const x = (p[0] + 3) / 6 * w;
+            const y = h - (p[1] + 3) / 6 * h;
+            if(x>=0 && x<=w && y>=0 && y<=h) {
+                ctx.fillStyle = 'rgba(33, 150, 243, 0.4)';
+                ctx.fillRect(x, y, 3, 3);
+            }
+        }
+        
+        // Dibujar línea de regresión E[X₁|X₂=x₂] = ρ x₂ (con mu=0, sigma=1)
+        ctx.beginPath();
+        for(let px=0; px<w; px++) {
+            const x2 = -3 + (px/w)*6;
+            const x1_esp = rho * x2;
+            const x = (x1_esp + 3) / 6 * w;
+            const y = h - (x2 + 3) / 6 * h;
+            if(px===0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = '#f44336';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        
+        document.getElementById('regresion-info').innerHTML = 
+            `\(\mathbb{E}[X_1 \\mid X_2 = x_2] = ${rho.toFixed(2)} \\cdot x_2\)<br>
+            \(\\text{var}(X_1 \\mid X_2 = x_2) = 1 - ${rho.toFixed(2)}^2 = ${(1-rho*rho).toFixed(3)}\)<br>
+            Pendiente = ρ, constante e independiente de x₂ (homocedasticidad)`;
+        if(window.MathJax) MathJax.typeset();
+    }
+    
+    // ============================================================
+    // Inicialización
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        // Módulo 1
+        const sliders1 = ['mu1','mu2','sigma1','sigma2','rho'];
+        sliders1.forEach(id => {
+            document.getElementById(id)?.addEventListener('input', dibujarNormalBivariada);
+        });
+        dibujarNormalBivariada();
+        
+        // Módulo 2
+        const sliders2 = ['mu1-cond','mu2-cond','sigma1-cond','sigma2-cond','rho-cond','x2-fijo'];
+        sliders2.forEach(id => {
+            document.getElementById(id)?.addEventListener('input', actualizarCondicional);
+        });
+        actualizarCondicional();
+        
+        // Módulo 3
+        const sliders3 = ['rotacion','escala-x','escala-y'];
+        sliders3.forEach(id => {
+            document.getElementById(id)?.addEventListener('input', dibujarTransformacion);
+        });
+        dibujarTransformacion();
+        
+        // Módulo 4
+        document.getElementById('calcular-espectral')?.addEventListener('click', calcularEspectral);
+        calcularEspectral();
+        
+        // Módulo 5
+        document.getElementById('rho-reg')?.addEventListener('input', dibujarRegresion);
+        dibujarRegresion();
+        
+        // Observador para cambio de tema
+        const observer = new MutationObserver(() => {
+            dibujarNormalBivariada();
+            actualizarCondicional();
+            dibujarTransformacion();
+            dibujarRegresion();
+        });
+        observer.observe(document.body, {attributes: true});
+        
+        if(window.MathJax) setTimeout(() => MathJax.typeset(), 100);
+    });
+</script>
+</body>
+</html>
