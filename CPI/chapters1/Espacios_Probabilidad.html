@@ -237,15 +237,13 @@
                     <li>\(\mathcal{F}\): σ-álgebra (familia de eventos, cerrada bajo complementos y uniones numerables)</li>
                     <li>\((\Omega, \mathcal{F})\): espacio medible</li>
                 </ul>
-                La <strong>σ-álgebra más pequeña</strong> que contiene a un conjunto \(A\) es \(\{\emptyset, A, A^C, \Omega\}\).
             </div>
 
             <div class="pregunta-exploratoria">
                 <strong>¿Puede un espacio muestral ser infinito?</strong>
                 <button onclick="mostrarRespuesta('respuesta-espacio')">Ver respuesta</button>
                 <div id="respuesta-espacio" class="respuesta">
-                    ¡Sí! Por ejemplo, el número de lanzamientos hasta obtener el primer 5 en un dado: \(\Omega = \{1,2,3,\ldots\}\) (infinito numerable).
-                    O el tiempo de vida de una lámpara: \(\Omega = [0, \infty)\) (infinito no numerable).
+                    ¡Sí! Por ejemplo, el número de lanzamientos hasta obtener el primer 5 en un dado: \(\Omega = \{1,2,3,\ldots\}\) (infinito numerable). O el tiempo de vida de una lámpara: \(\Omega = [0, \infty)\) (infinito no numerable).
                 </div>
             </div>
         </div>
@@ -278,7 +276,7 @@
                     <select id="selector-frecuencia">
                         <option value="moneda">Moneda honesta (p=0.5)</option>
                         <option value="moneda-cargada">Moneda cargada (p=0.7)</option>
-                        <option value="dado">Dado honesto</option>
+                        <option value="dado">Dado honesto (cara 5)</option>
                     </select>
                     <label>Número de lanzamientos:</label>
                     <input type="range" id="n-frecuencia" min="10" max="5000" step="10" value="100">
@@ -294,23 +292,21 @@
                 \[
                 \mathbb{P}(A) = \lim_{N \to \infty} \frac{n(A)}{N}
                 \]
-                donde \(n(A)\) es el número de veces que ocurre \(A\) en \(N\) repeticiones del experimento.
-                La simulación muestra cómo la frecuencia relativa se estabiliza alrededor de la probabilidad teórica.
+                donde \(n(A)\) es el número de veces que ocurre \(A\) en \(N\) repeticiones del experimento. La simulación muestra cómo la frecuencia relativa se estabiliza alrededor de la probabilidad teórica.
             </div>
 
             <div class="pregunta-exploratoria">
                 <strong>¿Por qué es necesario el tercer axioma (K3) para uniones infinitas?</strong>
                 <button onclick="mostrarRespuesta('respuesta-k3')">Ver respuesta</button>
                 <div id="respuesta-k3" class="respuesta">
-                    K3 permite trabajar con sucesiones infinitas de eventos, como "el primer 5 cae en algún lanzamiento".
-                    Sin K3, no podríamos sumar infinitas probabilidades para calcular \(\mathbb{P}(\cup_{i=1}^{\infty} A_i)\).
+                    K3 permite trabajar con sucesiones infinitas de eventos, como "el primer 5 cae en algún lanzamiento". Sin K3, no podríamos sumar infinitas probabilidades para calcular \(\mathbb{P}(\cup_{i=1}^{\infty} A_i)\).
                 </div>
             </div>
         </div>
     </div>
 
     <!-- ========================================================= -->
-    <!-- MODULO 3: Corolarios de los Axiomas                       -->
+    <!-- MODULO 3: Propiedades de la Probabilidad                  -->
     <!-- ========================================================= -->
     <div class="modulo">
         <div class="modulo-header" onclick="toggleModulo(this)">
@@ -359,16 +355,6 @@
                 \mathbb{P}(A \cap B) \ge \mathbb{P}(A) + \mathbb{P}(B) - 1
                 \]
             </div>
-
-            <div class="pregunta-exploratoria">
-                <strong>¿Qué significa que \(\mathbb{P}(A \cap B) = 0\)?</strong>
-                <button onclick="mostrarRespuesta('respuesta-interseccion')">Ver respuesta</button>
-                <div id="respuesta-interseccion" class="respuesta">
-                    No significa necesariamente que \(A \cap B = \emptyset\). Por ejemplo, 
-                    si \(X \sim U(0,1)\), \(\mathbb{P}(X=0.5)=0\) pero el evento no es vacío.
-                    Los axiomas trabajan con probabilidad, no con conjuntos.
-                </div>
-            </div>
         </div>
     </div>
 
@@ -414,26 +400,6 @@
                 <br>
                 \(\mathbb{P}(\text{Suma 6 antes que 7}) = \frac{5/36}{5/36 + 6/36} = \frac{5}{11} \approx 0.4545\)
             </div>
-
-            <div class="ejercicio-numerico">
-                <strong>Ejemplo del PDF (lotería con 20 boletos):</strong>
-                \(\Omega = \{1,\ldots,20\}\), \(\mathbb{P}(A) = n(A)/20\)
-                <br>
-                \(A = \{\text{números menores a 4}\} = \{1,2,3\}\) ⇒ \(\mathbb{P}(A)=3/20=0.15\)
-                <br>
-                \(B = \{\text{números primos}\} = \{2,3,5,7,11,13,17,19\}\) ⇒ \(\mathbb{P}(B)=8/20=0.4\)
-            </div>
-
-            <div class="pregunta-exploratoria">
-                <strong>¿Puede haber un espacio uniforme con infinitos resultados?</strong>
-                <button onclick="mostrarRespuesta('respuesta-uniforme-infinito')">Ver respuesta</button>
-                <div id="respuesta-uniforme-infinito" class="respuesta">
-                    No en el caso discreto. Si \(\Omega\) es infinito numerable y uniforme, 
-                    \(\mathbb{P}(\{\omega\}) = \epsilon > 0\) para cada \(\omega\), entonces \(\mathbb{P}(\Omega) = \infty\) (contradice K2).
-                    En el caso continuo, el "tamaño" (longitud, área) puede ser infinito, pero entonces 
-                    la probabilidad de un punto es cero.
-                </div>
-            </div>
         </div>
     </div>
 
@@ -473,17 +439,6 @@
                 \sum_{r=1}^{\infty} \left(\frac{5}{6}\right)^{r-1} \frac{1}{6} = \frac{1/6}{1-5/6} = 1
                 \]
             </div>
-
-            <div class="pregunta-exploratoria">
-                <strong>¿Qué interpretación tiene la probabilidad cero en un espacio continuo?</strong>
-                <button onclick="mostrarRespuesta('respuesta-continuo')">Ver respuesta</button>
-                <div id="respuesta-continuo" class="respuesta">
-                    En un espacio continuo (como el tiempo de decaimiento), 
-                    \(\mathbb{P}(T = t_0) = 0\) para cualquier \(t_0\) específico. 
-                    Esto no significa que sea imposible, sino que la probabilidad de un punto exacto es nula.
-                    La probabilidad se asigna a intervalos, no a puntos.
-                </div>
-            </div>
         </div>
     </div>
 
@@ -505,34 +460,17 @@
                 \]
             </div>
 
-            <div class="demostracion">
-                <strong>Demostración intuitiva:</strong>
-                <br>
-                Para \(A_1 \subseteq A_2 \subseteq \cdots\), definimos \(B_1 = A_1\), \(B_n = A_n \setminus A_{n-1}\).
-                Los \(B_n\) son ajenos y \(\bigcup_{n=1}^{\infty} B_n = \bigcup_{n=1}^{\infty} A_n\).
-                Entonces \(\mathbb{P}(\bigcup_{n=1}^{\infty} A_n) = \sum_{n=1}^{\infty} \mathbb{P}(B_n) = \lim_{N\to\infty} \sum_{n=1}^{N} \mathbb{P}(B_n) = \lim_{N\to\infty} \mathbb{P}(A_N)\).
-            </div>
-
             <div class="simulador">
                 <h4>Visualización: Sucesión creciente de intervalos</h4>
-                <div class="controles">
-                    <label>n (tamaño del intervalo [0, n]):</label>
-                    <input type="range" id="n-continuidad" min="1" max="50" step="1" value="10">
-                    <span id="n-continuidad-val">10</span>
-                </div>
                 <canvas id="continuidadCanvas" width="500" height="200"></canvas>
                 <div id="continuidad-info" class="formula-destacada"></div>
             </div>
 
-            <div class="pregunta-exploratoria">
-                <strong>¿Por qué es importante el teorema de continuidad?</strong>
-                <button onclick="mostrarRespuesta('respuesta-continuidad')">Ver respuesta</button>
-                <div id="respuesta-continuidad" class="respuesta">
-                    Permite intercambiar límites y probabilidades, lo cual es fundamental para 
-                    demostrar la Ley de los Grandes Números y el Teorema Central del Límite.
-                    También justifica que podemos aproximar probabilidades de eventos complicados 
-                    mediante sucesiones de eventos más simples.
-                </div>
+            <div class="demostracion">
+                Para \(A_n = [0, n]\), tenemos \(A_1 \subseteq A_2 \subseteq \cdots\) y \(\bigcup_{n=1}^{\infty} A_n = [0, \infty)\).
+                \[
+                \lim_{n\to\infty} \mathbb{P}(A_n) = \lim_{n\to\infty} (1 - e^{-\lambda n}) = 1 = \mathbb{P}([0, \infty))
+                \]
             </div>
         </div>
     </div>
@@ -541,7 +479,9 @@
 </main>
 
 <script>
-    // Helper para toggle de módulos
+    // ============================================================
+    // FUNCIONES GLOBALES (deben estar disponibles globalmente)
+    // ============================================================
     window.toggleModulo = function(header) {
         const content = header.nextElementSibling;
         content.classList.toggle('collapsed');
@@ -549,14 +489,14 @@
 
     window.mostrarRespuesta = function(id) {
         const elem = document.getElementById(id);
-        elem.classList.toggle('mostrar');
+        if(elem) elem.classList.toggle('mostrar');
     }
 
     // ============================================================
-    // MODULO 1: Espacios muestrales
+    // FUNCIONES DE CADA MÓDULO
     // ============================================================
     function actualizarEspacioMuestral() {
-        const exp = document.getElementById('selector-experimento').value;
+        const exp = document.getElementById('selector-experimento')?.value || 'dado';
         let texto = '';
         if(exp === 'dado') {
             texto = 'Ω = {1, 2, 3, 4, 5, 6}<br>Ejemplo de evento A = {2, 4, 6} (números pares)';
@@ -567,41 +507,30 @@
         } else {
             texto = 'Ω = [0, ∞)<br>Ejemplo de evento A = [10, 20] (la lámpara dura entre 10 y 20 horas)';
         }
-        document.getElementById('ejemplo-espacio').innerHTML = texto;
+        const elem = document.getElementById('ejemplo-espacio');
+        if(elem) elem.innerHTML = texto;
     }
     
-    // ============================================================
-    // MODULO 2: Frecuencia relativa
-    // ============================================================
     function simularFrecuencia() {
-        const exp = document.getElementById('selector-frecuencia').value;
-        const n = parseInt(document.getElementById('n-frecuencia').value);
-        document.getElementById('n-frecuencia-val').textContent = n;
+        const exp = document.getElementById('selector-frecuencia')?.value || 'moneda';
+        const n = parseInt(document.getElementById('n-frecuencia')?.value || 100);
+        const nElem = document.getElementById('n-frecuencia-val');
+        if(nElem) nElem.textContent = n;
         
         let pTeorica = 0;
         let valores = [];
         
         if(exp === 'moneda') {
             pTeorica = 0.5;
-            for(let i=0; i<n; i++) {
-                const exito = Math.random() < 0.5;
-                valores.push(exito ? 1 : 0);
-            }
+            for(let i=0; i<n; i++) valores.push(Math.random() < 0.5 ? 1 : 0);
         } else if(exp === 'moneda-cargada') {
             pTeorica = 0.7;
-            for(let i=0; i<n; i++) {
-                const exito = Math.random() < 0.7;
-                valores.push(exito ? 1 : 0);
-            }
+            for(let i=0; i<n; i++) valores.push(Math.random() < 0.7 ? 1 : 0);
         } else {
             pTeorica = 1/6;
-            for(let i=0; i<n; i++) {
-                const dado = Math.floor(Math.random() * 6) + 1;
-                valores.push(dado === 5 ? 1 : 0);
-            }
+            for(let i=0; i<n; i++) valores.push(Math.floor(Math.random() * 6) + 1 === 5 ? 1 : 0);
         }
         
-        // Calcular frecuencias acumuladas
         let frecuencias = [];
         let suma = 0;
         for(let i=0; i<n; i++) {
@@ -618,7 +547,6 @@
             ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
             ctx.fillRect(0, 0, w, h);
             
-            // Graficar frecuencias acumuladas
             ctx.beginPath();
             for(let i=0; i<n; i++) {
                 const x = (i / n) * w;
@@ -630,7 +558,6 @@
             ctx.lineWidth = 1.5;
             ctx.stroke();
             
-            // Línea de probabilidad teórica
             ctx.beginPath();
             ctx.moveTo(0, h - pTeorica * h * 0.8);
             ctx.lineTo(w, h - pTeorica * h * 0.8);
@@ -639,19 +566,16 @@
             ctx.stroke();
         }
         
-        document.getElementById('frecuencia-info').innerHTML = 
-            `Frecuencia relativa final: ${frecuencias[n-1].toFixed(4)} | Probabilidad teórica: ${pTeorica}<br>
-            La frecuencia se estabiliza alrededor de la probabilidad (regularidad estadística).`;
+        const infoElem = document.getElementById('frecuencia-info');
+        if(infoElem) {
+            infoElem.innerHTML = `Frecuencia relativa final: ${frecuencias[n-1].toFixed(4)} | Probabilidad teórica: ${pTeorica}<br>La frecuencia se estabiliza alrededor de la probabilidad (regularidad estadística).`;
+        }
     }
     
-    // ============================================================
-    // MODULO 3: Inclusión-Exclusión
-    // ============================================================
     function verificarInclusion() {
-        const eventoSel = document.getElementById('evento-a').value;
-        const eventoSelB = document.getElementById('evento-b').value;
+        const eventoSel = document.getElementById('evento-a')?.value || 'par';
+        const eventoSelB = document.getElementById('evento-b')?.value || 'par';
         
-        // Para un dado honesto
         const esPar = (x) => x % 2 === 0;
         const esMayor4 = (x) => x > 4;
         const esPrimo = (x) => [2,3,5].includes(x);
@@ -672,18 +596,17 @@
         const pAB = casosAB / 6;
         const pAU = pA + pB - pAB;
         
-        document.getElementById('inclusion-resultado').innerHTML = 
-            `Evento A: ${eventoSel} | Evento B: ${eventoSelB}<br>
+        const resultElem = document.getElementById('inclusion-resultado');
+        if(resultElem) {
+            resultElem.innerHTML = `Evento A: ${eventoSel} | Evento B: ${eventoSelB}<br>
             \(\\mathbb{P}(A) = ${pA.toFixed(4)}\), \(\\mathbb{P}(B) = ${pB.toFixed(4)}\), \(\\mathbb{P}(A \\cap B) = ${pAB.toFixed(4)}\)<br>
             \(\\mathbb{P}(A \\cup B) = ${pAU.toFixed(4)} = ${pA.toFixed(4)} + ${pB.toFixed(4)} - ${pAB.toFixed(4)}\)`;
+        }
         if(window.MathJax) MathJax.typesetPromise();
     }
     
-    // ============================================================
-    // MODULO 4: Problema de dados (Wackerly)
-    // ============================================================
     function simularGanar() {
-        const sumaObj = parseInt(document.getElementById('suma-objetivo').value);
+        const sumaObj = parseInt(document.getElementById('suma-objetivo')?.value || '3');
         const pObj = [0,0,1/36,2/36,3/36,4/36,5/36];
         const p7 = 6/36;
         const pTeorica = pObj[sumaObj] / (pObj[sumaObj] + p7);
@@ -713,15 +636,14 @@
         const pMuestral = victorias / nSim;
         const lanzamientoMedio = totalLanzamientos / nSim;
         
-        document.getElementById('dados-resultado').innerHTML = 
-            `Probabilidad de que salga suma ${sumaObj} antes que 7:<br>
+        const resultElem = document.getElementById('dados-resultado');
+        if(resultElem) {
+            resultElem.innerHTML = `Probabilidad de que salga suma ${sumaObj} antes que 7:<br>
             Teórica: ${pTeorica.toFixed(4)} | Simulación (${nSim} juegos): ${pMuestral.toFixed(4)}<br>
             Número promedio de lanzamientos por juego: ${lanzamientoMedio.toFixed(2)}`;
+        }
     }
     
-    // ============================================================
-    // MODULO 5: Distribución geométrica
-    // ============================================================
     function simularGeometrica() {
         const nSim = 5000;
         const resultados = [];
@@ -760,7 +682,6 @@
                 ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
             }
             
-            // Densidad teórica
             ctx.beginPath();
             for(let i=0; i<w; i++) {
                 const r = 1 + (i / w) * maxR;
@@ -775,20 +696,15 @@
         }
         
         const mediaMuestral = resultados.reduce((a,b)=>a+b,0)/nSim;
-        
-        document.getElementById('geometrica-info').innerHTML = 
-            `\(\\mathbb{P}(\\text{primer 5 en el } r\\text{-ésimo lanzamiento}) = (5/6)^{r-1}(1/6)\)<br>
+        const infoElem = document.getElementById('geometrica-info');
+        if(infoElem) {
+            infoElem.innerHTML = `\(\mathbb{P}(\text{primer 5 en el } r\text{-ésimo lanzamiento}) = (5/6)^{r-1}(1/6)\)<br>
             Media teórica: 6 lanzamientos | Media muestral: ${mediaMuestral.toFixed(2)} lanzamientos`;
+        }
         if(window.MathJax) MathJax.typesetPromise();
     }
     
-    // ============================================================
-    // MODULO 6: Teorema de continuidad
-    // ============================================================
     function actualizarContinuidad() {
-        const n = parseInt(document.getElementById('n-continuidad').value);
-        document.getElementById('n-continuidad-val').textContent = n;
-        
         const canvas = document.getElementById('continuidadCanvas');
         if(canvas) {
             const ctx = canvas.getContext('2d');
@@ -798,75 +714,81 @@
             ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
             ctx.fillRect(0, 0, w, h);
             
-            // Para distribución exponencial: P([0, n]) = 1 - e^{-n}
-            const prob = 1 - Math.exp(-n/10);
-            
-            // Barra de probabilidad
-            const barWidth = w * 0.6;
-            const barHeight = prob * h * 0.6;
-            ctx.fillStyle = '#4caf50';
-            ctx.fillRect(w/2 - barWidth/2, h - barHeight, barWidth, barHeight);
-            
-            ctx.fillStyle = '#333';
-            ctx.font = '14px sans-serif';
-            ctx.fillText(`n = ${n}`, w/2 - 20, h - barHeight - 10);
-            ctx.fillText(`P([0, ${n}]) = ${prob.toFixed(4)}`, w/2 - 80, h - 20);
-            
-            // Mostrar que converge a 1 cuando n → ∞
-            ctx.fillStyle = '#f44336';
-            ctx.fillRect(w/2 - barWidth/2, h - h*0.6, barWidth, 2);
+            for(let n=1; n<=20; n++) {
+                const prob = 1 - Math.exp(-n/10);
+                const barWidth = w * 0.6;
+                const barHeight = prob * h * 0.6;
+                const alpha = Math.min(1, n/20);
+                ctx.fillStyle = `rgba(76, 175, 80, ${alpha})`;
+                ctx.fillRect(w/2 - barWidth/2, h - barHeight, barWidth, barHeight);
+            }
         }
         
-        document.getElementById('continuidad-info').innerHTML = 
-            `Para \(A_n = [0, n]\), \(A_1 \\subseteq A_2 \\subseteq \\cdots\) y \(\\bigcup_{n=1}^{\\infty} A_n = [0, \\infty)\)<br>
-            \(\\lim_{n\\to\\infty} \\mathbb{P}(A_n) = \\mathbb{P}([0,\\infty)) = 1\)<br>
-            En la exponencial: \(\\mathbb{P}([0, n]) = 1 - e^{-\\lambda n} \\to 1\) cuando \(n \\to \\infty\)`;
+        const infoElem = document.getElementById('continuidad-info');
+        if(infoElem) {
+            infoElem.innerHTML = `Para \(A_n = [0, n]\), \(A_1 \subseteq A_2 \subseteq \cdots\) y \(\bigcup_{n=1}^{\infty} A_n = [0, \infty)\)<br>
+            \(\lim_{n\to\infty} \mathbb{P}(A_n) = \mathbb{P}([0,\infty)) = 1\)`;
+        }
         if(window.MathJax) MathJax.typesetPromise();
     }
     
     // ============================================================
-    // Inicialización
+    // INICIALIZACIÓN DEL MÓDULO ACTUAL
     // ============================================================
-    document.addEventListener('DOMContentLoaded', () => {
+    window.inicializarModuloActual = function() {
         // Módulo 1
-        document.getElementById('selector-experimento')?.addEventListener('change', actualizarEspacioMuestral);
+        const selExperimento = document.getElementById('selector-experimento');
+        if(selExperimento) selExperimento.addEventListener('change', actualizarEspacioMuestral);
         actualizarEspacioMuestral();
         
         // Módulo 2
-        document.getElementById('selector-frecuencia')?.addEventListener('change', simularFrecuencia);
-        document.getElementById('n-frecuencia')?.addEventListener('input', simularFrecuencia);
-        document.getElementById('simular-frecuencia')?.addEventListener('click', simularFrecuencia);
+        const selFrecuencia = document.getElementById('selector-frecuencia');
+        const nFrecuencia = document.getElementById('n-frecuencia');
+        const btnFrecuencia = document.getElementById('simular-frecuencia');
+        if(selFrecuencia) selFrecuencia.addEventListener('change', simularFrecuencia);
+        if(nFrecuencia) nFrecuencia.addEventListener('input', simularFrecuencia);
+        if(btnFrecuencia) btnFrecuencia.addEventListener('click', simularFrecuencia);
         simularFrecuencia();
         
         // Módulo 3
-        document.getElementById('evento-a')?.addEventListener('change', verificarInclusion);
-        document.getElementById('evento-b')?.addEventListener('change', verificarInclusion);
-        document.getElementById('verificar-inclusion')?.addEventListener('click', verificarInclusion);
+        const eventoA = document.getElementById('evento-a');
+        const eventoB = document.getElementById('evento-b');
+        const btnInclusion = document.getElementById('verificar-inclusion');
+        if(eventoA) eventoA.addEventListener('change', verificarInclusion);
+        if(eventoB) eventoB.addEventListener('change', verificarInclusion);
+        if(btnInclusion) btnInclusion.addEventListener('click', verificarInclusion);
         verificarInclusion();
         
         // Módulo 4
-        document.getElementById('suma-objetivo')?.addEventListener('change', simularGanar);
-        document.getElementById('simular-ganar')?.addEventListener('click', simularGanar);
+        const sumaObjetivo = document.getElementById('suma-objetivo');
+        const btnGanar = document.getElementById('simular-ganar');
+        if(sumaObjetivo) sumaObjetivo.addEventListener('change', simularGanar);
+        if(btnGanar) btnGanar.addEventListener('click', simularGanar);
         simularGanar();
         
         // Módulo 5
-        document.getElementById('simular-geometrica')?.addEventListener('click', simularGeometrica);
+        const btnGeometrica = document.getElementById('simular-geometrica');
+        if(btnGeometrica) btnGeometrica.addEventListener('click', simularGeometrica);
         simularGeometrica();
         
         // Módulo 6
-        document.getElementById('n-continuidad')?.addEventListener('input', actualizarContinuidad);
         actualizarContinuidad();
         
-        // Observador para cambio de tema
-        const observer = new MutationObserver(() => {
-            simularFrecuencia();
-            simularGeometrica();
-            actualizarContinuidad();
+        // Re-renderizar MathJax
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    // Ejecutar inicialización cuando el DOM esté listo
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
         });
-        observer.observe(document.body, {attributes: true});
-        
-        if(window.MathJax) setTimeout(() => MathJax.typesetPromise?.(), 100);
-    });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
 </script>
 </body>
 </html>
