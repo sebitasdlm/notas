@@ -1,1 +1,808 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Distribuciones Discretas Paramétricas - Capítulo 8</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Bernoulli y Binomial                            -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Distribuciones Bernoulli y Binomial</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Bernoulli(p):</strong> \(X \in \{0,1\}\), \(f(x)=p^x(1-p)^{1-x}\), \(\mathbb{E}[X]=p\), \(\operatorname{var}(X)=p(1-p)\)
+                <br>
+                <strong>Binomial(n,p):</strong> \(X = \sum_{i=1}^n Y_i\), \(f(x)=\binom{n}{x}p^x(1-p)^{n-x}\), \(\mathbb{E}[X]=np\), \(\operatorname{var}(X)=np(1-p)\)
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador Binomial</h4>
+                <div class="controles">
+                    <label>n:</label>
+                    <input type="range" id="n-bin" min="1" max="50" step="1" value="20">
+                    <span id="n-bin-val">20</span>
+                    <label>p:</label>
+                    <input type="range" id="p-bin" min="0" max="1" step="0.01" value="0.3">
+                    <span id="p-bin-val">0.30</span>
+                    <button id="simular-bin">Simular 5000 muestras</button>
+                </div>
+                <canvas id="binCanvas" width="500" height="250"></canvas>
+                <div id="bin-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (cajas dañadas):</strong> n=20, p=0.03
+                <br>
+                \(\mathbb{E}[X]=0.6\), \(\operatorname{var}(X)=0.582\), \(\mathbb{P}(X>1)=0.1199\)
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Distribución Geométrica y Pérdida de Memoria    -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Distribución Geométrica y Pérdida de Memoria</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Geométrica(p):</strong> número de fracasos hasta el primer éxito.
+                \[
+                f_X(x) = p(1-p)^x, \quad x=0,1,2,\ldots
+                \]
+                \(\mathbb{E}[X] = \frac{1-p}{p}\), \(\operatorname{var}(X) = \frac{1-p}{p^2}\)
+                <br>
+                <strong>Pérdida de memoria:</strong> \(\mathbb{P}(X \ge m+n | X \ge m) = \mathbb{P}(X \ge n)\)
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación de pérdida de memoria</h4>
+                <div class="controles">
+                    <label>p:</label>
+                    <input type="range" id="p-geom" min="0.1" max="0.9" step="0.05" value="0.3">
+                    <span id="p-geom-val">0.30</span>
+                    <label>m:</label>
+                    <input type="range" id="m-geom" min="0" max="20" step="1" value="3">
+                    <span id="m-geom-val">3</span>
+                    <label>n:</label>
+                    <input type="range" id="n-geom" min="0" max="20" step="1" value="2">
+                    <span id="n-geom-val">2</span>
+                    <button id="verificar-geom">Verificar</button>
+                </div>
+                <canvas id="geomCanvas" width="500" height="250"></canvas>
+                <div id="geom-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración de pérdida de memoria:</strong>
+                \[
+                \mathbb{P}(X \ge n) = \sum_{k=n}^{\infty} p q^k = \frac{p q^n}{1-q} = q^n
+                \]
+                \[
+                \mathbb{P}(X \ge m+n | X \ge m) = \frac{q^{m+n}}{q^m} = q^n = \mathbb{P}(X \ge n)
+                \]
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué distribución continua tiene pérdida de memoria?</strong>
+                <button onclick="mostrarRespuesta('respuesta-memoria')">Ver respuesta</button>
+                <div id="respuesta-memoria" class="respuesta">
+                    La distribución <strong>Exponencial</strong> es el análogo continuo de la Geométrica. Ambas son las únicas distribuciones (discreta y continua) que satisfacen la propiedad de pérdida de memoria.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Distribución Binomial Negativa                  -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Distribución Binomial Negativa</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Binomial Negativa(r,p):</strong> número de fracasos hasta el r-ésimo éxito.
+                \[
+                f_X(x) = \binom{r+x-1}{x} p^r (1-p)^x, \quad x=0,1,2,\ldots
+                \]
+                \(\mathbb{E}[X] = r\frac{1-p}{p}\), \(\operatorname{var}(X) = r\frac{1-p}{p^2}\)
+                <br>
+                Caso particular: \(r=1\) → Geométrica.
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador Binomial Negativa</h4>
+                <div class="controles">
+                    <label>r (éxitos requeridos):</label>
+                    <input type="range" id="r-bn" min="1" max="10" step="1" value="3">
+                    <span id="r-bn-val">3</span>
+                    <label>p:</label>
+                    <input type="range" id="p-bn" min="0.1" max="0.9" step="0.05" value="0.4">
+                    <span id="p-bn-val">0.40</span>
+                    <button id="simular-bn">Simular 5000 muestras</button>
+                </div>
+                <canvas id="bnCanvas" width="500" height="250"></canvas>
+                <div id="bn-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo:</strong> Para r=3, p=0.4, \(\mathbb{E}[X]=3·0.6/0.4=4.5\), \(\operatorname{var}(X)=3·0.6/0.16=11.25\)
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Distribución Poisson                            -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Distribución Poisson</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Poisson(λ):</strong> modela el número de eventos raros en un intervalo.
+                \[
+                f_X(x) = \frac{\lambda^x e^{-\lambda}}{x!}, \quad x=0,1,2,\ldots
+                \]
+                \(\mathbb{E}[X] = \lambda\), \(\operatorname{var}(X) = \lambda\)
+                <br>
+                <strong>Aproximación binomial:</strong> Si \(n\) grande y \(p\) pequeño, \(\text{Bin}(n,p) \approx \text{Po}(np)\)
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador Poisson y aproximación Binomial</h4>
+                <div class="controles">
+                    <label>λ:</label>
+                    <input type="range" id="lambda-poisson" min="0.5" max="15" step="0.5" value="4">
+                    <span id="lambda-poisson-val">4.0</span>
+                    <label>Comparar con Binomial:</label>
+                    <select id="comparar-bin">
+                        <option value="no">No comparar</option>
+                        <option value="si">Comparar Bin(n=100, p=λ/100)</option>
+                    </select>
+                    <button id="simular-poisson">Simular 5000 muestras</button>
+                </div>
+                <canvas id="poissonCanvas" width="500" height="250"></canvas>
+                <div id="poisson-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Aproximación Poisson a Binomial:</strong>
+                \[
+                \binom{n}{x} p^x (1-p)^{n-x} \approx \frac{(np)^x e^{-np}}{x!}, \quad n \to \infty, p \to 0, np = \lambda
+                \]
+                En la simulación se compara la distribución empírica con la teórica Poisson.
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (conglomeración de gente):</strong> λ=4 personas/2m²
+                <br>
+                \(\mathbb{P}(X=0)=e^{-4}=0.0183\)
+                <br>
+                En 4m², λ=8, \(\mathbb{P}(Y \ge 3)=1-\sum_{k=0}^{2} e^{-8}8^k/k! = 0.986\)
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué la media y varianza son iguales en Poisson?</strong>
+                <button onclick="mostrarRespuesta('respuesta-poisson')">Ver respuesta</button>
+                <div id="respuesta-poisson" class="respuesta">
+                    Es una propiedad característica de la distribución Poisson. En la práctica, si la media muestral y la varianza muestral son muy diferentes, es probable que los datos no sigan una distribución Poisson.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Distribución Hipergeométrica                    -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Distribución Hipergeométrica</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Hipergeométrica(N, M, n):</strong> muestreo sin reemplazo.
+                \[
+                f_X(x) = \frac{\binom{M}{x} \binom{N-M}{n-x}}{\binom{N}{n}}, \quad x=0,1,\ldots,n
+                \]
+                \(\mathbb{E}[X] = n\frac{M}{N}\), \(\operatorname{var}(X) = n\frac{M}{N}\frac{N-M}{N}\frac{N-n}{N-1}\)
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador Hipergeométrico</h4>
+                <div class="controles">
+                    <label>N (población):</label>
+                    <input type="range" id="N-hiper" min="20" max="200" step="5" value="50">
+                    <span id="N-hiper-val">50</span>
+                    <label>M (éxitos en población):</label>
+                    <input type="range" id="M-hiper" min="1" max="200" step="1" value="10">
+                    <span id="M-hiper-val">10</span>
+                    <label>n (muestra):</label>
+                    <input type="range" id="n-hiper" min="1" max="50" step="1" value="5">
+                    <span id="n-hiper-val">5</span>
+                    <button id="simular-hiper">Simular 5000 muestras</button>
+                </div>
+                <canvas id="hiperCanvas" width="500" height="250"></canvas>
+                <div id="hiper-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Relación con Binomial:</strong> Cuando N es grande, la Hipergeométrica se aproxima a Binomial(n, p) con p = M/N.
+                <br>
+                El factor de corrección \(\frac{N-n}{N-1}\) se llama <strong>factor de corrección por población finita</strong>.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Cuándo usar Hipergeométrica en lugar de Binomial?</strong>
+                <button onclick="mostrarRespuesta('respuesta-hiper')">Ver respuesta</button>
+                <div id="respuesta-hiper" class="respuesta">
+                    Cuando el muestreo es <strong>sin reemplazo</strong> y la población es finita. Si la muestra es pequeña comparada con la población (n << N), la aproximación binomial es adecuada.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // ============================================================
+    // FUNCIONES GLOBALES
+    // ============================================================
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        if(content) content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        if(elem) elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // FUNCIONES AUXILIARES
+    // ============================================================
+    function comb(n, k) {
+        if(k < 0 || k > n) return 0;
+        let res = 1;
+        for(let i=0; i<k; i++) res *= (n-i)/(i+1);
+        return res;
+    }
+
+    // ============================================================
+    // MODULO 1: Binomial
+    // ============================================================
+    function simularBinomial() {
+        const n = parseInt(document.getElementById('n-bin').value);
+        const p = parseFloat(document.getElementById('p-bin').value);
+        document.getElementById('n-bin-val').textContent = n;
+        document.getElementById('p-bin-val').textContent = p.toFixed(2);
+        
+        const nSim = 5000;
+        const resultados = new Array(n+1).fill(0);
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let x = 0;
+            for(let i=0; i<n; i++) if(Math.random() < p) x++;
+            resultados[x]++;
+        }
+        
+        const canvas = document.getElementById('binCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const maxFreq = Math.max(...resultados);
+            const barWidth = w / (n+1);
+            for(let i=0; i<=n; i++) {
+                const barHeight = (resultados[i] / maxFreq) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*barWidth + 2, h - barHeight, barWidth-4, barHeight);
+                
+                const teor = comb(n, i) * Math.pow(p, i) * Math.pow(1-p, n-i);
+                const teorHeight = teor * nSim / maxFreq * 0.8;
+                ctx.fillStyle = 'rgba(33,150,243,0.5)';
+                ctx.fillRect(i*barWidth + 2 + barWidth/2, h - teorHeight, barWidth-4, teorHeight);
+            }
+        }
+        
+        const media = resultados.reduce((a,b,i)=>a+i*b,0)/nSim;
+        const mediaTeor = n*p;
+        document.getElementById('bin-info').innerHTML = 
+            `Binomial(n=${n}, p=${p.toFixed(2)})<br>
+            Media muestral: ${media.toFixed(4)} | Media teórica: ${mediaTeor.toFixed(4)}<br>
+            \(\\mathbb{E}[X]=np\), \(\\operatorname{var}(X)=np(1-p)=${(n*p*(1-p)).toFixed(4)}\)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 2: Geométrica
+    // ============================================================
+    function verificarGeometrica() {
+        const p = parseFloat(document.getElementById('p-geom').value);
+        const m = parseInt(document.getElementById('m-geom').value);
+        const n = parseInt(document.getElementById('n-geom').value);
+        document.getElementById('p-geom-val').textContent = p.toFixed(2);
+        document.getElementById('m-geom-val').textContent = m;
+        document.getElementById('n-geom-val').textContent = n;
+        
+        const q = 1-p;
+        const pXgeMn = Math.pow(q, m+n);
+        const pXgeM = Math.pow(q, m);
+        const pCond = pXgeMn / pXgeM;
+        const pXgen = Math.pow(q, n);
+        
+        const canvas = document.getElementById('geomCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            // Graficar f.m.p. geométrica
+            const maxX = 20;
+            const probs = [];
+            for(let x=0; x<=maxX; x++) probs.push(p * Math.pow(q, x));
+            const maxProb = Math.max(...probs);
+            const barWidth = w / (maxX+1);
+            for(let x=0; x<=maxX; x++) {
+                const barHeight = (probs[x] / maxProb) * h * 0.8;
+                ctx.fillStyle = '#1976d2';
+                ctx.fillRect(x*barWidth + 2, h - barHeight, barWidth-4, barHeight);
+            }
+        }
+        
+        document.getElementById('geom-info').innerHTML = 
+            `Distribución Geométrica(p=${p.toFixed(2)})<br>
+            \(\\mathbb{P}(X \\ge ${m+n}) = ${pXgeMn.toFixed(6)}\)<br>
+            \(\\mathbb{P}(X \\ge ${m}) = ${pXgeM.toFixed(6)}\)<br>
+            \(\\mathbb{P}(X \\ge ${m+n} | X \\ge ${m}) = ${pCond.toFixed(6)}\)<br>
+            \(\\mathbb{P}(X \\ge ${n}) = ${pXgen.toFixed(6)}\)<br>
+            ${Math.abs(pCond - pXgen) < 0.0001 ? '✓ Se verifica la pérdida de memoria' : '⚠ Error'}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 3: Binomial Negativa
+    // ============================================================
+    function simularBN() {
+        const r = parseInt(document.getElementById('r-bn').value);
+        const p = parseFloat(document.getElementById('p-bn').value);
+        document.getElementById('r-bn-val').textContent = r;
+        document.getElementById('p-bn-val').textContent = p.toFixed(2);
+        
+        const nSim = 5000;
+        const resultados = [];
+        const maxX = 50;
+        const freqs = new Array(maxX+1).fill(0);
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let exitos = 0;
+            let fracasos = 0;
+            while(exitos < r) {
+                if(Math.random() < p) exitos++;
+                else fracasos++;
+            }
+            resultados.push(fracasos);
+            if(fracasos <= maxX) freqs[fracasos]++;
+        }
+        
+        const canvas = document.getElementById('bnCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const maxFreq = Math.max(...freqs);
+            const barWidth = w / (maxX+1);
+            for(let x=0; x<=maxX; x++) {
+                const barHeight = (freqs[x] / maxFreq) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(x*barWidth + 2, h - barHeight, barWidth-4, barHeight);
+            }
+        }
+        
+        const media = resultados.reduce((a,b)=>a+b,0)/nSim;
+        const mediaTeor = r * (1-p)/p;
+        document.getElementById('bn-info').innerHTML = 
+            `Binomial Negativa(r=${r}, p=${p.toFixed(2)})<br>
+            Media muestral: ${media.toFixed(4)} | Media teórica: ${mediaTeor.toFixed(4)}<br>
+            \(\\mathbb{E}[X]=r\\frac{1-p}{p}\), \(\\operatorname{var}(X)=r\\frac{1-p}{p^2}=${(r*(1-p)/(p*p)).toFixed(4)}\)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 4: Poisson
+    // ============================================================
+    function simularPoisson() {
+        const lambda = parseFloat(document.getElementById('lambda-poisson').value);
+        const comparar = document.getElementById('comparar-bin').value === 'si';
+        document.getElementById('lambda-poisson-val').textContent = lambda.toFixed(1);
+        
+        const nSim = 5000;
+        const maxX = Math.min(30, Math.floor(lambda*3));
+        const freqs = new Array(maxX+1).fill(0);
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let k = 0;
+            let p = Math.exp(-lambda);
+            let u = Math.random();
+            while(u > p) {
+                k++;
+                p += Math.exp(-lambda) * Math.pow(lambda, k) / fact(k);
+            }
+            if(k <= maxX) freqs[k]++;
+        }
+        
+        let binFreqs = null;
+        if(comparar) {
+            const nBin = 100;
+            const pBin = lambda / nBin;
+            binFreqs = new Array(maxX+1).fill(0);
+            for(let sim=0; sim<nSim; sim++) {
+                let x = 0;
+                for(let i=0; i<nBin; i++) if(Math.random() < pBin) x++;
+                if(x <= maxX) binFreqs[x]++;
+            }
+        }
+        
+        const canvas = document.getElementById('poissonCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const maxFreq = Math.max(...freqs);
+            const barWidth = w / (maxX+1);
+            for(let x=0; x<=maxX; x++) {
+                const barHeight = (freqs[x] / maxFreq) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(x*barWidth + 2, h - barHeight, barWidth-4, barHeight);
+            }
+            if(comparar && binFreqs) {
+                for(let x=0; x<=maxX; x++) {
+                    const barHeight = (binFreqs[x] / maxFreq) * h * 0.8;
+                    ctx.fillStyle = 'rgba(33,150,243,0.5)';
+                    ctx.fillRect(x*barWidth + 2 + barWidth/2, h - barHeight, barWidth-4, barHeight);
+                }
+            }
+        }
+        
+        const media = freqs.reduce((a,b,i)=>a+i*b,0)/nSim;
+        document.getElementById('poisson-info').innerHTML = 
+            `Poisson(λ=${lambda.toFixed(1)})<br>
+            Media muestral: ${media.toFixed(4)} | Media teórica: ${lambda.toFixed(4)}<br>
+            \(\\mathbb{E}[X]=\\lambda\), \(\\operatorname{var}(X)=\\lambda\)<br>
+            ${comparar ? 'Verde: Poisson | Azul: Binomial(n=100, p=λ/n)' : ''}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    function fact(n) { let r=1; for(let i=2;i<=n;i++) r*=i; return r; }
+    
+    // ============================================================
+    // MODULO 5: Hipergeométrica
+    // ============================================================
+    function simularHiper() {
+        const N = parseInt(document.getElementById('N-hiper').value);
+        const M = parseInt(document.getElementById('M-hiper').value);
+        const n = parseInt(document.getElementById('n-hiper').value);
+        document.getElementById('N-hiper-val').textContent = N;
+        document.getElementById('M-hiper-val').textContent = M;
+        document.getElementById('n-hiper-val').textContent = n;
+        
+        const nSim = 5000;
+        const maxX = Math.min(n, M);
+        const freqs = new Array(maxX+1).fill(0);
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let poblacion = [];
+            for(let i=0; i<N; i++) poblacion.push(i < M ? 1 : 0);
+            for(let i=poblacion.length-1; i>0; i--) {
+                const j = Math.floor(Math.random() * (i+1));
+                [poblacion[i], poblacion[j]] = [poblacion[j], poblacion[i]];
+            }
+            const k = poblacion.slice(0, n).reduce((a,b)=>a+b,0);
+            if(k <= maxX) freqs[k]++;
+        }
+        
+        const canvas = document.getElementById('hiperCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const maxFreq = Math.max(...freqs);
+            const barWidth = w / (maxX+1);
+            for(let x=0; x<=maxX; x++) {
+                const barHeight = (freqs[x] / maxFreq) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(x*barWidth + 2, h - barHeight, barWidth-4, barHeight);
+                
+                const teor = comb(M, x) * comb(N-M, n-x) / comb(N, n);
+                const teorHeight = teor * nSim / maxFreq * 0.8;
+                ctx.fillStyle = 'rgba(33,150,243,0.5)';
+                ctx.fillRect(x*barWidth + 2 + barWidth/2, h - teorHeight, barWidth-4, teorHeight);
+            }
+        }
+        
+        const media = freqs.reduce((a,b,i)=>a+i*b,0)/nSim;
+        const mediaTeor = n * M / N;
+        const varTeor = n * (M/N) * ((N-M)/N) * ((N-n)/(N-1));
+        document.getElementById('hiper-info').innerHTML = 
+            `Hipergeométrica(N=${N}, M=${M}, n=${n})<br>
+            Media muestral: ${media.toFixed(4)} | Media teórica: ${mediaTeor.toFixed(4)}<br>
+            \(\\operatorname{var}(X)=${varTeor.toFixed(4)}\)<br>
+            Verde: simulación | Azul: teórica`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // INICIALIZACIÓN
+    // ============================================================
+    window.inicializarModuloActual = function() {
+        // Módulo 1
+        document.getElementById('n-bin')?.addEventListener('input', simularBinomial);
+        document.getElementById('p-bin')?.addEventListener('input', simularBinomial);
+        document.getElementById('simular-bin')?.addEventListener('click', simularBinomial);
+        simularBinomial();
+        
+        // Módulo 2
+        document.getElementById('p-geom')?.addEventListener('input', verificarGeometrica);
+        document.getElementById('m-geom')?.addEventListener('input', verificarGeometrica);
+        document.getElementById('n-geom')?.addEventListener('input', verificarGeometrica);
+        document.getElementById('verificar-geom')?.addEventListener('click', verificarGeometrica);
+        verificarGeometrica();
+        
+        // Módulo 3
+        document.getElementById('r-bn')?.addEventListener('input', simularBN);
+        document.getElementById('p-bn')?.addEventListener('input', simularBN);
+        document.getElementById('simular-bn')?.addEventListener('click', simularBN);
+        simularBN();
+        
+        // Módulo 4
+        document.getElementById('lambda-poisson')?.addEventListener('input', simularPoisson);
+        document.getElementById('comparar-bin')?.addEventListener('change', simularPoisson);
+        document.getElementById('simular-poisson')?.addEventListener('click', simularPoisson);
+        simularPoisson();
+        
+        // Módulo 5
+        document.getElementById('N-hiper')?.addEventListener('input', simularHiper);
+        document.getElementById('M-hiper')?.addEventListener('input', simularHiper);
+        document.getElementById('n-hiper')?.addEventListener('input', simularHiper);
+        document.getElementById('simular-hiper')?.addEventListener('click', simularHiper);
+        simularHiper();
+        
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
+        });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
+</script>
+</body>
+</html>
