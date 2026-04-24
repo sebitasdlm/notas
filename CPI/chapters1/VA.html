@@ -1,1 +1,991 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Variables Aleatorias - Capítulo 4</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .tabla-distribucion {
+            width: 100%;
+            max-width: 400px;
+            margin: 1rem auto;
+            border-collapse: collapse;
+        }
+
+        .tabla-distribucion td, .tabla-distribucion th {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Definición de Variable Aleatoria                -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Definición de Variable Aleatoria</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Una <strong>variable aleatoria</strong> es una función que asigna un número real a cada resultado de un experimento aleatorio:
+                \[
+                X: \Omega \to \mathbb{R}
+                \]
+                La <strong>función de masa de probabilidad (f.m.p.)</strong> para una v.a. discreta es:
+                \[
+                f_X(x) = \mathbb{P}(X = x)
+                \]
+                con \(\sum_{x \in S_X} f_X(x) = 1\) y \(f_X(x) \ge 0\).
+            </div>
+
+            <div class="simulador">
+                <h4>Ejemplo: Lanzamiento de 3 monedas</h4>
+                <div class="controles">
+                    <button id="simular-monedas">Simular 5000 lanzamientos</button>
+                </div>
+                <canvas id="monedasCanvas" width="500" height="250"></canvas>
+                <div id="monedas-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Distribución teórica (monedas honestas):</strong>
+                \[
+                f_X(x) = \binom{3}{x} \left(\frac{1}{2}\right)^x \left(\frac{1}{2}\right)^{3-x}, \quad x = 0,1,2,3
+                \]
+                <table class="tabla-distribucion">
+                    <thead><tr><th>x</th><th>0</th><th>1</th><th>2</th><th>3</th></tr></thead>
+                    <tbody><tr><td>f(x)</td><td>1/8</td><td>3/8</td><td>3/8</td><td>1/8</td></tr></tbody>
+                </table>
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué significa que una variable aleatoria sea "medible"?</strong>
+                <button onclick="mostrarRespuesta('respuesta-medible')">Ver respuesta</button>
+                <div id="respuesta-medible" class="respuesta">
+                    Significa que para cualquier número real \(x\), el conjunto \(\{\omega \in \Omega: X(\omega) \le x\}\) es un evento (pertenece a la σ-álgebra). Esto garantiza que podemos calcular probabilidades como \(\mathbb{P}(X \le x)\).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Distribuciones Discretas                        -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Distribuciones Discretas Paramétricas</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Distribución Geométrica:</strong> \(f_Y(y) = p(1-p)^{y-1}\), \(y = 1,2,3,\ldots\) (número de ensayos hasta el primer éxito)
+                <br>
+                <strong>Distribución Poisson:</strong> \(f_N(n) = \frac{\lambda^n e^{-\lambda}}{n!}\), \(n = 0,1,2,\ldots\)
+                <br>
+                <strong>Distribución Uniforme Discreta:</strong> \(f_U(u) = \frac{1}{n}\), \(u = 1,2,\ldots,n\)
+            </div>
+
+            <div class="simulador">
+                <h4>Comparación de distribuciones discretas</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-discreta">
+                        <option value="geometrica">Geométrica (p=0.3)</option>
+                        <option value="poisson">Poisson (λ=2)</option>
+                        <option value="uniforme">Uniforme (n=10)</option>
+                    </select>
+                    <button id="simular-discreta">Simular 5000 muestras</button>
+                </div>
+                <canvas id="discretaCanvas" width="500" height="250"></canvas>
+                <div id="discreta-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Geométrica (número de fracasos hasta el primer éxito):</strong>
+                \[
+                f_Z(z) = p(1-p)^z, \quad z = 0,1,2,\ldots
+                \]
+                <strong>Verificación:</strong> \(\sum_{z=0}^{\infty} p q^z = p \cdot \frac{1}{1-q} = 1\)
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Cuál es la diferencia entre las dos formas de la distribución geométrica?</strong>
+                <button onclick="mostrarRespuesta('respuesta-geometrica')">Ver respuesta</button>
+                <div id="respuesta-geometrica" class="respuesta">
+                    Una cuenta el número de ensayos hasta el primer éxito (soporte {1,2,3,...}), la otra cuenta el número de fracasos antes del primer éxito (soporte {0,1,2,...}). La relación es \(Y = Z+1\).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Función de Distribución (FPA)                   -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Función de Probabilidad Acumulada (FPA)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>función de distribución</strong> de una variable aleatoria \(X\) es:
+                \[
+                F_X(x) = \mathbb{P}(X \le x), \quad \forall x \in \mathbb{R}
+                \]
+                Propiedades:
+                <ul>
+                    <li>No decreciente: \(x_1 < x_2 \Rightarrow F(x_1) \le F(x_2)\)</li>
+                    <li>\(\lim_{x \to -\infty} F(x) = 0\), \(\lim_{x \to \infty} F(x) = 1\)</li>
+                    <li>Continua por la derecha: \(F(x^+) = F(x)\)</li>
+                </ul>
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización: FPA de una v.a. discreta (Geométrica)</h4>
+                <div class="controles">
+                    <label>p (probabilidad de éxito):</label>
+                    <input type="range" id="p-fpa" min="0.1" max="0.9" step="0.05" value="0.3">
+                    <span id="p-fpa-val">0.30</span>
+                </div>
+                <canvas id="fpaCanvas" width="500" height="250"></canvas>
+                <div id="fpa-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Relación entre FPA y f.m.p.:</strong>
+                \[
+                F_X(x) = \sum_{x_i \le x} f_X(x_i), \qquad f_X(x) = F_X(x) - F_X(x^-)
+                \]
+                Para v.a. continua: \(F_X(x) = \int_{-\infty}^{x} f_X(u) du\)
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué la FPA es continua por la derecha pero no necesariamente por la izquierda?</strong>
+                <button onclick="mostrarRespuesta('respuesta-fpa')">Ver respuesta</button>
+                <div id="respuesta-fpa" class="respuesta">
+                    Porque \(F(x) = \mathbb{P}(X \le x)\). El salto en \(x_0\) es exactamente \(\mathbb{P}(X = x_0)\). La continuidad por la derecha se debe a que el límite cuando \(x \to x_0^+\) incluye el punto \(x_0\), mientras que el límite por la izquierda no.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Variables Aleatorias Continuas                  -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Variables Aleatorias Continuas</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Una v.a. es <strong>continua</strong> si su función de distribución es continua en todo \(\mathbb{R}\).
+                Su <strong>función de densidad (f.d.p.)</strong> satisface:
+                \[
+                f_X(x) \ge 0, \quad \int_{-\infty}^{\infty} f_X(x) dx = 1, \quad \mathbb{P}(a \le X \le b) = \int_a^b f_X(x) dx
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Explorador de densidades continuas</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-continua">
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="triangular">Triangular(0,1,2)</option>
+                        <option value="exponencial">Exponencial(λ=1)</option>
+                        <option value="pareto">Pareto(α=2, θ=1)</option>
+                    </select>
+                    <button id="simular-continua">Simular 5000 muestras</button>
+                </div>
+                <canvas id="continuaCanvas" width="500" height="250"></canvas>
+                <div id="continua-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (diana circular):</strong> Distancia al centro, radio R=5.
+                \[
+                f_Y(y) = \frac{2y}{R^2} \mathbb{1}_{(0,R)}(y), \quad \mathbb{P}(Y \le 2) = \left(\frac{2}{5}\right)^2 = 0.16
+                \]
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Puede una f.d.p. tomar valores mayores que 1?</strong>
+                <button onclick="mostrarRespuesta('respuesta-densidad')">Ver respuesta</button>
+                <div id="respuesta-densidad" class="respuesta">
+                    ¡Sí! La densidad no es una probabilidad, sino una función que integrada da probabilidad. Por ejemplo, Uniforme(0,0.5) tiene densidad 2 > 1 en (0,0.5). Lo importante es que el área total bajo la curva sea 1.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Función de Supervivencia                        -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Función de Supervivencia y Pérdida de Memoria</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>función de supervivencia</strong> es:
+                \[
+                G_T(t) = \mathbb{P}(T > t) = 1 - F_T(t), \quad t \in \mathbb{R}
+                \]
+                La <strong>distribución exponencial</strong> tiene la propiedad de <strong>pérdida de memoria</strong>:
+                \[
+                \mathbb{P}(T > t + s | T > s) = \mathbb{P}(T > t)
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación: Pérdida de memoria de la Exponencial</h4>
+                <div class="controles">
+                    <label>λ (tasa):</label>
+                    <input type="range" id="lambda-exp2" min="0.5" max="3" step="0.1" value="1">
+                    <span id="lambda-exp2-val">1.0</span>
+                    <label>s (tiempo ya transcurrido):</label>
+                    <input type="range" id="s-exponencial" min="0" max="5" step="0.5" value="2">
+                    <span id="s-exponencial-val">2.0</span>
+                    <label>t (tiempo adicional):</label>
+                    <input type="range" id="t-exponencial" min="0" max="5" step="0.5" value="1">
+                    <span id="t-exponencial-val">1.0</span>
+                    <button id="verificar-exp">Verificar</button>
+                </div>
+                <div id="exponencial-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración de pérdida de memoria (exponencial):</strong>
+                \[
+                \begin{align*}
+                \mathbb{P}(T > t+s | T > s) &= \frac{\mathbb{P}(T > t+s)}{\mathbb{P}(T > s)} = \frac{e^{-\lambda(t+s)}}{e^{-\lambda s}} = e^{-\lambda t} = \mathbb{P}(T > t)
+                \end{align*}
+                \]
+                La exponencial es la <strong>única</strong> distribución continua con esta propiedad. La geométrica es su análogo discreto.
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (λ=3):</strong>
+                \[
+                \mathbb{P}(4 \le T \le 6 | T \ge 5) = \mathbb{P}(T \le 1) = 1 - e^{-3} \approx 0.950
+                \]
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué se llama "pérdida de memoria"?</strong>
+                <button onclick="mostrarRespuesta('respuesta-memoria')">Ver respuesta</button>
+                <div id="respuesta-memoria" class="respuesta">
+                    Porque el tiempo restante no depende del tiempo ya transcurrido. Si un componente ha durado s horas, la probabilidad de que dure t horas más es la misma que la de un componente nuevo. Esto es útil para modelar tiempos de vida sin desgaste.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 6: Distribución Triangular (Ejemplo del PDF)      -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>6. Ejemplo: Distribución Triangular</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Del PDF: \(f_W(w) = w\mathbb{1}_{(0,1]}(w) + (2-w)\mathbb{1}_{(1,2]}(w)\)
+                \[
+                F_W(w) = \begin{cases}
+                0 & w < 0 \\
+                \frac{w^2}{2} & 0 \le w < 1 \\
+                -1 + 2w - \frac{w^2}{2} & 1 \le w < 2 \\
+                1 & w \ge 2
+                \end{cases}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización: Densidad Triangular</h4>
+                <button id="simular-triangular">Simular 5000 muestras</button>
+                <canvas id="triangularCanvas" width="500" height="250"></canvas>
+                <div id="triangular-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Cálculos del PDF:</strong>
+                \(\mathbb{P}(0.8 \le W \le 1.2) = F(1.2) - F(0.8) = 0.36\)
+                <br>
+                \(\mathbb{P}(W \ge 1.5 | W > 0.9) = \frac{0.125}{1-0.405} = 0.21\)
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // ============================================================
+    // FUNCIONES GLOBALES
+    // ============================================================
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        if(content) content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        if(elem) elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: 3 monedas
+    // ============================================================
+    function simularMonedas() {
+        const nSim = 5000;
+        const resultados = new Array(4).fill(0);
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let aguilas = 0;
+            for(let i=0; i<3; i++) {
+                if(Math.random() < 0.5) aguilas++;
+            }
+            resultados[aguilas]++;
+        }
+        
+        const probs = resultados.map(c => c/nSim);
+        const teoricas = [1/8, 3/8, 3/8, 1/8];
+        
+        const canvas = document.getElementById('monedasCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const barWidth = w / 8;
+            for(let i=0; i<4; i++) {
+                const barHeight = probs[i] * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*barWidth*2 + barWidth/2, h - barHeight, barWidth-4, barHeight);
+                
+                const teorHeight = teoricas[i] * h * 0.8;
+                ctx.fillStyle = 'rgba(33,150,243,0.5)';
+                ctx.fillRect(i*barWidth*2 + barWidth/2 + 5, h - teorHeight, barWidth-4, teorHeight);
+            }
+        }
+        
+        document.getElementById('monedas-info').innerHTML = 
+            `Simulación (${nSim} lanzamientos): P(X=0)=${probs[0].toFixed(4)}, P(X=1)=${probs[1].toFixed(4)}, P(X=2)=${probs[2].toFixed(4)}, P(X=3)=${probs[3].toFixed(4)}<br>
+            Teóricas: 0.1250, 0.3750, 0.3750, 0.1250`;
+    }
+    
+    // ============================================================
+    // MODULO 2: Distribuciones discretas
+    // ============================================================
+    function simularDiscreta() {
+        const dist = document.getElementById('dist-discreta').value;
+        const nSim = 5000;
+        let resultados = [];
+        
+        if(dist === 'geometrica') {
+            const p = 0.3;
+            for(let sim=0; sim<nSim; sim++) {
+                let fracasos = 0;
+                while(Math.random() >= p) fracasos++;
+                resultados.push(fracasos);
+            }
+            const maxVal = Math.max(...resultados);
+            const freqs = new Array(Math.min(20, maxVal+1)).fill(0);
+            for(let r of resultados) if(r < freqs.length) freqs[r]++;
+            
+            const canvas = document.getElementById('discretaCanvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width, h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const isDark = document.body.classList.contains('dark-theme');
+                ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+                ctx.fillRect(0, 0, w, h);
+                
+                const barWidth = w / freqs.length;
+                for(let i=0; i<freqs.length; i++) {
+                    const barHeight = (freqs[i]/nSim) * h * 0.8;
+                    ctx.fillStyle = '#4caf50';
+                    ctx.fillRect(i*barWidth + 2, h - barHeight, barWidth-4, barHeight);
+                }
+            }
+            document.getElementById('discreta-info').innerHTML = 
+                `Distribución Geométrica (fracasos hasta éxito): f(k)=0.3·0.7^k<br>
+                Media teórica: ${((1-0.3)/0.3).toFixed(2)} | Media muestral: ${(resultados.reduce((a,b)=>a+b,0)/nSim).toFixed(2)}`;
+        } 
+        else if(dist === 'poisson') {
+            const lambda = 2;
+            for(let sim=0; sim<nSim; sim++) {
+                let k = 0;
+                let p = Math.exp(-lambda);
+                let u = Math.random();
+                while(u > p) {
+                    k++;
+                    p += Math.exp(-lambda) * Math.pow(lambda, k) / fact(k);
+                }
+                resultados.push(k);
+            }
+            const maxVal = Math.max(...resultados);
+            const freqs = new Array(Math.min(15, maxVal+1)).fill(0);
+            for(let r of resultados) if(r < freqs.length) freqs[r]++;
+            
+            const canvas = document.getElementById('discretaCanvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width, h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const isDark = document.body.classList.contains('dark-theme');
+                ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+                ctx.fillRect(0, 0, w, h);
+                
+                const barWidth = w / freqs.length;
+                for(let i=0; i<freqs.length; i++) {
+                    const barHeight = (freqs[i]/nSim) * h * 0.8;
+                    ctx.fillStyle = '#4caf50';
+                    ctx.fillRect(i*barWidth + 2, h - barHeight, barWidth-4, barHeight);
+                    
+                    const teor = Math.exp(-lambda) * Math.pow(lambda, i) / fact(i);
+                    const teorHeight = teor * h * 0.8;
+                    ctx.fillStyle = 'rgba(33,150,243,0.5)';
+                    ctx.fillRect(i*barWidth + 2 + barWidth/2, h - teorHeight, barWidth-4, teorHeight);
+                }
+            }
+            document.getElementById('discreta-info').innerHTML = 
+                `Distribución Poisson(λ=2): f(k)=e^{-2}·2^k/k!<br>
+                Media teórica: 2 | Media muestral: ${(resultados.reduce((a,b)=>a+b,0)/nSim).toFixed(2)}`;
+        }
+        else {
+            const n = 10;
+            for(let sim=0; sim<nSim; sim++) {
+                resultados.push(Math.floor(Math.random() * n) + 1);
+            }
+            const freqs = new Array(n).fill(0);
+            for(let r of resultados) freqs[r-1]++;
+            
+            const canvas = document.getElementById('discretaCanvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width, h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const isDark = document.body.classList.contains('dark-theme');
+                ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+                ctx.fillRect(0, 0, w, h);
+                
+                const barWidth = w / n;
+                for(let i=0; i<n; i++) {
+                    const barHeight = (freqs[i]/nSim) * h * 0.8;
+                    ctx.fillStyle = '#4caf50';
+                    ctx.fillRect(i*barWidth + 2, h - barHeight, barWidth-4, barHeight);
+                }
+            }
+            document.getElementById('discreta-info').innerHTML = 
+                `Distribución Uniforme Discreta en {1,...,10}<br>
+                Media teórica: 5.5 | Media muestral: ${(resultados.reduce((a,b)=>a+b,0)/nSim).toFixed(2)}`;
+        }
+    }
+    
+    function fact(n) {
+        let r=1; for(let i=2; i<=n; i++) r*=i; return r;
+    }
+    
+    // ============================================================
+    // MODULO 3: FPA
+    // ============================================================
+    function actualizarFPA() {
+        const p = parseFloat(document.getElementById('p-fpa').value);
+        document.getElementById('p-fpa-val').textContent = p.toFixed(2);
+        
+        const canvas = document.getElementById('fpaCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            // FPA de geométrica (número de fracasos): F(k) = 1 - q^(k+1)
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const k = (i / w) * 10;
+                const fpa = 1 - Math.pow(1-p, Math.floor(k)+1);
+                const y = h - fpa * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        document.getElementById('fpa-info').innerHTML = 
+            `Función de distribución acumulada de Geométrica(p=${p.toFixed(2)})<br>
+            \(F(k) = 1 - (1-p)^{k+1}\) para k = 0,1,2,...`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 4: Distribuciones continuas
+    // ============================================================
+    function simularContinua() {
+        const dist = document.getElementById('dist-continua').value;
+        const nSim = 5000;
+        let muestras = [];
+        
+        if(dist === 'uniforme') {
+            for(let i=0; i<nSim; i++) muestras.push(Math.random());
+            const canvas = document.getElementById('continuaCanvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width, h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+                ctx.fillStyle = '#2d2d2d';
+                ctx.fillRect(0, 0, w, h);
+                const bins = new Array(30).fill(0);
+                for(let v of muestras) {
+                    const idx = Math.min(29, Math.floor(v * 30));
+                    bins[idx]++;
+                }
+                const maxBin = Math.max(...bins);
+                const binWidth = w / 30;
+                for(let i=0; i<30; i++) {
+                    const barHeight = (bins[i] / maxBin) * h * 0.8;
+                    ctx.fillStyle = '#4caf50';
+                    ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
+                }
+            }
+            document.getElementById('continua-info').innerHTML = 
+                `Uniforme(0,1): f(x)=1, F(x)=x<br>
+                Media teórica: 0.5 | Media muestral: ${(muestras.reduce((a,b)=>a+b,0)/nSim).toFixed(4)}`;
+        }
+        else if(dist === 'triangular') {
+            for(let i=0; i<nSim; i++) {
+                const u = Math.random();
+                let w;
+                if(u < 0.5) w = Math.sqrt(2*u);
+                else w = 2 - Math.sqrt(2*(1-u));
+                muestras.push(w);
+            }
+            const canvas = document.getElementById('continuaCanvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width, h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+                ctx.fillStyle = '#2d2d2d';
+                ctx.fillRect(0, 0, w, h);
+                const bins = new Array(30).fill(0);
+                for(let v of muestras) {
+                    const idx = Math.min(29, Math.floor(v / 2 * 30));
+                    bins[idx]++;
+                }
+                const maxBin = Math.max(...bins);
+                const binWidth = w / 30;
+                for(let i=0; i<30; i++) {
+                    const barHeight = (bins[i] / maxBin) * h * 0.8;
+                    ctx.fillStyle = '#4caf50';
+                    ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
+                }
+            }
+            document.getElementById('continua-info').innerHTML = 
+                `Triangular(0,1,2): f(w)=w en (0,1], f(w)=2-w en (1,2)<br>
+                Media teórica: 1 | Media muestral: ${(muestras.reduce((a,b)=>a+b,0)/nSim).toFixed(4)}`;
+        }
+        else if(dist === 'exponencial') {
+            for(let i=0; i<nSim; i++) muestras.push(-Math.log(Math.random()));
+            const canvas = document.getElementById('continuaCanvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width, h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+                ctx.fillStyle = '#2d2d2d';
+                ctx.fillRect(0, 0, w, h);
+                const max = Math.max(...muestras);
+                const bins = new Array(30).fill(0);
+                for(let v of muestras) {
+                    const idx = Math.min(29, Math.floor(v / max * 30));
+                    bins[idx]++;
+                }
+                const maxBin = Math.max(...bins);
+                const binWidth = w / 30;
+                for(let i=0; i<30; i++) {
+                    const barHeight = (bins[i] / maxBin) * h * 0.8;
+                    ctx.fillStyle = '#4caf50';
+                    ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
+                }
+            }
+            document.getElementById('continua-info').innerHTML = 
+                `Exponencial(λ=1): f(x)=e^{-x}, F(x)=1-e^{-x}<br>
+                Media teórica: 1 | Media muestral: ${(muestras.reduce((a,b)=>a+b,0)/nSim).toFixed(4)}`;
+        }
+        else {
+            const alpha = 2, theta = 1;
+            for(let i=0; i<nSim; i++) {
+                const u = Math.random();
+                const x = theta / Math.pow(1-u, 1/alpha);
+                muestras.push(x);
+            }
+            const canvas = document.getElementById('continuaCanvas');
+            if(canvas) {
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width, h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+                ctx.fillStyle = '#2d2d2d';
+                ctx.fillRect(0, 0, w, h);
+                const max = Math.min(5, Math.max(...muestras));
+                const bins = new Array(30).fill(0);
+                for(let v of muestras) {
+                    if(v <= max) {
+                        const idx = Math.min(29, Math.floor(v / max * 30));
+                        bins[idx]++;
+                    }
+                }
+                const maxBin = Math.max(...bins);
+                const binWidth = w / 30;
+                for(let i=0; i<30; i++) {
+                    const barHeight = (bins[i] / maxBin) * h * 0.8;
+                    ctx.fillStyle = '#4caf50';
+                    ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
+                }
+            }
+            document.getElementById('continua-info').innerHTML = 
+                `Pareto(α=2, θ=1): f(x)=2/x³, x>1<br>
+                Media teórica: 2 | Media muestral: ${(muestras.reduce((a,b)=>a+b,0)/nSim).toFixed(4)}`;
+        }
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 5: Pérdida de memoria
+    // ============================================================
+    function verificarExponencial() {
+        const lambda = parseFloat(document.getElementById('lambda-exp2').value);
+        const s = parseFloat(document.getElementById('s-exponencial').value);
+        const t = parseFloat(document.getElementById('t-exponencial').value);
+        
+        document.getElementById('lambda-exp2-val').textContent = lambda.toFixed(1);
+        document.getElementById('s-exponencial-val').textContent = s.toFixed(1);
+        document.getElementById('t-exponencial-val').textContent = t.toFixed(1);
+        
+        const pCond = Math.exp(-lambda * t);
+        const pDirecto = Math.exp(-lambda * (t+s)) / Math.exp(-lambda * s);
+        
+        document.getElementById('exponencial-resultado').innerHTML = 
+            `\(\mathbb{P}(T > ${t.toFixed(1)} + ${s.toFixed(1)} | T > ${s.toFixed(1)}) = e^{-${lambda.toFixed(1)}·${t.toFixed(1)}} = ${pCond.toFixed(4)}\)<br>
+            \(\mathbb{P}(T > ${t.toFixed(1)}) = ${pCond.toFixed(4)}\)<br>
+            ¡Se verifica la propiedad de pérdida de memoria!`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 6: Triangular
+    // ============================================================
+    function simularTriangular() {
+        const nSim = 5000;
+        let muestras = [];
+        for(let i=0; i<nSim; i++) {
+            const u = Math.random();
+            let w;
+            if(u < 0.5) w = Math.sqrt(2*u);
+            else w = 2 - Math.sqrt(2*(1-u));
+            muestras.push(w);
+        }
+        
+        const canvas = document.getElementById('triangularCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(30).fill(0);
+            for(let v of muestras) {
+                const idx = Math.min(29, Math.floor(v / 2 * 30));
+                bins[idx]++;
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w / 30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i] / maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
+            }
+            
+            // Densidad teórica
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const x = (i / w) * 2;
+                let dens = 0;
+                if(x <= 1) dens = x;
+                else dens = 2 - x;
+                const y = h - dens * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        const media = muestras.reduce((a,b)=>a+b,0)/nSim;
+        document.getElementById('triangular-info').innerHTML = 
+            `Distribución Triangular(0,1,2): f(w)=w en (0,1], f(w)=2-w en (1,2)<br>
+            Media teórica: 1 | Media muestral: ${media.toFixed(4)}`;
+    }
+    
+    // ============================================================
+    // INICIALIZACIÓN
+    // ============================================================
+    window.inicializarModuloActual = function() {
+        // Módulo 1
+        const btnMonedas = document.getElementById('simular-monedas');
+        if(btnMonedas) btnMonedas.addEventListener('click', simularMonedas);
+        simularMonedas();
+        
+        // Módulo 2
+        const btnDiscreta = document.getElementById('simular-discreta');
+        if(btnDiscreta) btnDiscreta.addEventListener('click', simularDiscreta);
+        simularDiscreta();
+        
+        // Módulo 3
+        const pFPA = document.getElementById('p-fpa');
+        if(pFPA) pFPA.addEventListener('input', actualizarFPA);
+        actualizarFPA();
+        
+        // Módulo 4
+        const btnContinua = document.getElementById('simular-continua');
+        if(btnContinua) btnContinua.addEventListener('click', simularContinua);
+        simularContinua();
+        
+        // Módulo 5
+        const lambdaExp2 = document.getElementById('lambda-exp2');
+        const sExp = document.getElementById('s-exponencial');
+        const tExp = document.getElementById('t-exponencial');
+        const btnExp = document.getElementById('verificar-exp');
+        if(lambdaExp2) lambdaExp2.addEventListener('input', verificarExponencial);
+        if(sExp) sExp.addEventListener('input', verificarExponencial);
+        if(tExp) tExp.addEventListener('input', verificarExponencial);
+        if(btnExp) btnExp.addEventListener('click', verificarExponencial);
+        verificarExponencial();
+        
+        // Módulo 6
+        const btnTriangular = document.getElementById('simular-triangular');
+        if(btnTriangular) btnTriangular.addEventListener('click', simularTriangular);
+        simularTriangular();
+        
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
+        });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
+</script>
+</body>
+</html>
