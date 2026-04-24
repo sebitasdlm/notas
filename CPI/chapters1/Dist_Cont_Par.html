@@ -1,1 +1,831 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Distribuciones Continuas Paramétricas - Capítulo 9</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Uniforme Continua y Exponencial                 -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Distribuciones Uniforme y Exponencial</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Uniforme(a,b):</strong> \(f(x)=\frac{1}{b-a}\), \(\mathbb{E}[X]=\frac{a+b}{2}\), \(\operatorname{var}(X)=\frac{(b-a)^2}{12}\)
+                <br>
+                <strong>Exponencial(λ):</strong> \(f(t)=\lambda e^{-\lambda t}\), \(\mathbb{E}[T]=\frac{1}{\lambda}\), \(\operatorname{var}(T)=\frac{1}{\lambda^2}\)
+                <br>
+                <strong>Pérdida de memoria:</strong> \(\mathbb{P}(T > t+s | T > s) = \mathbb{P}(T > t)\)
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador y verificador de pérdida de memoria</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-ue">
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="exponencial">Exponencial(λ=1)</option>
+                    </select>
+                    <div id="param-ue"></div>
+                    <label>s:</label>
+                    <input type="range" id="s-ue" min="0" max="3" step="0.1" value="1">
+                    <span id="s-ue-val">1.0</span>
+                    <label>t:</label>
+                    <input type="range" id="t-ue" min="0" max="3" step="0.1" value="1">
+                    <span id="t-ue-val">1.0</span>
+                    <button id="simular-ue">Simular</button>
+                </div>
+                <canvas id="ueCanvas" width="500" height="200"></canvas>
+                <div id="ue-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (autos a exceso de velocidad):</strong>
+                <br>
+                λ=8.4 autos/hora = 0.14 autos/min.
+                \[
+                \mathbb{P}(T > 10) = e^{-0.14·10}=0.2466
+                \]
+                \[
+                \mathbb{P}(T > 10|T > 5) = e^{-0.14·5}=0.4965
+                \]
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Distribución Gamma                              -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Distribución Gamma</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Gamma(α, λ):</strong> \(f(y)=\frac{\lambda^\alpha}{\Gamma(\alpha)} y^{\alpha-1} e^{-\lambda y}\), \(y>0\)
+                <br>
+                \(\mathbb{E}[Y]=\frac{\alpha}{\lambda}=\alpha\beta\), \(\operatorname{var}(Y)=\frac{\alpha}{\lambda^2}=\alpha\beta^2\)
+                <br>
+                <strong>Casos especiales:</strong> α=1 → Exponencial; α=n/2, β=2 → χ²ₙ
+            </div>
+
+            <div class="simulador">
+                <h4>Explorador de Gamma</h4>
+                <div class="controles">
+                    <label>α (forma):</label>
+                    <input type="range" id="alpha-gamma" min="0.5" max="5" step="0.1" value="2">
+                    <span id="alpha-gamma-val">2.0</span>
+                    <label>λ (tasa):</label>
+                    <input type="range" id="lambda-gamma" min="0.5" max="3" step="0.1" value="1">
+                    <span id="lambda-gamma-val">1.0</span>
+                    <button id="simular-gamma">Simular 5000 muestras</button>
+                </div>
+                <canvas id="gammaCanvas" width="500" height="250"></canvas>
+                <div id="gamma-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Función Gamma:</strong> \(\Gamma(x)=\int_0^\infty u^{x-1}e^{-u}du\)
+                <br>
+                Propiedades: \(\Gamma(x+1)=x\Gamma(x)\), \(\Gamma(1)=1\), \(\Gamma(1/2)=\sqrt{\pi}\), \(\Gamma(n+1)=n!\)
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Distribución Normal                             -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Distribución Normal</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Normal(μ, σ²):</strong> \(f(x)=\frac{1}{\sqrt{2\pi}\sigma}e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}\)
+                <br>
+                \(\mathbb{E}[X]=\mu\), \(\operatorname{var}(X)=\sigma^2\)
+                <br>
+                <strong>Regla empírica:</strong> μ±σ → 68%, μ±2σ → 95%, μ±3σ → 99.7%
+            </div>
+
+            <div class="simulador">
+                <h4>Calculadora Normal y aproximación Binomial</h4>
+                <div class="controles">
+                    <label>μ:</label>
+                    <input type="range" id="mu-norm" min="-3" max="3" step="0.5" value="0">
+                    <span id="mu-norm-val">0</span>
+                    <label>σ:</label>
+                    <input type="range" id="sigma-norm" min="0.5" max="3" step="0.1" value="1">
+                    <span id="sigma-norm-val">1.0</span>
+                    <label>Modo:</label>
+                    <select id="modo-norm">
+                        <option value="pdf">Densidad</option>
+                        <option value="aprox">Aprox Binomial(n=30,p=0.2)</option>
+                    </select>
+                    <button id="graficar-norm">Graficar</button>
+                </div>
+                <canvas id="normCanvas" width="500" height="250"></canvas>
+                <div id="norm-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Estandarización:</strong> Si \(X\sim N(\mu,\sigma^2)\), entonces \(Z=\frac{X-\mu}{\sigma}\sim N(0,1)\)
+                <br>
+                <strong>Probabilidades notables:</strong>
+                \[
+                P(\mu-\sigma\le X\le\mu+\sigma)=0.6827,\quad P(\mu-2\sigma\le X\le\mu+2\sigma)=0.9545,\quad P(\mu-3\sigma\le X\le\mu+3\sigma)=0.9973
+                \]
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Distribuciones Cauchy y Beta                    -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Distribuciones Cauchy y Beta</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Cauchy(α,β):</strong> \(f(x)=\frac{1}{\pi\beta[1+((x-\alpha)/\beta)^2]}\) — ¡No tiene momentos!
+                <br>
+                <strong>Beta(α₁,α₂):</strong> \(f(x)=\frac{1}{B(\alpha_1,\alpha_2)}x^{\alpha_1-1}(1-x)^{\alpha_2-1}\), \(0\le x\le1\)
+            </div>
+
+            <div class="simulador">
+                <h4>Explorador de Cauchy y Beta</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-cb">
+                        <option value="cauchy">Cauchy(0,1)</option>
+                        <option value="beta">Beta(α₁,α₂)</option>
+                    </select>
+                    <div id="param-cb"></div>
+                    <button id="graficar-cb">Graficar</button>
+                </div>
+                <canvas id="cbCanvas" width="500" height="250"></canvas>
+                <div id="cb-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Beta Uniforme:</strong> Si α₁=α₂=1, Beta(1,1) = Uniforme(0,1)
+                <br>
+                <strong>Media Beta:</strong> \(\mathbb{E}[X]=\frac{\alpha_1}{\alpha_1+\alpha_2}\)
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Weibull, Lognormal, Laplace y Pareto            -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Weibull, Lognormal, Laplace y Pareto</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Weibull(α,β):</strong> \(f(w)=\frac{\alpha}{\beta}\left(\frac{w}{\beta}\right)^{\alpha-1}e^{-(w/\beta)^\alpha}\), α>1 tasa creciente
+                <br>
+                <strong>Lognormal(μ,σ):</strong> \(f(y)=\frac{1}{y\sqrt{2\pi}\sigma}e^{-(\ln y-\mu)^2/(2\sigma^2)}\), ¡todos los momentos pero sin FGM!
+                <br>
+                <strong>Laplace(μ,β):</strong> \(f(x)=\frac{1}{2\beta}e^{-|x-\mu|/\beta}\) (doble exponencial)
+                <br>
+                <strong>Pareto(α,β):</strong> \(f(w)=\alpha\beta^\alpha w^{-(\alpha-1)}\), α>1 para media finita
+            </div>
+
+            <div class="simulador">
+                <h4>Explorador de distribuciones</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-extra">
+                        <option value="weibull">Weibull(α,β)</option>
+                        <option value="lognormal">Lognormal(μ,σ)</option>
+                        <option value="laplace">Laplace(μ,β)</option>
+                        <option value="pareto">Pareto(α,β)</option>
+                    </select>
+                    <div id="param-extra"></div>
+                    <button id="simular-extra">Simular 5000 muestras</button>
+                </div>
+                <canvas id="extraCanvas" width="500" height="250"></canvas>
+                <div id="extra-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué distribución NO tiene función generadora de momentos?</strong>
+                <button onclick="mostrarRespuesta('respuesta-fgm')">Ver respuesta</button>
+                <div id="respuesta-fgm" class="respuesta">
+                    La <strong>Lognormal</strong> y la <strong>Cauchy</strong> no tienen FGM. La Lognormal tiene todos los momentos finitos pero la integral \(\int e^{tx}f(x)dx\) diverge. La Cauchy ni siquiera tiene media.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // ============================================================
+    // FUNCIONES GLOBALES
+    // ============================================================
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        if(content) content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        if(elem) elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // FUNCIONES AUXILIARES
+    // ============================================================
+    function gamma(z) {
+        if(z < 0.5) return Math.PI / (Math.sin(Math.PI * z) * gamma(1 - z));
+        z -= 1;
+        let x = 0.99999999999980993 + 676.5203681218851/(z+1) - 1259.1392167224028/(z+2) + 771.3234287776531/(z+3) - 176.6150291621406/(z+4) + 12.507343278686905/(z+5) - 0.13857109526572012/(z+6) + 9.9843695780195716e-6/(z+7) + 1.5056327351493116e-7/(z+8);
+        let y = z + 7.5;
+        return Math.sqrt(2*Math.PI) * Math.pow(y, z+0.5) * Math.exp(-y) * x;
+    }
+
+    // ============================================================
+    // MODULO 1: Uniforme y Exponencial
+    // ============================================================
+    function simularUE() {
+        const dist = document.getElementById('dist-ue').value;
+        const s = parseFloat(document.getElementById('s-ue').value);
+        const t = parseFloat(document.getElementById('t-ue').value);
+        document.getElementById('s-ue-val').textContent = s.toFixed(1);
+        document.getElementById('t-ue-val').textContent = t.toFixed(1);
+        
+        if(dist === 'uniforme') {
+            document.getElementById('param-ue').innerHTML = '';
+            const pCond = Math.max(0, (1 - (s+t)) / (1 - s));
+            const pBase = 1 - t;
+            document.getElementById('ue-info').innerHTML = 
+                `Uniforme(0,1): NO tiene pérdida de memoria<br>
+                \(\\mathbb{P}(X > ${s+t} | X > ${s}) = ${pCond.toFixed(4)}\)<br>
+                \(\\mathbb{P}(X > ${t}) = ${pBase.toFixed(4)}\)<br>
+                ${Math.abs(pCond - pBase) > 0.1 ? '✗ No se cumple la pérdida de memoria' : ''}`;
+        } else {
+            document.getElementById('param-ue').innerHTML = '<label>λ:</label><input type="range" id="lambda-exp-ue" min="0.2" max="3" step="0.1" value="1"><span id="lambda-exp-ue-val">1.0</span>';
+            const lambda = parseFloat(document.getElementById('lambda-exp-ue')?.value || 1);
+            document.getElementById('lambda-exp-ue-val').textContent = lambda.toFixed(1);
+            const pCond = Math.exp(-lambda * t);
+            const pBase = Math.exp(-lambda * t);
+            document.getElementById('ue-info').innerHTML = 
+                `Exponencial(λ=${lambda.toFixed(1)}): ¡Tiene pérdida de memoria!<br>
+                \(\\mathbb{P}(T > ${s+t} | T > ${s}) = e^{-${lambda.toFixed(1)}·${t.toFixed(1)}} = ${pCond.toFixed(4)}\)<br>
+                \(\\mathbb{P}(T > ${t}) = e^{-${lambda.toFixed(1)}·${t.toFixed(1)}} = ${pBase.toFixed(4)}\)<br>
+                ✓ Se cumple la pérdida de memoria`;
+        }
+        
+        const canvas = document.getElementById('ueCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            if(dist === 'exponencial') {
+                const lambda = parseFloat(document.getElementById('lambda-exp-ue')?.value || 1);
+                ctx.beginPath();
+                for(let i=0; i<w; i++) {
+                    const x = (i/w) * 5;
+                    const dens = lambda * Math.exp(-lambda * x);
+                    const y = h - dens * h * 0.8;
+                    if(i===0) ctx.moveTo(i, y);
+                    else ctx.lineTo(i, y);
+                }
+                ctx.strokeStyle = '#1976d2';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            } else {
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(0, 0, w, h*0.8);
+            }
+        }
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 2: Gamma
+    // ============================================================
+    function simularGamma() {
+        const alpha = parseFloat(document.getElementById('alpha-gamma').value);
+        const lambda = parseFloat(document.getElementById('lambda-gamma').value);
+        document.getElementById('alpha-gamma-val').textContent = alpha.toFixed(1);
+        document.getElementById('lambda-gamma-val').textContent = lambda.toFixed(1);
+        
+        const nSim = 5000;
+        const muestras = [];
+        for(let i=0; i<nSim; i++) {
+            // Método de transformación para Gamma (aproximación)
+            let g = 1;
+            for(let j=0; j<alpha; j++) g *= Math.pow(-Math.log(Math.random()), 1/alpha);
+            muestras.push(g / lambda);
+        }
+        
+        const canvas = document.getElementById('gammaCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const max = Math.max(...muestras);
+            const bins = new Array(30).fill(0);
+            for(let v of muestras) {
+                const idx = Math.min(29, Math.floor(v/max * 30));
+                bins[idx]++;
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-1, barHeight);
+            }
+        }
+        
+        const media = muestras.reduce((a,b)=>a+b,0)/nSim;
+        const mediaTeor = alpha/lambda;
+        document.getElementById('gamma-info').innerHTML = 
+            `Gamma(α=${alpha.toFixed(1)}, λ=${lambda.toFixed(1)})<br>
+            Media muestral: ${media.toFixed(4)} | Media teórica: ${mediaTeor.toFixed(4)}<br>
+            \(\\mathbb{E}[Y]=α/λ\), \(\\operatorname{var}(Y)=α/λ²=${(alpha/(lambda*lambda)).toFixed(4)}\)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 3: Normal
+    // ============================================================
+    function graficarNormal() {
+        const mu = parseFloat(document.getElementById('mu-norm').value);
+        const sigma = parseFloat(document.getElementById('sigma-norm').value);
+        const modo = document.getElementById('modo-norm').value;
+        document.getElementById('mu-norm-val').textContent = mu;
+        document.getElementById('sigma-norm-val').textContent = sigma.toFixed(1);
+        
+        const canvas = document.getElementById('normCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            if(modo === 'pdf') {
+                ctx.beginPath();
+                for(let i=0; i<w; i++) {
+                    const x = mu - 4*sigma + (i/w) * 8*sigma;
+                    const dens = Math.exp(-Math.pow((x-mu)/sigma,2)/2) / (sigma * Math.sqrt(2*Math.PI));
+                    const y = h - dens * h * 1.5;
+                    if(i===0) ctx.moveTo(i, y);
+                    else ctx.lineTo(i, y);
+                }
+                ctx.strokeStyle = '#1976d2';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                document.getElementById('norm-info').innerHTML = 
+                    `\(X \\sim N(${mu}, ${sigma.toFixed(1)}²)\)<br>
+                    \(P(\\mu-\\sigma \\le X \\le \\mu+\\sigma) = 0.6827\)<br>
+                    \(P(\\mu-2\\sigma \\le X \\le \\mu+2\\sigma) = 0.9545\)<br>
+                    \(P(\\mu-3\\sigma \\le X \\le \\mu+3\\sigma) = 0.9973\)`;
+            } else {
+                // Aproximación Binomial a Normal
+                const n = 30, p = 0.2;
+                const muBin = n*p, sigmaBin = Math.sqrt(n*p*(1-p));
+                ctx.beginPath();
+                for(let i=0; i<w; i++) {
+                    const x = (i/w) * 12;
+                    const dens = Math.exp(-Math.pow((x-muBin)/sigmaBin,2)/2) / (sigmaBin * Math.sqrt(2*Math.PI));
+                    const y = h - dens * h * 1.5;
+                    if(i===0) ctx.moveTo(i, y);
+                    else ctx.lineTo(i, y);
+                }
+                ctx.strokeStyle = '#1976d2';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                document.getElementById('norm-info').innerHTML = 
+                    `Aproximación Normal a Binomial(n=30, p=0.2)<br>
+                    Bin(30,0.2) ≈ N(μ=np=6, σ²=np(1-p)=4.8)<br>
+                    La curva muestra la densidad normal de aproximación.`;
+            }
+        }
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 4: Cauchy y Beta
+    // ============================================================
+    function graficarCB() {
+        const dist = document.getElementById('dist-cb').value;
+        const canvas = document.getElementById('cbCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const isDark = document.body.classList.contains('dark-theme');
+        ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+        ctx.fillRect(0, 0, w, h);
+        
+        if(dist === 'cauchy') {
+            document.getElementById('param-cb').innerHTML = '';
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const x = -5 + (i/w)*10;
+                const dens = 1 / (Math.PI * (1 + x*x));
+                const y = h - dens * h * 1.5;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            document.getElementById('cb-info').innerHTML = 
+                `Cauchy(0,1): \(f(x)=\\frac{1}{\\pi(1+x^2)}\)<br>
+                ⚠ ¡No tiene media ni varianza! La integral diverge.`;
+        } else {
+            document.getElementById('param-cb').innerHTML = 
+                '<label>α₁:</label><input type="range" id="beta1" min="0.5" max="5" step="0.5" value="2"><span id="beta1-val">2.0</span><label>α₂:</label><input type="range" id="beta2" min="0.5" max="5" step="0.5" value="2"><span id="beta2-val">2.0</span>';
+            const a1 = parseFloat(document.getElementById('beta1')?.value || 2);
+            const a2 = parseFloat(document.getElementById('beta2')?.value || 2);
+            document.getElementById('beta1-val').textContent = a1.toFixed(1);
+            document.getElementById('beta2-val').textContent = a2.toFixed(1);
+            
+            ctx.beginPath();
+            const betaFunc = gamma(a1)*gamma(a2)/gamma(a1+a2);
+            for(let i=0; i<w; i++) {
+                const x = (i/w);
+                const dens = Math.pow(x, a1-1) * Math.pow(1-x, a2-1) / betaFunc;
+                const y = h - dens * h;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            const media = a1/(a1+a2);
+            document.getElementById('cb-info').innerHTML = 
+                `Beta(α₁=${a1.toFixed(1)}, α₂=${a2.toFixed(1)})<br>
+                \(\\mathbb{E}[X]=${media.toFixed(4)}\), \(\\operatorname{var}(X)=${(a1*a2/((a1+a2)*(a1+a2)*(a1+a2+1))).toFixed(4)}\)<br>
+                Caso especial: α₁=α₂=1 → Uniforme(0,1)`;
+        }
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 5: Weibull, Lognormal, Laplace, Pareto
+    // ============================================================
+    function simularExtra() {
+        const dist = document.getElementById('dist-extra').value;
+        const nSim = 5000;
+        let muestras = [];
+        let mediaTeor = 0;
+        
+        if(dist === 'weibull') {
+            const alpha = parseFloat(document.getElementById('alpha-weibull')?.value || 2);
+            const beta = parseFloat(document.getElementById('beta-weibull')?.value || 1);
+            for(let i=0; i<nSim; i++) {
+                const u = Math.random();
+                muestras.push(beta * Math.pow(-Math.log(1-u), 1/alpha));
+            }
+            mediaTeor = beta * gamma(1 + 1/alpha);
+        } else if(dist === 'lognormal') {
+            const mu = parseFloat(document.getElementById('mu-ln')?.value || 0);
+            const sigma = parseFloat(document.getElementById('sigma-ln')?.value || 1);
+            for(let i=0; i<nSim; i++) {
+                const z = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                muestras.push(Math.exp(mu + sigma*z));
+            }
+            mediaTeor = Math.exp(mu + sigma*sigma/2);
+        } else if(dist === 'laplace') {
+            const mu = parseFloat(document.getElementById('mu-lap')?.value || 0);
+            const beta = parseFloat(document.getElementById('beta-lap')?.value || 1);
+            for(let i=0; i<nSim; i++) {
+                const u = Math.random();
+                const x = mu - beta * Math.log(1 - 2*(u-0.5));
+                muestras.push(x);
+            }
+            mediaTeor = mu;
+        } else {
+            const alpha = parseFloat(document.getElementById('alpha-pareto')?.value || 2);
+            const beta = parseFloat(document.getElementById('beta-pareto')?.value || 1);
+            for(let i=0; i<nSim; i++) {
+                const u = Math.random();
+                muestras.push(beta / Math.pow(1-u, 1/alpha));
+            }
+            mediaTeor = alpha > 1 ? alpha*beta/(alpha-1) : Infinity;
+        }
+        
+        const canvas = document.getElementById('extraCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const maxVal = Math.min(Math.max(...muestras), 10);
+            const bins = new Array(30).fill(0);
+            for(let v of muestras) {
+                if(v <= maxVal) {
+                    const idx = Math.min(29, Math.floor(v/maxVal * 30));
+                    bins[idx]++;
+                }
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-1, barHeight);
+            }
+        }
+        
+        const mediaMuestral = muestras.reduce((a,b)=>a+b,0)/nSim;
+        document.getElementById('extra-info').innerHTML = 
+            `${dist.charAt(0).toUpperCase()+dist.slice(1)}: Media muestral=${mediaMuestral.toFixed(4)} | Media teórica=${mediaTeor === Infinity ? '∞ (α≤1)' : mediaTeor.toFixed(4)}`;
+    }
+    
+    function actualizarParamExtra() {
+        const dist = document.getElementById('dist-extra').value;
+        const cont = document.getElementById('param-extra');
+        if(dist === 'weibull') {
+            cont.innerHTML = '<label>α (forma):</label><input type="range" id="alpha-weibull" min="0.5" max="3" step="0.1" value="2"><span id="alpha-weibull-val">2.0</span><label>β (escala):</label><input type="range" id="beta-weibull" min="0.5" max="3" step="0.1" value="1"><span id="beta-weibull-val">1.0</span>';
+            document.getElementById('alpha-weibull')?.addEventListener('input', () => document.getElementById('alpha-weibull-val').textContent = parseFloat(document.getElementById('alpha-weibull').value).toFixed(1));
+            document.getElementById('beta-weibull')?.addEventListener('input', () => document.getElementById('beta-weibull-val').textContent = parseFloat(document.getElementById('beta-weibull').value).toFixed(1));
+        } else if(dist === 'lognormal') {
+            cont.innerHTML = '<label>μ:</label><input type="range" id="mu-ln" min="-1" max="1" step="0.1" value="0"><span id="mu-ln-val">0.0</span><label>σ:</label><input type="range" id="sigma-ln" min="0.3" max="1.5" step="0.1" value="0.5"><span id="sigma-ln-val">0.5</span>';
+            document.getElementById('mu-ln')?.addEventListener('input', () => document.getElementById('mu-ln-val').textContent = parseFloat(document.getElementById('mu-ln').value).toFixed(1));
+            document.getElementById('sigma-ln')?.addEventListener('input', () => document.getElementById('sigma-ln-val').textContent = parseFloat(document.getElementById('sigma-ln').value).toFixed(1));
+        } else if(dist === 'laplace') {
+            cont.innerHTML = '<label>μ (localización):</label><input type="range" id="mu-lap" min="-2" max="2" step="0.5" value="0"><span id="mu-lap-val">0</span><label>β (escala):</label><input type="range" id="beta-lap" min="0.3" max="2" step="0.1" value="1"><span id="beta-lap-val">1.0</span>';
+            document.getElementById('mu-lap')?.addEventListener('input', () => document.getElementById('mu-lap-val').textContent = document.getElementById('mu-lap').value);
+            document.getElementById('beta-lap')?.addEventListener('input', () => document.getElementById('beta-lap-val').textContent = parseFloat(document.getElementById('beta-lap').value).toFixed(1));
+        } else {
+            cont.innerHTML = '<label>α (forma):</label><input type="range" id="alpha-pareto" min="1.1" max="5" step="0.1" value="2"><span id="alpha-pareto-val">2.0</span><label>β (escala):</label><input type="range" id="beta-pareto" min="0.5" max="3" step="0.1" value="1"><span id="beta-pareto-val">1.0</span>';
+            document.getElementById('alpha-pareto')?.addEventListener('input', () => document.getElementById('alpha-pareto-val').textContent = parseFloat(document.getElementById('alpha-pareto').value).toFixed(1));
+            document.getElementById('beta-pareto')?.addEventListener('input', () => document.getElementById('beta-pareto-val').textContent = parseFloat(document.getElementById('beta-pareto').value).toFixed(1));
+        }
+    }
+    
+    // ============================================================
+    // INICIALIZACIÓN
+    // ============================================================
+    window.inicializarModuloActual = function() {
+        // Módulo 1
+        document.getElementById('dist-ue')?.addEventListener('change', simularUE);
+        document.getElementById('s-ue')?.addEventListener('input', simularUE);
+        document.getElementById('t-ue')?.addEventListener('input', simularUE);
+        document.getElementById('simular-ue')?.addEventListener('click', simularUE);
+        simularUE();
+        
+        // Módulo 2
+        document.getElementById('alpha-gamma')?.addEventListener('input', simularGamma);
+        document.getElementById('lambda-gamma')?.addEventListener('input', simularGamma);
+        document.getElementById('simular-gamma')?.addEventListener('click', simularGamma);
+        simularGamma();
+        
+        // Módulo 3
+        document.getElementById('mu-norm')?.addEventListener('input', graficarNormal);
+        document.getElementById('sigma-norm')?.addEventListener('input', graficarNormal);
+        document.getElementById('modo-norm')?.addEventListener('change', graficarNormal);
+        document.getElementById('graficar-norm')?.addEventListener('click', graficarNormal);
+        graficarNormal();
+        
+        // Módulo 4
+        document.getElementById('dist-cb')?.addEventListener('change', graficarCB);
+        document.getElementById('graficar-cb')?.addEventListener('click', graficarCB);
+        graficarCB();
+        
+        // Módulo 5
+        document.getElementById('dist-extra')?.addEventListener('change', () => { actualizarParamExtra(); simularExtra(); });
+        document.getElementById('simular-extra')?.addEventListener('click', simularExtra);
+        actualizarParamExtra();
+        simularExtra();
+        
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
+        });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
+</script>
+</body>
+</html>
