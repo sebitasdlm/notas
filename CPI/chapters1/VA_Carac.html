@@ -1,1 +1,926 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Características de una Variable Aleatoria - Capítulo 5</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Cuantiles, Mediana y Moda                       -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Cuantiles, Mediana y Moda</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                El <strong>p-ésimo cuantil</strong> \(x_p\) es el valor que satisface:
+                \[
+                x_p = \min\{x \in \mathbb{R} : p \le F_X(x)\}
+                \]
+                <strong>Mediana</strong>: \(x_{0.5}\) (50% de la probabilidad a cada lado)
+                <strong>Moda</strong>: valor donde \(f_X(x)\) (o \(f_X(x_i)\)) es máximo
+            </div>
+
+            <div class="simulador">
+                <h4>Explorador de cuantiles</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-cuantil">
+                        <option value="normal">Normal(0,1)</option>
+                        <option value="exponencial">Exponencial(λ=1)</option>
+                        <option value="uniforme">Uniforme(0,1)</option>
+                    </select>
+                    <label>p (probabilidad acumulada):</label>
+                    <input type="range" id="p-cuantil" min="0.05" max="0.95" step="0.01" value="0.5">
+                    <span id="p-cuantil-val">0.50</span>
+                    <button id="calcular-cuantil">Calcular cuantil</button>
+                </div>
+                <div id="cuantil-resultado" class="formula-destacada"></div>
+                <canvas id="cuantilCanvas" width="500" height="200"></canvas>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Rango intercuartílico (IQR):</strong>
+                \[
+                \text{IQR} = q_3 - q_1, \quad \text{donde } q_1 = x_{0.25}, \; q_3 = x_{0.75}
+                \]
+                El IQR abarca el 50% central de la distribución y es una medida robusta de dispersión.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Cuándo coinciden la media y la mediana?</strong>
+                <button onclick="mostrarRespuesta('respuesta-cuantil')">Ver respuesta</button>
+                <div id="respuesta-cuantil" class="respuesta">
+                    En distribuciones <strong>simétricas</strong> (como la Normal o la Uniforme), la media y la mediana son iguales.
+                    En distribuciones con sesgo (como la Exponencial), la media es mayor que la mediana.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Valor Esperado (Media)                          -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Valor Esperado (Media)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                El <strong>valor esperado</strong> o <strong>media</strong> de una v.a. es:
+                \[
+                \mathbb{E}[X] = \begin{cases}
+                \sum_{x_i} x_i f_X(x_i) & \text{(discreto)} \\
+                \int_{-\infty}^{\infty} x f_X(x) dx & \text{(continuo)}
+                \end{cases}
+                \]
+                Interpretación: centro de masa de la distribución.
+            </div>
+
+            <div class="simulador">
+                <h4>Calculadora de valor esperado</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-media">
+                        <option value="binomial">Binomial(n=10, p=0.3)</option>
+                        <option value="poisson">Poisson(λ=3)</option>
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="exponencial">Exponencial(λ=2)</option>
+                        <option value="pareto">Pareto(α=2, θ=1)</option>
+                    </select>
+                    <button id="calcular-media">Calcular</button>
+                    <button id="simular-media">Simular 5000 muestras</button>
+                </div>
+                <div id="media-resultado" class="formula-destacada"></div>
+                <canvas id="mediaCanvas" width="500" height="200"></canvas>
+            </div>
+
+            <div class="demostracion">
+                <strong>Propiedades del valor esperado (linealidad):</strong>
+                <ul>
+                    <li>\(\mathbb{E}[a + bX] = a + b\mathbb{E}[X]\)</li>
+                    <li>\(\mathbb{E}[X + Y] = \mathbb{E}[X] + \mathbb{E}[Y]\)</li>
+                    <li>Si \(P(X = c) = 1\), entonces \(\mathbb{E}[X] = c\)</li>
+                    <li>\(|\mathbb{E}[X]| \le \mathbb{E}[|X|]\)</li>
+                </ul>
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Puede una v.a. no tener valor esperado?</strong>
+                <button onclick="mostrarRespuesta('respuesta-media')">Ver respuesta</button>
+                <div id="respuesta-media" class="respuesta">
+                    ¡Sí! La distribución Cauchy es el ejemplo clásico. Su densidad es \(f(x) = 1/[\pi(1+x^2)]\) y la integral \(\int |x|f(x)dx\) diverge. ¡No tiene media!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: TEI (LOTUS) - Esperanza de funciones           -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. TEI (LOTUS) - Esperanza de funciones</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                El <strong>Teorema del Estadístico Inconsciente (TEI)</strong> o LOTUS permite calcular
+                \(\mathbb{E}[g(X)]\) sin conocer la distribución de \(g(X)\):
+                \[
+                \mathbb{E}[g(X)] = \begin{cases}
+                \sum_{x_i} g(x_i) f_X(x_i) & \text{(discreto)} \\
+                \int_{-\infty}^{\infty} g(x) f_X(x) dx & \text{(continuo)}
+                \end{cases}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación: \(\mathbb{E}[X^2]\) vs \(\mathbb{E}[X]^2\)</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-tei">
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="normal">Normal(0,1)</option>
+                        <option value="exponencial">Exponencial(λ=1)</option>
+                        <option value="binomial">Binomial(n=10, p=0.5)</option>
+                    </select>
+                    <button id="calcular-tei">Calcular</button>
+                </div>
+                <div id="tei-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo (Uniforme en [0,1]):</strong>
+                \[
+                \mathbb{E}[U] = \frac{1}{2}, \quad \mathbb{E}[U^2] = \frac{1}{3}, \quad \mathbb{E}[U^3] = \frac{1}{4}
+                \]
+                Por TEI: \(\mathbb{E}[U^2] = \int_0^1 u^2 \cdot 1 du = \frac{1}{3}\)
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Varianza, Desviación Estándar y CV              -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Varianza, Desviación Estándar y Coeficiente de Variación</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Varianza:</strong> \(\operatorname{var}(X) = \mathbb{E}[(X - \mu)^2] = \mathbb{E}[X^2] - \mu^2\)
+                <br>
+                <strong>Desviación estándar:</strong> \(\sigma_X = \sqrt{\operatorname{var}(X)}\)
+                <br>
+                <strong>Coeficiente de variación:</strong> \(\text{cv}(X) = \frac{\sigma_X}{|\mu_X|}\) (medida relativa de dispersión)
+            </div>
+
+            <div class="simulador">
+                <h4>Comparación de dispersión</h4>
+                <div class="controles">
+                    <label>Distribución 1:</label>
+                    <select id="dist-cv1">
+                        <option value="normal1">Normal(μ=10, σ=1)</option>
+                        <option value="normal2">Normal(μ=10, σ=3)</option>
+                        <option value="exponencial1">Exponencial(λ=0.5)</option>
+                    </select>
+                    <label>Distribución 2:</label>
+                    <select id="dist-cv2">
+                        <option value="normal1">Normal(μ=10, σ=1)</option>
+                        <option value="normal2">Normal(μ=10, σ=3)</option>
+                        <option value="exponencial2">Exponencial(λ=0.2)</option>
+                    </select>
+                    <button id="comparar-cv">Comparar</button>
+                </div>
+                <div id="cv-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedades de la varianza:</strong>
+                <ul>
+                    <li>\(\operatorname{var}(a + bX) = b^2 \operatorname{var}(X)\)</li>
+                    <li>\(\operatorname{var}(X) \ge 0\) y \(\operatorname{var}(X) = 0\) si y solo si \(P(X = c) = 1\)</li>
+                    <li>Si \(X\) e \(Y\) son independientes: \(\operatorname{var}(X+Y) = \operatorname{var}(X) + \operatorname{var}(Y)\)</li>
+                </ul>
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué se usa el coeficiente de variación?</strong>
+                <button onclick="mostrarRespuesta('respuesta-cv')">Ver respuesta</button>
+                <div id="respuesta-cv" class="respuesta">
+                    El CV es adimensional, lo que permite comparar la dispersión de variables con diferentes unidades.
+                    Por ejemplo, comparar la variabilidad del peso (kg) y la altura (cm).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Asimetría (Sesgo) y Curtosis                    -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Asimetría (Sesgo) y Curtosis</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Coeficiente de asimetría (Fisher-Pearson):</strong>
+                \[
+                \eta_3 = \mathbb{E}\left[\left(\frac{X - \mu}{\sigma}\right)^3\right]
+                \]
+                \(\eta_3 = 0\) (simétrica), \(\eta_3 > 0\) (cola derecha más larga), \(\eta_3 < 0\) (cola izquierda más larga)
+                <br>
+                <strong>Coeficiente de curtosis:</strong> \(\eta_4 = \mathbb{E}\left[\left(\frac{X - \mu}{\sigma}\right)^4\right]\)
+                <br>
+                Exceso de curtosis: \(\varepsilon = \eta_4 - 3\). Normal tiene \(\varepsilon = 0\)
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización de formas de densidad</h4>
+                <div class="controles">
+                    <label>Tipo de distribución:</label>
+                    <select id="tipo-forma">
+                        <option value="simetrica">Simétrica (Normal)</option>
+                        <option value="sesgo-derecha">Sesgo a la derecha (Gamma α=2)</option>
+                        <option value="sesgo-izquierda">Sesgo a la izquierda (Beta invertida)</option>
+                        <option value="leptocurtica">Leptocúrtica (t-Student gl=3)</option>
+                        <option value="platicurtica">Platicúrtica (Uniforme)</option>
+                    </select>
+                    <button id="graficar-forma">Graficar</button>
+                </div>
+                <canvas id="formaCanvas" width="500" height="250"></canvas>
+                <div id="forma-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Distribuciones de referencia:</strong>
+                <ul>
+                    <li>Normal(0,1): \(\eta_3 = 0\), \(\eta_4 = 3\)</li>
+                    <li>Exponencial(1): \(\eta_3 = 2\), \(\eta_4 = 9\) (sesgo positivo, leptocúrtica)</li>
+                    <li>Uniforme(-√3, √3): \(\eta_3 = 0\), \(\eta_4 = 1.8\) (platicúrtica)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 6: Esperanza Condicional (dado un evento)         -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>6. Esperanza Condicional (dado un evento)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>esperanza condicional</strong> dado un evento \(B\) (con \(\mathbb{P}(B) > 0\)) es:
+                \[
+                \mathbb{E}[X|B] = \frac{1}{\mathbb{P}(B)} \int_B x f_X(x) dx \quad (\text{continuo})
+                \]
+                \[
+                \mathbb{E}[X|B] = \frac{1}{\mathbb{P}(B)} \sum_{x_i \in B} x_i f_X(x_i) \quad (\text{discreto})
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Ejemplo: Números primos en una rifa</h4>
+                <div class="controles">
+                    <label>Evento B:</label>
+                    <select id="evento-condicional">
+                        <option value="primo">Número primo</option>
+                        <option value="par">Número par</option>
+                        <option value="mayor15">Número > 15</option>
+                    </select>
+                    <button id="calcular-condicional-media">Calcular esperanza condicional</button>
+                </div>
+                <div id="condicional-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Ejemplo del PDF (teléfono celular):</strong>
+                <br>
+                Tiempo de vida exponencial con media 4 años (λ=0.25). Garantía de 6 meses.
+                \[
+                \mathbb{E}[T|T \le 0.5] = \frac{\int_0^{0.5} t \cdot 0.25 e^{-0.25t} dt}{1 - e^{-0.125}} \approx 0.245 \text{ años} \approx 2.93 \text{ meses}
+                \]
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué la esperanza condicional es diferente de la esperanza incondicional?</strong>
+                <button onclick="mostrarRespuesta('respuesta-condicional')">Ver respuesta</button>
+                <div id="respuesta-condicional" class="respuesta">
+                    La información adicional (saber que el evento B ocurrió) cambia la distribución de probabilidad,
+                    ya que solo consideramos los resultados en B. Esto se refleja en la fórmula \(f(x|B) = f(x)/P(B)\) para \(x \in B\).
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // ============================================================
+    // FUNCIONES GLOBALES
+    // ============================================================
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        if(content) content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        if(elem) elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: Cuantiles
+    // ============================================================
+    function calcularCuantil() {
+        const dist = document.getElementById('dist-cuantil').value;
+        const p = parseFloat(document.getElementById('p-cuantil').value);
+        document.getElementById('p-cuantil-val').textContent = p.toFixed(2);
+        
+        let cuantil = 0;
+        let media = 0, varianza = 0;
+        
+        if(dist === 'normal') {
+            // Aproximación de la inversa normal
+            cuantil = approxNormalInv(p);
+            media = 0;
+            varianza = 1;
+        } else if(dist === 'exponencial') {
+            cuantil = -Math.log(1-p);
+            media = 1;
+            varianza = 1;
+        } else {
+            cuantil = p;
+            media = 0.5;
+            varianza = 1/12;
+        }
+        
+        const canvas = document.getElementById('cuantilCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            // Dibujar área acumulada
+            let xMin = -3, xMax = 3;
+            if(dist === 'exponencial') { xMin = 0; xMax = 5; }
+            else if(dist === 'uniforme') { xMin = 0; xMax = 1; }
+            
+            const xCuantilPx = (cuantil - xMin) / (xMax - xMin) * w;
+            ctx.fillStyle = 'rgba(76,175,80,0.4)';
+            ctx.fillRect(0, 0, xCuantilPx, h);
+            ctx.strokeStyle = '#f44336';
+            ctx.beginPath();
+            ctx.moveTo(xCuantilPx, 0);
+            ctx.lineTo(xCuantilPx, h);
+            ctx.stroke();
+        }
+        
+        document.getElementById('cuantil-resultado').innerHTML = 
+            `Distribución: ${dist}<br>
+            \(x_{${p.toFixed(2)}} = ${cuantil.toFixed(4)}\)<br>
+            Mediana (p=0.5): ${dist === 'exponencial' ? (Math.log(2)).toFixed(4) : (dist === 'normal' ? '0' : '0.5')}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    function approxNormalInv(p) {
+        // Aproximación de la inversa de la normal estándar
+        const a = [-39.6968302866538, 220.946098424521, -275.928510446969, 138.357751867269, -30.6647980661472, 2.50662827745924];
+        const b = [-54.4760987982241, 161.585836858041, -155.698979859887, 66.8013118877197, -13.2806815528857, 1];
+        const c = [-0.00778489400243029, -0.322396458041136, -2.40075827716184, -2.54973253934373, 4.37466414146497, 2.93816398269878];
+        const d = [0.00778469570904146, 0.32246712907004, 2.445134137143, 3.75440866190742, 1];
+        
+        let q = p - 0.5;
+        let r;
+        if(Math.abs(q) <= 0.425) {
+            r = 0.180625 - q * q;
+            return q * (((((a[5]*r + a[4])*r + a[3])*r + a[2])*r + a[1])*r + a[0]) / (((((b[5]*r + b[4])*r + b[3])*r + b[2])*r + b[1])*r + b[0]);
+        } else {
+            if(p < 0.5) r = p;
+            else r = 1 - p;
+            r = Math.sqrt(-Math.log(r));
+            const inv = (((((c[4]*r + c[3])*r + c[2])*r + c[1])*r + c[0]) / ((((d[3]*r + d[2])*r + d[1])*r + d[0])));
+            return (p < 0.5) ? -inv : inv;
+        }
+    }
+    
+    // ============================================================
+    // MODULO 2: Media
+    // ============================================================
+    function calcularMedia() {
+        const dist = document.getElementById('dist-media').value;
+        let media = 0, varianza = 0;
+        
+        if(dist === 'binomial') {
+            media = 10 * 0.3;
+            varianza = 10 * 0.3 * 0.7;
+        } else if(dist === 'poisson') {
+            media = 3;
+            varianza = 3;
+        } else if(dist === 'uniforme') {
+            media = 0.5;
+            varianza = 1/12;
+        } else if(dist === 'exponencial') {
+            media = 0.5;
+            varianza = 0.25;
+        } else {
+            media = 2;
+            varianza = (2/(2-1))*(2/(2-1)) - (2/(2-2))? 
+            media = 2;
+            varianza = (2/(2-1))*(2/(2-1)) - (2/(2-2))? 
+            media = 2;
+            varianza = (2/(2-1))* (2/(2-1))? 
+            media = 2;
+            varianza = Infinity;
+        }
+        
+        document.getElementById('media-resultado').innerHTML = 
+            `\(\\mathbb{E}[X] = ${media.toFixed(4)}\)<br>
+            \(\\operatorname{var}(X) = ${varianza.toFixed(4)}\)<br>
+            \(\\sigma_X = ${Math.sqrt(varianza).toFixed(4)}\)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    function simularMedia() {
+        const dist = document.getElementById('dist-media').value;
+        const nSim = 5000;
+        let muestras = [];
+        
+        if(dist === 'binomial') {
+            for(let i=0; i<nSim; i++) {
+                let x=0; for(let j=0; j<10; j++) if(Math.random()<0.3) x++;
+                muestras.push(x);
+            }
+        } else if(dist === 'poisson') {
+            for(let i=0; i<nSim; i++) {
+                let k=0, p=Math.exp(-3), u=Math.random();
+                while(u > p) { k++; p += Math.exp(-3)*Math.pow(3,k)/fact(k); }
+                muestras.push(k);
+            }
+        } else if(dist === 'uniforme') {
+            for(let i=0; i<nSim; i++) muestras.push(Math.random());
+        } else if(dist === 'exponencial') {
+            for(let i=0; i<nSim; i++) muestras.push(-Math.log(Math.random())/2);
+        } else {
+            for(let i=0; i<nSim; i++) {
+                const u = Math.random();
+                muestras.push(1 / Math.pow(1-u, 1/2));
+            }
+        }
+        
+        const mediaSim = muestras.reduce((a,b)=>a+b,0)/nSim;
+        
+        const canvas = document.getElementById('mediaCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const min = Math.min(...muestras);
+            const max = Math.max(...muestras);
+            const bins = new Array(30).fill(0);
+            for(let v of muestras) {
+                const idx = Math.min(29, Math.floor((v-min)/(max-min)*30));
+                bins[idx]++;
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin)*h*0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-1, barHeight);
+            }
+        }
+        
+        document.getElementById('media-resultado').innerHTML = 
+            `Media muestral (${nSim} simulaciones): ${mediaSim.toFixed(4)}<br>
+            (Teórica calculada arriba)`;
+    }
+    
+    function fact(n) { let r=1; for(let i=2;i<=n;i++) r*=i; return r; }
+    
+    // ============================================================
+    // MODULO 3: TEI
+    // ============================================================
+    function calcularTEI() {
+        const dist = document.getElementById('dist-tei').value;
+        let eX = 0, eX2 = 0, eX3 = 0;
+        
+        if(dist === 'uniforme') {
+            eX = 0.5;
+            eX2 = 1/3;
+            eX3 = 1/4;
+        } else if(dist === 'normal') {
+            eX = 0;
+            eX2 = 1;
+            eX3 = 0;
+        } else if(dist === 'exponencial') {
+            eX = 1;
+            eX2 = 2;
+            eX3 = 6;
+        } else {
+            eX = 5;
+            eX2 = 10*0.5*0.5 + 25;
+            eX = 5;
+            eX2 = 10*0.5*0.5 + 25;
+            eX = 5;
+            eX2 = 10*0.5*0.5 + 25;
+            eX = 5;
+            eX2 = 10*0.5*0.5 + 25;
+        }
+        
+        document.getElementById('tei-resultado').innerHTML = 
+            `\(\mathbb{E}[X] = ${eX.toFixed(4)}\)<br>
+            \(\mathbb{E}[X^2] = ${eX2.toFixed(4)}\)<br>
+            \(\mathbb{E}[X^3] = ${eX3.toFixed(4)}\)<br>
+            \(\operatorname{var}(X) = \mathbb{E}[X^2] - \mathbb{E}[X]^2 = ${(eX2 - eX*eX).toFixed(4)}\)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 4: CV
+    // ============================================================
+    function compararCV() {
+        const dist1 = document.getElementById('dist-cv1').value;
+        const dist2 = document.getElementById('dist-cv2').value;
+        
+        let media1=0, sigma1=0, cv1=0;
+        let media2=0, sigma2=0, cv2=0;
+        
+        if(dist1 === 'normal1') { media1=10; sigma1=1; cv1=0.1; }
+        else if(dist1 === 'normal2') { media1=10; sigma1=3; cv1=0.3; }
+        else { media1=2; sigma1=2; cv1=1; }
+        
+        if(dist2 === 'normal1') { media2=10; sigma2=1; cv2=0.1; }
+        else if(dist2 === 'normal2') { media2=10; sigma2=3; cv2=0.3; }
+        else { media2=5; sigma2=5; cv2=1; }
+        
+        document.getElementById('cv-resultado').innerHTML = 
+            `Distribución 1: μ=${media1}, σ=${sigma1}, CV=${cv1.toFixed(4)}<br>
+            Distribución 2: μ=${media2}, σ=${sigma2}, CV=${cv2.toFixed(4)}<br>
+            ${cv1 < cv2 ? 'Distribución 1 es menos dispersa (relativamente)' : 'Distribución 2 es menos dispersa (relativamente)'}`;
+    }
+    
+    // ============================================================
+    // MODULO 5: Forma
+    // ============================================================
+    function graficarForma() {
+        const tipo = document.getElementById('tipo-forma').value;
+        const canvas = document.getElementById('formaCanvas');
+        if(!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const isDark = document.body.classList.contains('dark-theme');
+        ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+        ctx.fillRect(0, 0, w, h);
+        
+        ctx.beginPath();
+        let info = '';
+        
+        if(tipo === 'simetrica') {
+            for(let i=0; i<w; i++) {
+                const x = -3 + (i/w)*6;
+                const dens = Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);
+                const y = h - dens * h * 1.2;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            info = 'Normal(0,1): Simétrica, η₃=0, η₄=3 (mesocúrtica)';
+        } else if(tipo === 'sesgo-derecha') {
+            for(let i=0; i<w; i++) {
+                const x = (i/w)*6;
+                let dens = 0;
+                if(x>0) dens = x * Math.exp(-x);
+                const y = h - dens * h * 1.5;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            info = 'Gamma(α=2): Sesgo a la derecha (cola larga derecha), η₃>0, moda < mediana < media';
+        } else if(tipo === 'sesgo-izquierda') {
+            for(let i=0; i<w; i++) {
+                const x = (i/w)*4;
+                let dens = 0;
+                if(x>0 && x<4) dens = (4-x)*Math.exp(-x/2);
+                const y = h - dens * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            info = 'Distribución con sesgo a la izquierda, η₃<0, media < mediana < moda';
+        } else if(tipo === 'leptocurtica') {
+            for(let i=0; i<w; i++) {
+                const x = -4 + (i/w)*8;
+                const dens = 1/(Math.PI * (1 + x*x));
+                const y = h - dens * h * 1.5;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            info = 'Cauchy(0,1): Leptocúrtica (colas pesadas), η₄ > 3';
+        } else {
+            for(let i=0; i<w; i++) {
+                const x = -1.8 + (i/w)*3.6;
+                let dens = 0;
+                if(Math.abs(x) <= 1.8) dens = 1/3.6;
+                const y = h - dens * h * 1.5;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            info = 'Uniforme: Platicúrtica (colas ligeras), η₄ < 3';
+        }
+        ctx.strokeStyle = '#1976d2';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+        
+        document.getElementById('forma-info').innerHTML = info;
+    }
+    
+    // ============================================================
+    // MODULO 6: Esperanza condicional
+    // ============================================================
+    function calcularCondicionalMedia() {
+        const evento = document.getElementById('evento-condicional').value;
+        const primos = [2,3,5,7,11,13,17,19];
+        const pares = [2,4,6,8,10,12,14,16,18,20];
+        const mayor15 = [16,17,18,19,20];
+        
+        let B = [];
+        let nombreB = '';
+        if(evento === 'primo') { B = primos; nombreB = 'números primos'; }
+        else if(evento === 'par') { B = pares; nombreB = 'números pares'; }
+        else { B = mayor15; nombreB = 'números > 15'; }
+        
+        const pB = B.length / 20;
+        let sumaDentro = 0;
+        for(let x of B) sumaDentro += x;
+        const esperanzaCond = sumaDentro / B.length;
+        const esperanzaIncond = 10.5;
+        
+        document.getElementById('condicional-resultado').innerHTML = 
+            `X ∼ Uniforme en {1,...,20}<br>
+            Evento B = {${nombreB}} (${B.length} elementos)<br>
+            \(\\mathbb{P}(B) = ${pB.toFixed(4)}\)<br>
+            \(\\mathbb{E}[X|B] = \\frac{1}{\\mathbb{P}(B)} \\sum_{x \\in B} x \\cdot \\frac{1}{20} = \\frac{${sumaDentro}}{${B.length}} = ${esperanzaCond.toFixed(4)}\)<br>
+            \(\\mathbb{E}[X] = 10.5\)<br>
+            ${esperanzaCond < esperanzaIncond ? 'La condición reduce la esperanza' : 'La condición aumenta la esperanza'}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // INICIALIZACIÓN
+    // ============================================================
+    window.inicializarModuloActual = function() {
+        // Módulo 1
+        const btnCuantil = document.getElementById('calcular-cuantil');
+        if(btnCuantil) btnCuantil.addEventListener('click', calcularCuantil);
+        calcularCuantil();
+        
+        // Módulo 2
+        const btnMedia = document.getElementById('calcular-media');
+        const btnSimMedia = document.getElementById('simular-media');
+        if(btnMedia) btnMedia.addEventListener('click', calcularMedia);
+        if(btnSimMedia) btnSimMedia.addEventListener('click', simularMedia);
+        calcularMedia();
+        
+        // Módulo 3
+        const btnTEI = document.getElementById('calcular-tei');
+        if(btnTEI) btnTEI.addEventListener('click', calcularTEI);
+        calcularTEI();
+        
+        // Módulo 4
+        const btnCV = document.getElementById('comparar-cv');
+        if(btnCV) btnCV.addEventListener('click', compararCV);
+        compararCV();
+        
+        // Módulo 5
+        const btnForma = document.getElementById('graficar-forma');
+        if(btnForma) btnForma.addEventListener('click', graficarForma);
+        graficarForma();
+        
+        // Módulo 6
+        const btnCond = document.getElementById('calcular-condicional-media');
+        if(btnCond) btnCond.addEventListener('click', calcularCondicionalMedia);
+        calcularCondicionalMedia();
+        
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
+        });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
+</script>
+</body>
+</html>
