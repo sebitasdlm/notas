@@ -1,1 +1,850 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Probabilidad Condicional - Capítulo 3</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Probabilidad Condicional                        -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Probabilidad Condicional</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>probabilidad condicional</strong> de \(A\) dado \(B\) (con \(\mathbb{P}(B) > 0\)) es:
+                \[
+                \mathbb{P}(A|B) = \frac{\mathbb{P}(A \cap B)}{\mathbb{P}(B)}
+                \]
+                Interpretación frecuentista: \(\mathbb{P}(A|B) \approx \frac{n(A \cap B)}{n(B)}\).
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Probabilidad condicional en dados</h4>
+                <div class="controles">
+                    <label>Evento A:</label>
+                    <select id="evento-a-cond">
+                        <option value="par">X es par</option>
+                        <option value="mayor4">X > 4</option>
+                        <option value="primo">X es primo</option>
+                    </select>
+                    <label>Evento B:</label>
+                    <select id="evento-b-cond">
+                        <option value="par">X es par</option>
+                        <option value="mayor4">X > 4</option>
+                        <option value="primo">X es primo</option>
+                    </select>
+                    <button id="calcular-condicional">Calcular</button>
+                </div>
+                <div id="condicional-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Propiedades de \(\mathbb{P}(\cdot|B)\):</strong>
+                <ul>
+                    <li>\(\mathbb{P}(A|B) \ge 0\) (K1)</li>
+                    <li>\(\mathbb{P}(\Omega|B) = 1\) (K2)</li>
+                    <li>Si \(A_1, A_2, \ldots\) son ajenos, \(\mathbb{P}(\bigcup A_i|B) = \sum \mathbb{P}(A_i|B)\) (K3)</li>
+                </ul>
+                ¡La probabilidad condicional es una medida de probabilidad legítima!
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Puede \(\mathbb{P}(A|B)\) ser mayor que \(\mathbb{P}(A)\)?</strong>
+                <button onclick="mostrarRespuesta('respuesta-condicional')">Ver respuesta</button>
+                <div id="respuesta-condicional" class="respuesta">
+                    ¡Sí! Por ejemplo, si \(A = \{2,3,4,5,6\}\) y \(B = \{2,4,6\}\) (pares), entonces \(\mathbb{P}(A)=5/6 \approx 0.833\) pero \(\mathbb{P}(A|B)=1\). ¡Saber que ocurrió B aumenta la probabilidad de A!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Regla de la Multiplicación                      -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Regla de la Multiplicación</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                De la definición de probabilidad condicional:
+                \[
+                \mathbb{P}(A \cap B) = \mathbb{P}(A|B)\mathbb{P}(B) = \mathbb{P}(B|A)\mathbb{P}(A)
+                \]
+                Generalización para \(n\) eventos:
+                \[
+                \mathbb{P}(A_1 \cap \cdots \cap A_n) = \mathbb{P}(A_1) \prod_{i=2}^{n} \mathbb{P}(A_i | A_1 \cap \cdots \cap A_{i-1})
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Ejemplo: Extracción sin reemplazo de una urna</h4>
+                <div class="controles">
+                    <label>Rojas en urna:</label>
+                    <input type="range" id="rojas-urna" min="1" max="10" step="1" value="5">
+                    <span id="rojas-val">5</span>
+                    <label>Azules en urna:</label>
+                    <input type="range" id="azules-urna" min="1" max="10" step="1" value="5">
+                    <span id="azules-val">5</span>
+                    <label>Extracciones (n):</label>
+                    <input type="range" id="n-extracciones" min="1" max="5" step="1" value="2">
+                    <span id="n-extracciones-val">2</span>
+                    <button id="simular-extracciones">Simular</button>
+                </div>
+                <div id="multiplicacion-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (dos monedas):</strong>
+                <br>
+                \(A = \{\text{ambas águilas}\}\), \(B = \{\text{primera águila}\}\)
+                \[
+                \mathbb{P}(A|B) = \frac{1/4}{2/4} = 1/2
+                \]
+                Intuición: Dado que la primera es águila, solo queda determinar la segunda.
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Independencia de Eventos                        -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Independencia de Eventos</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                \(A\) y \(B\) son <strong>independientes</strong> si:
+                \[
+                \mathbb{P}(A \cap B) = \mathbb{P}(A)\mathbb{P}(B)
+                \]
+                Equivalentemente: \(\mathbb{P}(A|B) = \mathbb{P}(A)\) (si \(\mathbb{P}(B) > 0\)).
+            </div>
+
+            <div class="simulador">
+                <h4>Verificador de independencia (dados)</h4>
+                <div class="controles">
+                    <label>Evento A:</label>
+                    <select id="evento-a-indep">
+                        <option value="par">X es par</option>
+                        <option value="mayor4">X > 4</option>
+                        <option value="igual3">X = 3</option>
+                    </select>
+                    <label>Evento B:</label>
+                    <select id="evento-b-indep">
+                        <option value="par">X es par</option>
+                        <option value="mayor4">X > 4</option>
+                        <option value="igual3">X = 3</option>
+                    </select>
+                    <button id="verificar-indep">Verificar independencia</button>
+                </div>
+                <div id="indep-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedades:</strong>
+                <ul>
+                    <li>Si \(A\) y \(B\) son independientes, también lo son \(A\) y \(B^C\), \(A^C\) y \(B\), \(A^C\) y \(B^C\).</li>
+                    <li>Si \(A, B, C\) son mutuamente independientes, entonces \(A\) es independiente de \(B \cup C\).</li>
+                    <li>Independencia mutua \(\Rightarrow\) independencia por pares (el recíproco no es cierto).</li>
+                </ul>
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Son independientes "sacar un As" y "sacar una espada" en una baraja?</strong>
+                <button onclick="mostrarRespuesta('respuesta-indep-baraja')">Ver respuesta</button>
+                <div id="respuesta-indep-baraja" class="respuesta">
+                    \(\mathbb{P}(\text{As}) = 4/52 = 1/13\), \(\mathbb{P}(\text{Espada}) = 13/52 = 1/4\), \(\mathbb{P}(\text{As ∩ Espada}) = 1/52\). Como \(1/52 = (1/13) \times (1/4)\), ¡son independientes!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Teorema de Probabilidad Total (TPT)             -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Teorema de Probabilidad Total (TPT)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Si \(\{B_1, B_2, \ldots, B_n\}\) es una <strong>partición</strong> de \(\Omega\), entonces:
+                \[
+                \mathbb{P}(A) = \sum_{i=1}^{n} \mathbb{P}(A|B_i) \mathbb{P}(B_i)
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Urnas con bolas</h4>
+                <div class="controles">
+                    <label>Urna 1 - Blancas:</label>
+                    <input type="range" id="urna1-b" min="1" max="10" step="1" value="3">
+                    <span id="urna1-b-val">3</span>
+                    <label>Urna 1 - Negras:</label>
+                    <input type="range" id="urna1-n" min="1" max="10" step="1" value="7">
+                    <span id="urna1-n-val">7</span>
+                    <label>Urna 2 - Blancas:</label>
+                    <input type="range" id="urna2-b" min="1" max="10" step="1" value="6">
+                    <span id="urna2-b-val">6</span>
+                    <label>Urna 2 - Negras:</label>
+                    <input type="range" id="urna2-n" min="1" max="10" step="1" value="4">
+                    <span id="urna2-n-val">4</span>
+                    <label>P(Urna 1):</label>
+                    <input type="range" id="p-urna1" min="0" max="1" step="0.05" value="0.5">
+                    <span id="p-urna1-val">0.50</span>
+                    <button id="simular-tpt">Simular extracción</button>
+                </div>
+                <div id="tpt-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración:</strong>
+                \[
+                A = A \cap \Omega = A \cap \left(\bigcup_i B_i\right) = \bigcup_i (A \cap B_i)
+                \]
+                Como los \(B_i\) son ajenos, los \(A \cap B_i\) también lo son. Por K3:
+                \[
+                \mathbb{P}(A) = \sum_i \mathbb{P}(A \cap B_i) = \sum_i \mathbb{P}(A|B_i)\mathbb{P}(B_i)
+                \]
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (fumadores):</strong> 40% hombres (50% fuman), 60% mujeres (30% fuman)
+                \[
+                \mathbb{P}(F) = 0.5 \times 0.4 + 0.3 \times 0.6 = 0.2 + 0.18 = 0.38
+                \]
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Regla de Bayes                                  -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Regla de Bayes</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>regla de Bayes</strong> permite actualizar probabilidades a la luz de nueva información:
+                \[
+                \mathbb{P}(B_k|A) = \frac{\mathbb{P}(A|B_k)\mathbb{P}(B_k)}{\sum_{i=1}^{n} \mathbb{P}(A|B_i)\mathbb{P}(B_i)}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Prueba médica (falsos positivos/negativos)</h4>
+                <div class="controles">
+                    <label>Prevalencia P(E):</label>
+                    <input type="range" id="prevalencia" min="0.01" max="0.5" step="0.01" value="0.01">
+                    <span id="prevalencia-val">0.01</span>
+                    <label>Sensibilidad P(Pos|E):</label>
+                    <input type="range" id="sensibilidad" min="0.5" max="1" step="0.01" value="0.99">
+                    <span id="sensibilidad-val">0.99</span>
+                    <label>Especificidad P(Neg|Eᶜ):</label>
+                    <input type="range" id="especificidad" min="0.5" max="1" step="0.01" value="0.95">
+                    <span id="especificidad-val">0.95</span>
+                    <button id="calcular-bayes">Calcular P(E|Pos)</button>
+                </div>
+                <div id="bayes-resultado" class="formula-destacada"></div>
+                <div id="bayes-explicacion" style="margin-top:0.5rem; font-size:0.9rem;"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración:</strong>
+                \[
+                \mathbb{P}(B_k|A) = \frac{\mathbb{P}(A \cap B_k)}{\mathbb{P}(A)} = \frac{\mathbb{P}(A|B_k)\mathbb{P}(B_k)}{\sum_i \mathbb{P}(A|B_i)\mathbb{P}(B_i)}
+                \]
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (prueba de embarazo):</strong>
+                <br>
+                P(E)=0.6, falso positivo=10%, falso negativo=20%.
+                <br>
+                Con dos pruebas positivas independientes: P(E|Pos₁∩Pos₂) ≈ 0.99
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué una prueba con 99% de precisión puede dar falsos positivos frecuentes?</strong>
+                <button onclick="mostrarRespuesta('respuesta-bayes')">Ver respuesta</button>
+                <div id="respuesta-bayes" class="respuesta">
+                    Si la enfermedad es rara (ej. 0.1% de prevalencia), aunque la prueba sea muy precisa, la mayoría de los positivos serán falsos. Por ejemplo: con prevalencia 0.001, sensibilidad 0.99 y especificidad 0.99, \(P(E|Pos)\) es solo ≈ 0.09. ¡Solo el 9% de los positivos son verdaderos!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 6: Momios (Odds) y Actualización Bayesiana        -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>6. Momios (Odds) y Factor de Bayes</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Los <strong>momios</strong> de un evento \(A\) son:
+                \[
+                \text{Odds}(A) = \frac{\mathbb{P}(A)}{\mathbb{P}(A^C)}
+                \]
+                La regla de Bayes en términos de momios:
+                \[
+                \text{Odds}(H|I) = \text{Odds}(H) \times \frac{\mathbb{P}(I|H)}{\mathbb{P}(I|H^C)}
+                \]
+                El cociente \(\frac{\mathbb{P}(I|H)}{\mathbb{P}(I|H^C)}\) es el <strong>factor de Bayes</strong> (likelihood ratio).
+            </div>
+
+            <div class="simulador">
+                <h4>Calculadora de Momios</h4>
+                <div class="controles">
+                    <label>P(Hipótesis H):</label>
+                    <input type="range" id="prob-h" min="0.05" max="0.95" step="0.01" value="0.5">
+                    <span id="prob-h-val">0.50</span>
+                    <label>Likelihood Ratio LR = P(I|H)/P(I|Hᶜ):</label>
+                    <input type="range" id="lr" min="0.1" max="10" step="0.1" value="2">
+                    <span id="lr-val">2.0</span>
+                    <button id="calcular-odds">Calcular momios posteriores</button>
+                </div>
+                <div id="odds-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (investigación criminal):</strong>
+                <br>
+                P(Culpable)=0.6, P(Característica|Inocente)=0.2.
+                \[
+                \text{Odds posteriores} = \frac{0.6}{0.4} \times \frac{1}{0.2} = 1.5 \times 5 = 7.5
+                \]
+                \[
+                P(Culpable|Característica) = \frac{7.5}{1+7.5} \approx 0.882
+                \]
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué significa un factor de Bayes de 10?</strong>
+                <button onclick="mostrarRespuesta('respuesta-odds')">Ver respuesta</button>
+                <div id="respuesta-odds" class="respuesta">
+                    Un factor de Bayes de 10 significa que la evidencia es 10 veces más probable bajo la hipótesis H que bajo Hᶜ. En términos de momios, multiplica los momios previos por 10. Es una evidencia "fuerte" según la escala de Jeffreys (1-3: anecdótico, 3-10: sustancial, 10-30: fuerte, >30: muy fuerte).
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // ============================================================
+    // FUNCIONES GLOBALES
+    // ============================================================
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        if(content) content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        if(elem) elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: Probabilidad Condicional
+    // ============================================================
+    function calcularCondicional() {
+        const eventoSelA = document.getElementById('evento-a-cond').value;
+        const eventoSelB = document.getElementById('evento-b-cond').value;
+        
+        const esPar = (x) => x % 2 === 0;
+        const esMayor4 = (x) => x > 4;
+        const esPrimo = (x) => [2,3,5].includes(x);
+        
+        let eventos = { par: esPar, mayor4: esMayor4, primo: esPrimo };
+        let funcA = eventos[eventoSelA];
+        let funcB = eventos[eventoSelB];
+        
+        let casosA = 0, casosB = 0, casosAB = 0;
+        let listaA = [], listaB = [], listaAB = [];
+        
+        for(let x=1; x<=6; x++) {
+            if(funcA(x)) { casosA++; listaA.push(x); }
+            if(funcB(x)) { casosB++; listaB.push(x); }
+            if(funcA(x) && funcB(x)) { casosAB++; listaAB.push(x); }
+        }
+        
+        const pA = casosA / 6;
+        const pB = casosB / 6;
+        const pAB = casosAB / 6;
+        const pAgB = casosAB / casosB;
+        
+        document.getElementById('condicional-resultado').innerHTML = 
+            `A = {${listaA.join(', ')}} (${casosA}/6 = ${pA.toFixed(4)})<br>
+            B = {${listaB.join(', ')}} (${casosB}/6 = ${pB.toFixed(4)})<br>
+            A ∩ B = {${listaAB.join(', ')}} (${casosAB}/6 = ${pAB.toFixed(4)})<br>
+            \(\\mathbb{P}(A|B) = \\frac{\\mathbb{P}(A \\cap B)}{\\mathbb{P}(B)} = \\frac{${pAB.toFixed(4)}}{${pB.toFixed(4)}} = ${pAgB.toFixed(4)}\)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 2: Regla de la Multiplicación
+    // ============================================================
+    function simularExtracciones() {
+        const rojas = parseInt(document.getElementById('rojas-urna').value);
+        const azules = parseInt(document.getElementById('azules-urna').value);
+        const n = parseInt(document.getElementById('n-extracciones').value);
+        
+        document.getElementById('rojas-val').textContent = rojas;
+        document.getElementById('azules-val').textContent = azules;
+        document.getElementById('n-extracciones-val').textContent = n;
+        
+        const total = rojas + azules;
+        const nSim = 5000;
+        let exitos = 0;
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let urna = [];
+            for(let i=0; i<rojas; i++) urna.push('R');
+            for(let i=0; i<azules; i++) urna.push('A');
+            
+            // Mezclar
+            for(let i=urna.length-1; i>0; i--) {
+                const j = Math.floor(Math.random() * (i+1));
+                [urna[i], urna[j]] = [urna[j], urna[i]];
+            }
+            
+            const muestra = urna.slice(0, n);
+            const todasRojas = muestra.every(c => c === 'R');
+            if(todasRojas) exitos++;
+        }
+        
+        let probTeorica = 1;
+        let desarrollo = `= `;
+        for(let i=0; i<n; i++) {
+            probTeorica *= (rojas - i) / (total - i);
+            desarrollo += `\\frac{${rojas-i}}{${total-i}}`;
+            if(i < n-1) desarrollo += ` \\times `;
+        }
+        
+        document.getElementById('multiplicacion-resultado').innerHTML = 
+            `Probabilidad de extraer ${n} bolas rojas sin reemplazo:<br>
+            Teórica: \(${desarrollo} = ${probTeorica.toFixed(6)}\)<br>
+            Simulación (${nSim} muestras): ${(exitos/nSim).toFixed(6)}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 3: Independencia
+    // ============================================================
+    function verificarIndependencia() {
+        const eventoSelA = document.getElementById('evento-a-indep').value;
+        const eventoSelB = document.getElementById('evento-b-indep').value;
+        
+        const esPar = (x) => x % 2 === 0;
+        const esMayor4 = (x) => x > 4;
+        const esIgual3 = (x) => x === 3;
+        
+        let eventos = { par: esPar, mayor4: esMayor4, igual3: esIgual3 };
+        let funcA = eventos[eventoSelA];
+        let funcB = eventos[eventoSelB];
+        
+        let casosA = 0, casosB = 0, casosAB = 0;
+        let listaA = [], listaB = [], listaAB = [];
+        
+        for(let x=1; x<=6; x++) {
+            if(funcA(x)) { casosA++; listaA.push(x); }
+            if(funcB(x)) { casosB++; listaB.push(x); }
+            if(funcA(x) && funcB(x)) { casosAB++; listaAB.push(x); }
+        }
+        
+        const pA = casosA / 6;
+        const pB = casosB / 6;
+        const pAB = casosAB / 6;
+        const producto = pA * pB;
+        const esIndependiente = Math.abs(pAB - producto) < 0.001;
+        
+        document.getElementById('indep-resultado').innerHTML = 
+            `A = {${listaA.join(', ')}} (P=${pA.toFixed(4)})<br>
+            B = {${listaB.join(', ')}} (P=${pB.toFixed(4)})<br>
+            P(A∩B) = ${pAB.toFixed(4)} | P(A)·P(B) = ${producto.toFixed(4)}<br>
+            <strong>${esIndependiente ? '✓ SON independientes' : '✗ NO son independientes'}</strong>`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 4: TPT
+    // ============================================================
+    function simularTPT() {
+        const b1 = parseInt(document.getElementById('urna1-b').value);
+        const n1 = parseInt(document.getElementById('urna1-n').value);
+        const b2 = parseInt(document.getElementById('urna2-b').value);
+        const n2 = parseInt(document.getElementById('urna2-n').value);
+        const pU1 = parseFloat(document.getElementById('p-urna1').value);
+        
+        document.getElementById('urna1-b-val').textContent = b1;
+        document.getElementById('urna1-n-val').textContent = n1;
+        document.getElementById('urna2-b-val').textContent = b2;
+        document.getElementById('urna2-n-val').textContent = n2;
+        document.getElementById('p-urna1-val').textContent = pU1.toFixed(2);
+        
+        const total1 = b1 + n1;
+        const total2 = b2 + n2;
+        
+        const pNegraU1 = n1 / total1;
+        const pNegraU2 = n2 / total2;
+        const pNegra = pNegraU1 * pU1 + pNegraU2 * (1-pU1);
+        
+        const nSim = 5000;
+        let negras = 0;
+        let deU1 = 0;
+        
+        for(let sim=0; sim<nSim; sim++) {
+            const urna = Math.random() < pU1 ? 1 : 2;
+            let esNegra = false;
+            if(urna === 1) {
+                esNegra = Math.random() < n1/total1;
+                if(esNegra) deU1++;
+            } else {
+                esNegra = Math.random() < n2/total2;
+            }
+            if(esNegra) negras++;
+        }
+        
+        document.getElementById('tpt-resultado').innerHTML = 
+            `Urna 1: ${n1} negras / ${total1} total (p=${pNegraU1.toFixed(4)})<br>
+            Urna 2: ${n2} negras / ${total2} total (p=${pNegraU2.toFixed(4)})<br>
+            P(Urna 1) = ${pU1.toFixed(2)}<br>
+            <strong>P(Negra) = ${pNegraU1.toFixed(4)}×${pU1.toFixed(2)} + ${pNegraU2.toFixed(4)}×${(1-pU1).toFixed(2)} = ${pNegra.toFixed(4)}</strong><br>
+            Simulación: ${negras/nSim} (${negras} negras en ${nSim} extracciones)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 5: Regla de Bayes
+    // ============================================================
+    function calcularBayes() {
+        const prev = parseFloat(document.getElementById('prevalencia').value);
+        const sens = parseFloat(document.getElementById('sensibilidad').value);
+        const esp = parseFloat(document.getElementById('especificidad').value);
+        
+        document.getElementById('prevalencia-val').textContent = prev.toFixed(3);
+        document.getElementById('sensibilidad-val').textContent = sens.toFixed(3);
+        document.getElementById('especificidad-val').textContent = esp.toFixed(3);
+        
+        const pPosE = sens;
+        const pPosEc = 1 - esp;
+        
+        const pEpos = (pPosE * prev) / (pPosE * prev + pPosEc * (1-prev));
+        
+        document.getElementById('bayes-resultado').innerHTML = 
+            `\(\\mathbb{P}(E|Pos) = \\frac{${sens.toFixed(3)} \\times ${prev.toFixed(3)}}{${sens.toFixed(3)} \\times ${prev.toFixed(3)} + ${pPosEc.toFixed(3)} \\times ${(1-prev).toFixed(3)}} = ${pEpos.toFixed(4)}\)`;
+        
+        const oddsPrev = prev/(1-prev);
+        const lr = sens / pPosEc;
+        const oddsPost = oddsPrev * lr;
+        
+        document.getElementById('bayes-explicacion').innerHTML = 
+            `Momios previos: ${oddsPrev.toFixed(3)} | Likelihood Ratio: ${lr.toFixed(2)}<br>
+            Momios posteriores: ${oddsPost.toFixed(3)} | ${pEpos.toFixed(4)*100}% de probabilidad posterior`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 6: Momios
+    // ============================================================
+    function calcularOdds() {
+        const pH = parseFloat(document.getElementById('prob-h').value);
+        const lr = parseFloat(document.getElementById('lr').value);
+        
+        document.getElementById('prob-h-val').textContent = pH.toFixed(2);
+        document.getElementById('lr-val').textContent = lr.toFixed(1);
+        
+        const oddsPrev = pH / (1-pH);
+        const oddsPost = oddsPrev * lr;
+        const pPost = oddsPost / (1 + oddsPost);
+        
+        document.getElementById('odds-resultado').innerHTML = 
+            `Momios previos: ${oddsPrev.toFixed(3)} (${(pH*100).toFixed(0)}% a ${((1-pH)*100).toFixed(0)}%)<br>
+            Factor de Bayes (LR): ${lr.toFixed(2)}<br>
+            Momios posteriores: ${oddsPost.toFixed(3)}<br>
+            \(\\mathbb{P}(H|I) = \\frac{${oddsPost.toFixed(3)}}{1+${oddsPost.toFixed(3)}} = ${pPost.toFixed(4)} (${(pPost*100).toFixed(1)}%)\)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // INICIALIZACIÓN
+    // ============================================================
+    window.inicializarModuloActual = function() {
+        // Módulo 1
+        const btnCond = document.getElementById('calcular-condicional');
+        if(btnCond) btnCond.addEventListener('click', calcularCondicional);
+        calcularCondicional();
+        
+        // Módulo 2
+        const rojas = document.getElementById('rojas-urna');
+        const azules = document.getElementById('azules-urna');
+        const nExtra = document.getElementById('n-extracciones');
+        const btnExtra = document.getElementById('simular-extracciones');
+        if(rojas) rojas.addEventListener('input', simularExtracciones);
+        if(azules) azules.addEventListener('input', simularExtracciones);
+        if(nExtra) nExtra.addEventListener('input', simularExtracciones);
+        if(btnExtra) btnExtra.addEventListener('click', simularExtracciones);
+        simularExtracciones();
+        
+        // Módulo 3
+        const btnIndep = document.getElementById('verificar-indep');
+        if(btnIndep) btnIndep.addEventListener('click', verificarIndependencia);
+        verificarIndependencia();
+        
+        // Módulo 4
+        const urna1b = document.getElementById('urna1-b');
+        const urna1n = document.getElementById('urna1-n');
+        const urna2b = document.getElementById('urna2-b');
+        const urna2n = document.getElementById('urna2-n');
+        const pUrna1 = document.getElementById('p-urna1');
+        const btnTPT = document.getElementById('simular-tpt');
+        if(urna1b) urna1b.addEventListener('input', simularTPT);
+        if(urna1n) urna1n.addEventListener('input', simularTPT);
+        if(urna2b) urna2b.addEventListener('input', simularTPT);
+        if(urna2n) urna2n.addEventListener('input', simularTPT);
+        if(pUrna1) pUrna1.addEventListener('input', simularTPT);
+        if(btnTPT) btnTPT.addEventListener('click', simularTPT);
+        simularTPT();
+        
+        // Módulo 5
+        const prev = document.getElementById('prevalencia');
+        const sens = document.getElementById('sensibilidad');
+        const esp = document.getElementById('especificidad');
+        const btnBayes = document.getElementById('calcular-bayes');
+        if(prev) prev.addEventListener('input', calcularBayes);
+        if(sens) sens.addEventListener('input', calcularBayes);
+        if(esp) esp.addEventListener('input', calcularBayes);
+        if(btnBayes) btnBayes.addEventListener('click', calcularBayes);
+        calcularBayes();
+        
+        // Módulo 6
+        const pH = document.getElementById('prob-h');
+        const lrOdds = document.getElementById('lr');
+        const btnOdds = document.getElementById('calcular-odds');
+        if(pH) pH.addEventListener('input', calcularOdds);
+        if(lrOdds) lrOdds.addEventListener('input', calcularOdds);
+        if(btnOdds) btnOdds.addEventListener('click', calcularOdds);
+        calcularOdds();
+        
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
+        });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
+</script>
+</body>
+</html>
