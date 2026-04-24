@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
             link.href = "#";
             link.addEventListener("click", (e) => {
                 e.preventDefault();
-                loadContent(`CPI/chapters/${chapter}`, chapter);
+                loadContent(`CPI/chapters1/${chapter}`, chapter);
                 if(window.innerWidth <= 768){
                     sidebar.classList.add("hidden");
                 }
