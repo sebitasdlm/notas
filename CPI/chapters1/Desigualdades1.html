@@ -1,1 +1,785 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Desigualdades en Probabilidad - Capítulo 7</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Desigualdad de Markov                           -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Desigualdad de Markov</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Desigualdad de Markov:</strong> Sea \(X\) una variable aleatoria <strong>no negativa</strong> con media finita \(\mu_X\). Entonces, para todo \(c > 0\):
+                \[
+                \mathbb{P}(X \ge c) \le \frac{\mathbb{E}[X]}{c} = \frac{\mu_X}{c}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación interactiva</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-markov">
+                        <option value="exponencial">Exponencial(λ=1)</option>
+                        <option value="uniforme">Uniforme(0,θ)</option>
+                        <option value="gamma">Gamma(α=2, β=1)</option>
+                    </select>
+                    <label>c (umbral):</label>
+                    <input type="range" id="c-markov" min="0.5" max="5" step="0.1" value="2">
+                    <span id="c-markov-val">2.0</span>
+                    <button id="verificar-markov">Verificar</button>
+                </div>
+                <canvas id="markovCanvas" width="500" height="250"></canvas>
+                <div id="markov-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración (caso continuo):</strong>
+                \[
+                \mu_X = \int_0^\infty x f(x) dx \ge \int_c^\infty x f(x) dx \ge c \int_c^\infty f(x) dx = c \cdot \mathbb{P}(X \ge c)
+                \]
+                Por lo tanto, \(\mathbb{P}(X \ge c) \le \mu_X / c\).
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo:</strong> Si el tiempo medio de reparación es 6.2 horas, la probabilidad de que una reparación tome más de 22.5 horas es:
+                \[
+                \mathbb{P}(X \ge 22.5) \le \frac{6.2}{22.5} \approx 0.2756
+                \]
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué Markov solo funciona para variables no negativas?</strong>
+                <button onclick="mostrarRespuesta('respuesta-markov')">Ver respuesta</button>
+                <div id="respuesta-markov" class="respuesta">
+                    La demostración usa que \(x \ge c\) dentro de la integral \(\int_c^\infty\). Si \(X\) pudiera tomar valores negativos, la desigualdad no se cumpliría (por ejemplo, una normal con media 0 daría \(\mathbb{P}(X \ge c) > 0\) pero el lado derecho sería 0).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Desigualdad de Chebyshev                        -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Desigualdad de Chebyshev</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Desigualdad de Chebyshev:</strong> Sea \(X\) con media \(\mu\) y varianza \(\sigma^2\) finitas. Entonces, para todo \(\epsilon > 0\):
+                \[
+                \mathbb{P}(|X - \mu| \ge \epsilon) \le \frac{\sigma^2}{\epsilon^2}
+                \]
+                Equivalentemente, para \(k > 0\):
+                \[
+                \mathbb{P}(|X - \mu| \ge k\sigma) \le \frac{1}{k^2}, \quad \mathbb{P}(|X - \mu| < k\sigma) \ge 1 - \frac{1}{k^2}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización: Cota de Chebyshev vs probabilidad real</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-chebyshev">
+                        <option value="normal">Normal(μ=0, σ=1)</option>
+                        <option value="uniforme">Uniforme(-√3, √3)</option>
+                        <option value="exponencial">Exponencial(λ=1) centrada</option>
+                        <option value="discreta">Distribución discreta (ejemplo PDF)</option>
+                    </select>
+                    <label>k (desviaciones):</label>
+                    <input type="range" id="k-chebyshev" min="1" max="5" step="0.1" value="2">
+                    <span id="k-chebyshev-val">2.0</span>
+                    <button id="verificar-chebyshev">Verificar</button>
+                </div>
+                <canvas id="chebyshevCanvas" width="500" height="250"></canvas>
+                <div id="chebyshev-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración:</strong>
+                <br>
+                Sea \(Y = (X - \mu)^2 \ge 0\). Aplicando Markov a \(Y\) con \(c = \epsilon^2\):
+                \[
+                \mathbb{P}((X-\mu)^2 \ge \epsilon^2) \le \frac{\mathbb{E}[(X-\mu)^2]}{\epsilon^2} = \frac{\sigma^2}{\epsilon^2}
+                \]
+                Como \(\{(X-\mu)^2 \ge \epsilon^2\} = \{|X-\mu| \ge \epsilon\}\), se obtiene el resultado.
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (tienda):</strong> Número de clientes por día: media 20, desviación 2.
+                \[
+                \mathbb{P}(17 \le X \le 23) = \mathbb{P}(|X-20| < 3) \ge 1 - \frac{4}{9} \approx 0.5556
+                \]
+                Con \(k=2\) (2 desviaciones): \(\mathbb{P}(|X-20| < 4) \ge 1 - 1/4 = 0.75\)
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿La cota de Chebyshev es siempre ajustada?</strong>
+                <button onclick="mostrarRespuesta('respuesta-chebyshev')">Ver respuesta</button>
+                <div id="respuesta-chebyshev" class="respuesta">
+                    No, generalmente es conservadora. Pero puede alcanzarse, como en la distribución discreta del PDF con \(P(X=-1)=1/8, P(X=0)=6/8, P(X=1)=1/8\), donde \(\mathbb{P}(|X| \ge 1) = 1/4\) y la cota de Chebyshev es exactamente \(1/4\).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Desigualdad de Chebyshev Unilateral (Cantelli)  -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Chebyshev Unilateral (Cantelli)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>desigualdad de Chebyshev unilateral</strong> (o de Cantelli) acota la probabilidad de una cola:
+                \[
+                \mathbb{P}(X - \mu \ge a) \le \frac{\sigma^2}{\sigma^2 + a^2}, \quad a > 0
+                \]
+                Análogamente, \(\mathbb{P}(X - \mu \le -a) \le \frac{\sigma^2}{\sigma^2 + a^2}\).
+            </div>
+
+            <div class="simulador">
+                <h4>Comparación: Chebyshev bilateral vs unilateral</h4>
+                <div class="controles">
+                    <label>μ (media):</label>
+                    <input type="range" id="mu-unilateral" min="-5" max="5" step="0.5" value="0">
+                    <span id="mu-unilateral-val">0</span>
+                    <label>σ (desviación):</label>
+                    <input type="range" id="sigma-unilateral" min="0.5" max="3" step="0.1" value="1">
+                    <span id="sigma-unilateral-val">1.0</span>
+                    <label>a (desplazamiento):</label>
+                    <input type="range" id="a-unilateral" min="0.5" max="5" step="0.1" value="2">
+                    <span id="a-unilateral-val">2.0</span>
+                    <button id="verificar-unilateral">Calcular cotas</button>
+                </div>
+                <canvas id="unilateralCanvas" width="500" height="200"></canvas>
+                <div id="unilateral-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (reparación de máquina):</strong>
+                <br>
+                Tiempo medio: \(\mu = 6.2\) h, desviación \(\sigma = 3.52\) h.
+                <br>
+                Empleado nuevo tarda 22.5 h → \(a = 16.3\).
+                \[
+                \mathbb{P}(X \ge 22.5) = \mathbb{P}(X - \mu \ge 16.3) \le \frac{3.52^2}{3.52^2 + 16.3^2} = \frac{12.39}{12.39 + 265.69} = 0.0446
+                \]
+                ¡Solo 4.46% de probabilidad! → El empleado probablemente necesita entrenamiento.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué la cota unilateral es más ajustada que la bilateral?</strong>
+                <button onclick="mostrarRespuesta('respuesta-unilateral')">Ver respuesta</button>
+                <div id="respuesta-unilateral" class="respuesta">
+                    La cota bilateral \(\mathbb{P}(|X-\mu| \ge a) \le \sigma^2/a^2\) considera ambas colas. Para una cola, la probabilidad es aproximadamente la mitad, y la cota unilateral \(\sigma^2/(\sigma^2+a^2)\) es más pequeña (mejor) que \(\sigma^2/a^2\) cuando \(a\) es grande.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Desigualdad de Jensen                           -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Desigualdad de Jensen</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Desigualdad de Jensen:</strong> Si \(h\) es una función <strong>convexa</strong>, entonces
+                \[
+                \mathbb{E}[h(X)] \ge h(\mathbb{E}[X])
+                \]
+                Si \(h\) es <strong>cóncava</strong>, la desigualdad se invierte:
+                \[
+                \mathbb{E}[h(X)] \le h(\mathbb{E}[X])
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación de Jensen para diferentes funciones</h4>
+                <div class="controles">
+                    <label>Función h(x):</label>
+                    <select id="funcion-jensen">
+                        <option value="cuadratica">h(x) = x² (convexa)</option>
+                        <option value="exponencial">h(x) = eˣ (convexa)</option>
+                        <option value="logaritmo">h(x) = log(x) (cóncava, x>0)</option>
+                        <option value="raiz">h(x) = √x (cóncava, x≥0)</option>
+                    </select>
+                    <label>Distribución de X:</label>
+                    <select id="dist-jensen">
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="normal">Normal(0,1)</option>
+                        <option value="exponencial">Exponencial(1)</option>
+                    </select>
+                    <button id="verificar-jensen">Verificar Jensen</button>
+                </div>
+                <canvas id="jensenCanvas" width="500" height="250"></canvas>
+                <div id="jensen-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración geométrica:</strong>
+                <br>
+                Para una función convexa \(h\), existe una recta soporte \(\ell(x) = a + bx\) que pasa por 
+                \((\mathbb{E}[X], h(\mathbb{E}[X]))\) y satisface \(h(x) \ge \ell(x)\) para todo \(x\).
+                <br>
+                Tomando esperanza:
+                \[
+                \mathbb{E}[h(X)] \ge \mathbb{E}[\ell(X)] = a + b\mathbb{E}[X] = \ell(\mathbb{E}[X]) = h(\mathbb{E}[X])
+                \]
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF:</strong> \(X \sim \text{Unif}(0,1)\), \(h(x)=x^2\) (convexa).
+                \[
+                \mathbb{E}[X] = \frac{1}{2}, \quad h(\mathbb{E}[X]) = \frac{1}{4}
+                \]
+                \[
+                \mathbb{E}[h(X)] = \mathbb{E}[X^2] = \frac{1}{3} \approx 0.3333 \ge 0.25
+                \]
+                ¡Se cumple la desigualdad!
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>Aplicación importante:</strong> ¿Qué dice Jensen sobre \(\mathbb{E}[1/X]\) vs \(1/\mathbb{E}[X]\)?
+                <button onclick="mostrarRespuesta('respuesta-jensen')">Ver respuesta</button>
+                <div id="respuesta-jensen" class="respuesta">
+                    La función \(h(x) = 1/x\) es convexa para \(x > 0\). Por Jensen:
+                    \[
+                    \mathbb{E}[1/X] \ge 1/\mathbb{E}[X]
+                    \]
+                    Esto es útil en finanzas (el rendimiento esperado de un activo no es el recíproco del rendimiento esperado de su inverso).
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // ============================================================
+    // FUNCIONES GLOBALES
+    // ============================================================
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        if(content) content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        if(elem) elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: Markov
+    // ============================================================
+    function verificarMarkov() {
+        const dist = document.getElementById('dist-markov').value;
+        const c = parseFloat(document.getElementById('c-markov').value);
+        document.getElementById('c-markov-val').textContent = c.toFixed(1);
+        
+        let media, probReal = 0;
+        const nSim = 50000;
+        let muestras = [];
+        
+        if(dist === 'exponencial') {
+            media = 1;
+            for(let i=0; i<nSim; i++) muestras.push(-Math.log(Math.random()));
+        } else if(dist === 'uniforme') {
+            const theta = 2;
+            media = theta/2;
+            for(let i=0; i<nSim; i++) muestras.push(Math.random() * theta);
+        } else {
+            media = 2;
+            let g;
+            for(let i=0; i<nSim; i++) {
+                g = 1;
+                for(let j=0; j<2; j++) g *= Math.random();
+                muestras.push(-Math.log(g));
+            }
+        }
+        
+        probReal = muestras.filter(x => x >= c).length / nSim;
+        const cotaMarkov = media / c;
+        
+        const canvas = document.getElementById('markovCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle = '#4caf50';
+            const barWidth = w/3;
+            ctx.fillRect(w/2 - barWidth - 10, h - probReal * h * 0.8, barWidth, probReal * h * 0.8);
+            ctx.fillStyle = '#f44336';
+            ctx.fillRect(w/2 + 10, h - cotaMarkov * h * 0.8, barWidth, cotaMarkov * h * 0.8);
+        }
+        
+        document.getElementById('markov-resultado').innerHTML = 
+            `\(\mathbb{P}(X \\ge ${c.toFixed(1)})\) real ≈ ${probReal.toFixed(4)}<br>
+            Cota de Markov: \( \\le ${cotaMarkov.toFixed(4)} \)<br>
+            ${probReal <= cotaMarkov ? '✓ Se cumple la desigualdad' : '⚠ Error numérico, revise'}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 2: Chebyshev
+    // ============================================================
+    function verificarChebyshev() {
+        const dist = document.getElementById('dist-chebyshev').value;
+        const k = parseFloat(document.getElementById('k-chebyshev').value);
+        document.getElementById('k-chebyshev-val').textContent = k.toFixed(1);
+        
+        const nSim = 50000;
+        let muestras = [];
+        let media = 0, sigma = 1;
+        
+        if(dist === 'normal') {
+            media = 0; sigma = 1;
+            for(let i=0; i<nSim; i++) muestras.push(Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random()));
+        } else if(dist === 'uniforme') {
+            media = 0; sigma = 1;
+            const a = -Math.sqrt(3), b = Math.sqrt(3);
+            for(let i=0; i<nSim; i++) muestras.push(a + Math.random() * (b-a));
+        } else if(dist === 'exponencial') {
+            media = 1; sigma = 1;
+            for(let i=0; i<nSim; i++) muestras.push(-Math.log(Math.random()) - 1);
+        } else {
+            // Distribución discreta del PDF: P(X=-1)=1/8, P(X=0)=6/8, P(X=1)=1/8
+            media = 0; sigma = 0.5;
+            for(let i=0; i<nSim; i++) {
+                const u = Math.random();
+                if(u < 1/8) muestras.push(-1);
+                else if(u < 7/8) muestras.push(0);
+                else muestras.push(1);
+            }
+            sigma = Math.sqrt(2/8);
+        }
+        
+        const probReal = muestras.filter(x => Math.abs(x - media) >= k * sigma).length / nSim;
+        const cotaChebyshev = 1 / (k*k);
+        
+        const canvas = document.getElementById('chebyshevCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const min = Math.min(...muestras, media - k*sigma);
+            const max = Math.max(...muestras, media + k*sigma);
+            const bins = new Array(30).fill(0);
+            for(let val of muestras) {
+                const idx = Math.min(29, Math.floor((val - min) / (max - min) * 30));
+                if(idx >=0) bins[idx]++;
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w / 30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i] / maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h - barHeight, binWidth-1, barHeight);
+            }
+            const x1 = Math.max(0, (media - k*sigma - min) / (max - min) * w);
+            const x2 = Math.min(w, (media + k*sigma - min) / (max - min) * w);
+            ctx.fillStyle = 'rgba(244,67,54,0.3)';
+            ctx.fillRect(0, 0, x1, h);
+            ctx.fillRect(x2, 0, w-x2, h);
+        }
+        
+        document.getElementById('chebyshev-resultado').innerHTML = 
+            `\(\mathbb{P}(|X-\\mu| \\ge ${k.toFixed(1)}\\sigma)\) real ≈ ${probReal.toFixed(4)}<br>
+            Cota de Chebyshev: \( \\le ${cotaChebyshev.toFixed(4)} \)<br>
+            ${probReal <= cotaChebyshev ? '✓ Se cumple la desigualdad' : '⚠ Error numérico'}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 3: Chebyshev Unilateral
+    // ============================================================
+    function verificarUnilateral() {
+        const mu = parseFloat(document.getElementById('mu-unilateral').value);
+        const sigma = parseFloat(document.getElementById('sigma-unilateral').value);
+        const a = parseFloat(document.getElementById('a-unilateral').value);
+        
+        document.getElementById('mu-unilateral-val').textContent = mu.toFixed(1);
+        document.getElementById('sigma-unilateral-val').textContent = sigma.toFixed(1);
+        document.getElementById('a-unilateral-val').textContent = a.toFixed(1);
+        
+        const cotaUnilateral = sigma*sigma / (sigma*sigma + a*a);
+        const cotaBilateral = sigma*sigma / (a*a);
+        
+        const canvas = document.getElementById('unilateralCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const barWidth = w/3;
+            ctx.fillStyle = '#2196f3';
+            ctx.fillRect(w/2 - barWidth - 10, h - cotaBilateral * h * 0.8, barWidth, cotaBilateral * h * 0.8);
+            ctx.fillStyle = '#4caf50';
+            ctx.fillRect(w/2 + 10, h - cotaUnilateral * h * 0.8, barWidth, cotaUnilateral * h * 0.8);
+            ctx.fillStyle = '#333';
+            ctx.fillText('Chebyshev', w/2 - barWidth/2 - 10, h - 10);
+            ctx.fillText('Cantelli', w/2 + barWidth/2 + 10, h - 10);
+        }
+        
+        document.getElementById('unilateral-resultado').innerHTML = 
+            `Para \(\\mathbb{P}(X - \\mu \\ge ${a.toFixed(1)})\):<br>
+            Chebyshev unilateral (Cantelli): \( \\le ${cotaUnilateral.toFixed(4)} \)<br>
+            Chebyshev bilateral: \( \\le ${cotaBilateral.toFixed(4)} \) (menos ajustada)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 4: Jensen
+    // ============================================================
+    function verificarJensen() {
+        const func = document.getElementById('funcion-jensen').value;
+        const dist = document.getElementById('dist-jensen').value;
+        
+        const nSim = 50000;
+        let muestras = [];
+        
+        if(dist === 'uniforme') {
+            for(let i=0; i<nSim; i++) muestras.push(Math.random());
+        } else if(dist === 'normal') {
+            for(let i=0; i<nSim; i++) muestras.push(Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random()));
+        } else {
+            for(let i=0; i<nSim; i++) muestras.push(-Math.log(Math.random()));
+        }
+        
+        const mediaX = muestras.reduce((a,b)=>a+b,0)/nSim;
+        let hMedia = 0;
+        let mediaH = 0;
+        let esConvexa = true;
+        
+        for(let x of muestras) {
+            let hx = 0;
+            if(func === 'cuadratica') { hx = x*x; esConvexa = true; }
+            else if(func === 'exponencial') { hx = Math.exp(x); esConvexa = true; }
+            else if(func === 'logaritmo') { hx = Math.log(Math.max(0.001, x)); esConvexa = false; }
+            else if(func === 'raiz') { hx = Math.sqrt(Math.max(0, x)); esConvexa = false; }
+            mediaH += hx;
+        }
+        mediaH /= nSim;
+        
+        if(func === 'cuadratica') hMedia = mediaX * mediaX;
+        else if(func === 'exponencial') hMedia = Math.exp(mediaX);
+        else if(func === 'logaritmo') hMedia = Math.log(Math.max(0.001, mediaX));
+        else if(func === 'raiz') hMedia = Math.sqrt(Math.max(0, mediaX));
+        
+        const cumple = esConvexa ? (mediaH >= hMedia) : (mediaH <= hMedia);
+        
+        const canvas = document.getElementById('jensenCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            let xMin, xMax;
+            if(func === 'logaritmo') { xMin = 0.1; xMax = 3; }
+            else if(func === 'raiz') { xMin = 0; xMax = 4; }
+            else { xMin = -2; xMax = 2; }
+            
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const x = xMin + (i/w) * (xMax - xMin);
+                let yVal = 0;
+                if(func === 'cuadratica') yVal = x*x;
+                else if(func === 'exponencial') yVal = Math.exp(x);
+                else if(func === 'logaritmo') yVal = Math.log(Math.max(0.001, x));
+                else if(func === 'raiz') yVal = Math.sqrt(Math.max(0, x));
+                const y = h - (yVal / 10) * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            const xE = Math.min(w-1, Math.max(0, (mediaX - xMin) / (xMax - xMin) * w));
+            let yE = 0;
+            if(func === 'cuadratica') yE = mediaX*mediaX;
+            else if(func === 'exponencial') yE = Math.exp(mediaX);
+            else if(func === 'logaritmo') yE = Math.log(Math.max(0.001, mediaX));
+            else if(func === 'raiz') yE = Math.sqrt(Math.max(0, mediaX));
+            const yEpx = h - (yE / 10) * h * 0.8;
+            ctx.fillStyle = '#f44336';
+            ctx.beginPath();
+            ctx.arc(xE, yEpx, 5, 0, 2*Math.PI);
+            ctx.fill();
+        }
+        
+        document.getElementById('jensen-resultado').innerHTML = 
+            `\(\mathbb{E}[X] = ${mediaX.toFixed(4)}\)<br>
+            \(h(\mathbb{E}[X]) = ${hMedia.toFixed(4)}\)<br>
+            \(\mathbb{E}[h(X)] = ${mediaH.toFixed(4)}\)<br>
+            ${esConvexa ? 'h es convexa ⇒ E[h(X)] ≥ h(E[X])' : 'h es cóncava ⇒ E[h(X)] ≤ h(E[X])'}<br>
+            ${cumple ? '✓ Se cumple la desigualdad de Jensen' : '⚠ Error numérico'}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // INICIALIZACIÓN
+    // ============================================================
+    window.inicializarModuloActual = function() {
+        // Módulo 1
+        document.getElementById('c-markov')?.addEventListener('input', verificarMarkov);
+        document.getElementById('dist-markov')?.addEventListener('change', verificarMarkov);
+        document.getElementById('verificar-markov')?.addEventListener('click', verificarMarkov);
+        verificarMarkov();
+        
+        // Módulo 2
+        document.getElementById('k-chebyshev')?.addEventListener('input', verificarChebyshev);
+        document.getElementById('dist-chebyshev')?.addEventListener('change', verificarChebyshev);
+        document.getElementById('verificar-chebyshev')?.addEventListener('click', verificarChebyshev);
+        verificarChebyshev();
+        
+        // Módulo 3
+        document.getElementById('mu-unilateral')?.addEventListener('input', verificarUnilateral);
+        document.getElementById('sigma-unilateral')?.addEventListener('input', verificarUnilateral);
+        document.getElementById('a-unilateral')?.addEventListener('input', verificarUnilateral);
+        document.getElementById('verificar-unilateral')?.addEventListener('click', verificarUnilateral);
+        verificarUnilateral();
+        
+        // Módulo 4
+        document.getElementById('funcion-jensen')?.addEventListener('change', verificarJensen);
+        document.getElementById('dist-jensen')?.addEventListener('change', verificarJensen);
+        document.getElementById('verificar-jensen')?.addEventListener('click', verificarJensen);
+        verificarJensen();
+        
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
+        });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
+</script>
+</body>
+</html>
