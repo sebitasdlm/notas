@@ -1,1 +1,893 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Técnicas de Conteo - Capítulo 2</title>
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .tabla-resultados {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .tabla-resultados td, .tabla-resultados th {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Muestras Ordenadas (Con y Sin Reemplazo)       -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Muestras Ordenadas: Con y Sin Reemplazo</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Muestreo con reemplazo:</strong> \( \#\Omega = n^r \) (cada extracción es independiente)<br>
+                <strong>Muestreo sin reemplazo:</strong> \( \#\Omega = (n)_r = n(n-1)\cdots(n-r+1) = \frac{n!}{(n-r)!} \)
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Problema del cumpleaños</h4>
+                <div class="controles">
+                    <label>Número de personas (r):</label>
+                    <input type="range" id="r-cumple" min="1" max="80" step="1" value="23">
+                    <span id="r-val">23</span>
+                    <button id="simular-cumple">Simular 5000 grupos</button>
+                </div>
+                <canvas id="cumpleCanvas" width="500" height="250"></canvas>
+                <div id="cumple-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Probabilidad de cumpleaños no repetidos (teórica):</strong>
+                \[
+                \mathbb{P}(B_r) = \prod_{i=0}^{r-1} \left(1 - \frac{i}{365}\right)
+                \]
+                Para \(r=23\), \(\mathbb{P}(B_r) \approx 0.4927\), por lo que \(\mathbb{P}(\text{al menos dos iguales}) \approx 0.5073\).
+                ¡Contraintuitivo! Con solo 23 personas, es más probable que haya una coincidencia.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué con 23 personas la probabilidad de cumpleaños repetidos supera 0.5?</strong>
+                <button onclick="mostrarRespuesta('respuesta-cumple')">Ver respuesta</button>
+                <div id="respuesta-cumple" class="respuesta">
+                    El número de pares posibles es \(\binom{23}{2} = 253\). Cada par tiene probabilidad \(1/365 \approx 0.00274\) de coincidir. Aunque las coincidencias no son independientes, la probabilidad de al menos una es aproximadamente \(1 - (1 - 1/365)^{253} \approx 0.5\). ¡El número de pares crece cuadráticamente!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Combinaciones (Muestras No Ordenadas)          -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Combinaciones: Muestras No Ordenadas</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                El <strong>coeficiente binomial</strong> cuenta el número de formas de elegir \(r\) objetos de \(n\) sin importar el orden:
+                \[
+                \binom{n}{r} = \frac{n!}{r!(n-r)!} = \frac{(n)_r}{r!}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Calculadora de Combinaciones</h4>
+                <div class="controles">
+                    <label>n (total):</label>
+                    <input type="range" id="n-comb" min="1" max="20" step="1" value="10">
+                    <span id="n-comb-val">10</span>
+                    <label>r (elegir):</label>
+                    <input type="range" id="r-comb" min="0" max="20" step="1" value="3">
+                    <span id="r-comb-val">3</span>
+                </div>
+                <div id="comb-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (manos de poker):</strong>
+                \[
+                \binom{52}{5} = \frac{52!}{5!47!} = 2\,598\,960
+                \]
+                Esta es la cantidad total de manos posibles en el póker.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Cuántas manos de póker tienen exactamente un As?</strong>
+                <button onclick="mostrarRespuesta('respuesta-poker')">Ver respuesta</button>
+                <div id="respuesta-poker" class="respuesta">
+                    \(\binom{4}{1}\binom{48}{4} = 4 \times 194,580 = 778,320\) manos.
+                    ¡Casi el 30% de todas las manos tienen exactamente un As!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Distribución Hipergeométrica (Particiones)      -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Distribución Hipergeométrica</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Para una población de \(N\) elementos con \(K\) "éxitos", la probabilidad de obtener \(k\) éxitos en una muestra de tamaño \(n\) sin reemplazo es:
+                \[
+                \mathbb{P}(X = k) = \frac{\binom{K}{k}\binom{N-K}{n-k}}{\binom{N}{n}}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Tornillos defectuosos</h4>
+                <div class="controles">
+                    <label>N (total tornillos):</label>
+                    <input type="range" id="N-hiper" min="20" max="100" step="5" value="50">
+                    <span id="N-hiper-val">50</span>
+                    <label>K (defectuosos):</label>
+                    <input type="range" id="K-hiper" min="1" max="50" step="1" value="10">
+                    <span id="K-hiper-val">10</span>
+                    <label>n (tamaño muestra):</label>
+                    <input type="range" id="n-hiper" min="1" max="50" step="1" value="5">
+                    <span id="n-hiper-val">5</span>
+                    <button id="simular-hiper">Simular 5000 muestras</button>
+                </div>
+                <canvas id="hiperCanvas" width="500" height="250"></canvas>
+                <div id="hiper-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (comité de profesores):</strong>
+                <br>
+                75 profesores (25 TC, 15 MT, 35 PA). Probabilidad de comité de 6 con 2 TC, 3 MT, 1 PA:
+                \[
+                p = \frac{\binom{25}{2}\binom{15}{3}\binom{35}{1}}{\binom{75}{6}} \approx 0.0210
+                \]
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué pasa con la hipergeométrica cuando N es grande?</strong>
+                <button onclick="mostrarRespuesta('respuesta-hiper')">Ver respuesta</button>
+                <div id="respuesta-hiper" class="respuesta">
+                    Cuando \(N\) es grande y \(n \ll N\), la hipergeométrica se aproxima a la binomial con \(p = K/N\). La diferencia práctica entre muestreo con y sin reemplazo se vuelve despreciable.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Inclusión-Exclusión y Problema de Empates       -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Inclusión-Exclusión y Problema de Empates</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Principio de Inclusión-Exclusión:</strong>
+                \[
+                \mathbb{P}\left(\bigcup_{i=1}^{n} A_i\right) = \sum_{i=1}^{n} \mathbb{P}(A_i) - \sum_{i<j} \mathbb{P}(A_i \cap A_j) + \cdots + (-1)^{n-1} \mathbb{P}(A_1 \cap \cdots \cap A_n)
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Problema de los sombreros (empates)</h4>
+                <div class="controles">
+                    <label>n (número de objetos):</label>
+                    <input type="range" id="n-empates" min="2" max="20" step="1" value="10">
+                    <span id="n-empates-val">10</span>
+                    <button id="simular-empates">Simular 10000 permutaciones</button>
+                </div>
+                <canvas id="empatesCanvas" width="500" height="250"></canvas>
+                <div id="empates-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Probabilidad de ningún empate (derangement):</strong>
+                \[
+                p_n = \sum_{k=0}^{n} (-1)^k \frac{1}{k!} \xrightarrow{n \to \infty} e^{-1} \approx 0.367879
+                \]
+                ¡Sorprendentemente, la probabilidad de ningún empate se estabiliza rápidamente alrededor de \(1/e\)!
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Tabla de probabilidades (del PDF):</strong>
+                <table class="tabla-resultados">
+                    <thead><tr><th>n</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>P(ningún empate)</td><td>0.5000</td><td>0.3333</td><td>0.3750</td><td>0.3667</td><td>0.3681</td><td>0.3679</td><td>0.3679</td><td>0.3679</td></tr>
+                        <tr><td>P(al menos un empate)</td><td>0.5000</td><td>0.6667</td><td>0.6250</td><td>0.6333</td><td>0.6319</td><td>0.6321</td><td>0.6321</td><td>0.6321</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Problema de Cajas Vacías                        -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Problema de Cajas Vacías</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Se lanzan \(n\) bolas en \(r\) cajas al azar. La probabilidad de que exactamente \(k\) cajas queden vacías es:
+                \[
+                p_k(r, n) = \binom{r}{k} \sum_{j=0}^{r-k} (-1)^j \binom{r-k}{j} \left(1 - \frac{j+k}{r}\right)^n
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Bolas en cajas</h4>
+                <div class="controles">
+                    <label>r (cajas):</label>
+                    <input type="range" id="r-cajas" min="2" max="10" step="1" value="5">
+                    <span id="r-cajas-val">5</span>
+                    <label>n (bolas):</label>
+                    <input type="range" id="n-cajas" min="1" max="20" step="1" value="10">
+                    <span id="n-cajas-val">10</span>
+                    <button id="simular-cajas">Simular 5000 lanzamientos</button>
+                </div>
+                <canvas id="cajasCanvas" width="500" height="250"></canvas>
+                <div id="cajas-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Caso particular: ninguna caja vacía</strong>
+                \[
+                p_0(r, n) = \sum_{j=0}^{r} (-1)^j \binom{r}{j} \left(1 - \frac{j}{r}\right)^n
+                \]
+                Para \(r=n=5\): \(p_0 = \frac{5!}{5^5} = \frac{120}{3125} = 0.0384\)
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Cuál es la probabilidad de que exactamente una caja quede vacía?</strong>
+                <button onclick="mostrarRespuesta('respuesta-cajas')">Ver respuesta</button>
+                <div id="respuesta-cajas" class="respuesta">
+                    Para \(r=n\), la probabilidad de que exactamente una caja quede vacía es
+                    \[
+                    p_1 = \binom{r}{1} \left(1 - \frac{1}{r}\right)^n \sum_{j=0}^{r-1} (-1)^j \binom{r-1}{j} \left(1 - \frac{j+1}{r}\right)^n
+                    \]
+                    Para \(r=n=5\), \(p_1 \approx 0.384\). ¡Es más probable tener una caja vacía que ninguna!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 6: Problema del Estambre Ruso (Bonus)             -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>6. Problema del Estambre Ruso (Ciclo Único)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Un problema clásico de combinatoria: se tienen \(2n\) extremos de estambre (n estambres) que se anudan al azar.
+                ¿Cuál es la probabilidad de que se forme un solo ciclo?
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Estambre Ruso</h4>
+                <div class="controles">
+                    <label>n (número de estambres):</label>
+                    <input type="range" id="n-estambre" min="2" max="8" step="1" value="4">
+                    <span id="n-estambre-val">4</span>
+                    <button id="simular-estambre">Simular 10000 experimentos</button>
+                </div>
+                <div id="estambre-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Solución teórica:</strong>
+                \[
+                \mathbb{P}(\text{ciclo único}) = \frac{(2n-2)!}{(2n-1)!!} \cdot \frac{1}{(2n-1)!!} = \frac{1}{2n-1}
+                \]
+                Para \(n=4\) (4 estambres), \(\mathbb{P} = 1/7 \approx 0.1429\).
+                ¡Contraintuitivamente, la probabilidad decrece como \(1/(2n-1)\)!
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // ============================================================
+    // FUNCIONES GLOBALES
+    // ============================================================
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        if(content) content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        if(elem) elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // FUNCIONES AUXILIARES
+    // ============================================================
+    function comb(n, k) {
+        if(k < 0 || k > n) return 0;
+        let res = 1;
+        for(let i=0; i<k; i++) res *= (n-i)/(i+1);
+        return res;
+    }
+
+    // ============================================================
+    // MODULO 1: Problema del cumpleaños
+    // ============================================================
+    function simularCumpleanos() {
+        const r = parseInt(document.getElementById('r-cumple').value);
+        document.getElementById('r-val').textContent = r;
+        
+        const nSim = 5000;
+        let coincidencias = 0;
+        
+        for(let sim=0; sim<nSim; sim++) {
+            const cumples = new Array(365).fill(0);
+            let repetido = false;
+            for(let i=0; i<r && !repetido; i++) {
+                const dia = Math.floor(Math.random() * 365);
+                cumples[dia]++;
+                if(cumples[dia] > 1) repetido = true;
+            }
+            if(repetido) coincidencias++;
+        }
+        
+        let probTeorica = 1;
+        for(let i=0; i<r; i++) probTeorica *= (365 - i) / 365;
+        probTeorica = 1 - probTeorica;
+        
+        const probMuestral = coincidencias / nSim;
+        
+        const canvas = document.getElementById('cumpleCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            // Gráfico de barras de probabilidad
+            const barWidth = w * 0.3;
+            ctx.fillStyle = '#4caf50';
+            ctx.fillRect(w/2 - barWidth - 10, h - probTeorica * h * 0.8, barWidth, probTeorica * h * 0.8);
+            ctx.fillStyle = '#2196f3';
+            ctx.fillRect(w/2 + 10, h - probMuestral * h * 0.8, barWidth, probMuestral * h * 0.8);
+            
+            ctx.fillStyle = '#333';
+            ctx.font = '12px sans-serif';
+            ctx.fillText('Teórica', w/2 - barWidth/2 - 10, h - 10);
+            ctx.fillText('Simulación', w/2 + barWidth/2 + 10, h - 10);
+        }
+        
+        document.getElementById('cumple-info').innerHTML = 
+            `Para r = ${r} personas:<br>
+            Probabilidad teórica de al menos dos iguales: ${probTeorica.toFixed(4)}<br>
+            Simulación (${nSim} grupos): ${probMuestral.toFixed(4)}`;
+    }
+    
+    // ============================================================
+    // MODULO 2: Combinaciones
+    // ============================================================
+    function actualizarCombinaciones() {
+        let n = parseInt(document.getElementById('n-comb').value);
+        let r = parseInt(document.getElementById('r-comb').value);
+        if(r > n) r = n;
+        document.getElementById('n-comb-val').textContent = n;
+        document.getElementById('r-comb-val').textContent = r;
+        document.getElementById('r-comb').max = n;
+        
+        const valor = comb(n, r);
+        document.getElementById('comb-resultado').innerHTML = 
+            `\(\\binom{${n}}{${r}} = ${valor.toLocaleString()}\)<br>
+            \(\\frac{${n}!}{${r}!(${n-r})!} = ${valor.toLocaleString()}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 3: Hipergeométrica
+    // ============================================================
+    function simularHipergeometrica() {
+        const N = parseInt(document.getElementById('N-hiper').value);
+        const K = parseInt(document.getElementById('K-hiper').value);
+        const n = parseInt(document.getElementById('n-hiper').value);
+        
+        document.getElementById('N-hiper-val').textContent = N;
+        document.getElementById('K-hiper-val').textContent = K;
+        document.getElementById('n-hiper-val').textContent = n;
+        
+        // Límites para r
+        const rMin = Math.max(0, n - (N - K));
+        const rMax = Math.min(n, K);
+        
+        // Distribución teórica
+        let probs = [];
+        for(let k=rMin; k<=rMax; k++) {
+            probs.push(comb(K, k) * comb(N-K, n-k) / comb(N, n));
+        }
+        
+        // Simulación
+        const nSim = 5000;
+        let frecuencias = new Array(rMax - rMin + 1).fill(0);
+        
+        for(let sim=0; sim<nSim; sim++) {
+            // Muestreo sin reemplazo
+            let poblacion = [];
+            for(let i=0; i<N; i++) poblacion.push(i < K ? 1 : 0);
+            for(let i=poblacion.length-1; i>0; i--) {
+                const j = Math.floor(Math.random() * (i+1));
+                [poblacion[i], poblacion[j]] = [poblacion[j], poblacion[i]];
+            }
+            const muestra = poblacion.slice(0, n);
+            const k = muestra.reduce((a,b)=>a+b,0);
+            const idx = k - rMin;
+            if(idx >=0 && idx < frecuencias.length) frecuencias[idx]++;
+        }
+        
+        const canvas = document.getElementById('hiperCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const barWidth = w / (probs.length + 2);
+            for(let i=0; i<probs.length; i++) {
+                const barHeight = probs[i] * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*barWidth + barWidth/2, h - barHeight, barWidth-2, barHeight);
+                
+                const freqSim = frecuencias[i] / nSim;
+                const barSimHeight = freqSim * h * 0.8;
+                ctx.fillStyle = 'rgba(33,150,243,0.7)';
+                ctx.fillRect(i*barWidth + barWidth/2 + 5, h - barSimHeight, barWidth-2, barSimHeight);
+            }
+        }
+        
+        const kEsperado = n * K / N;
+        document.getElementById('hiper-info').innerHTML = 
+            `Distribución hipergeométrica: N=${N}, K=${K}, n=${n}<br>
+            \(\\mathbb{E}[X] = n \\cdot \\frac{K}{N} = ${kEsperado.toFixed(2)}\)<br>
+            Verde: teórico | Azul: simulación (${nSim} muestras)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 4: Problema de empates
+    // ============================================================
+    function simularEmpates() {
+        const n = parseInt(document.getElementById('n-empates').value);
+        document.getElementById('n-empates-val').textContent = n;
+        
+        const nSim = 10000;
+        let sinEmpates = 0;
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let perm = [];
+            for(let i=0; i<n; i++) perm.push(i);
+            for(let i=perm.length-1; i>0; i--) {
+                const j = Math.floor(Math.random() * (i+1));
+                [perm[i], perm[j]] = [perm[j], perm[i]];
+            }
+            let empate = false;
+            for(let i=0; i<n; i++) {
+                if(perm[i] === i) { empate = true; break; }
+            }
+            if(!empate) sinEmpates++;
+        }
+        
+        let probTeorica = 0;
+        for(let k=0; k<=n; k++) probTeorica += Math.pow(-1, k) / fact(k);
+        
+        function fact(x) {
+            let r=1; for(let i=2; i<=x; i++) r*=i; return r;
+        }
+        
+        const probMuestral = sinEmpates / nSim;
+        
+        const canvas = document.getElementById('empatesCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const barWidth = w * 0.3;
+            ctx.fillStyle = '#4caf50';
+            ctx.fillRect(w/2 - barWidth - 10, h - probTeorica * h * 0.8, barWidth, probTeorica * h * 0.8);
+            ctx.fillStyle = '#2196f3';
+            ctx.fillRect(w/2 + 10, h - probMuestral * h * 0.8, barWidth, probMuestral * h * 0.8);
+        }
+        
+        document.getElementById('empates-info').innerHTML = 
+            `Para ${n} objetos:<br>
+            Probabilidad teórica de ningún empate: ${probTeorica.toFixed(4)} (≈ ${(1/Math.E).toFixed(4)} para n grande)<br>
+            Simulación (${nSim} permutaciones): ${probMuestral.toFixed(4)}`;
+    }
+    
+    // ============================================================
+    // MODULO 5: Cajas vacías
+    // ============================================================
+    function simularCajasVacias() {
+        const r = parseInt(document.getElementById('r-cajas').value);
+        const n = parseInt(document.getElementById('n-cajas').value);
+        
+        document.getElementById('r-cajas-val').textContent = r;
+        document.getElementById('n-cajas-val').textContent = n;
+        
+        const nSim = 5000;
+        let vacias = new Array(r+1).fill(0);
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let cajas = new Array(r).fill(0);
+            for(let i=0; i<n; i++) {
+                const caja = Math.floor(Math.random() * r);
+                cajas[caja]++;
+            }
+            const vaciasCount = cajas.filter(c => c === 0).length;
+            vacias[vaciasCount]++;
+        }
+        
+        const canvas = document.getElementById('cajasCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const barWidth = w / (r + 1);
+            for(let k=0; k<=r; k++) {
+                const barHeight = (vacias[k] / nSim) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(k*barWidth + 2, h - barHeight, barWidth-4, barHeight);
+                ctx.fillStyle = '#333';
+                ctx.font = '10px sans-serif';
+                ctx.fillText(k, k*barWidth + barWidth/2 - 3, h - 5);
+            }
+        }
+        
+        document.getElementById('cajas-info').innerHTML = 
+            `Distribución de cajas vacías para r=${r}, n=${n}<br>
+            Simulación: ${nSim} lanzamientos. Cada barra muestra la frecuencia de k cajas vacías.`;
+    }
+    
+    // ============================================================
+    // MODULO 6: Estambre ruso
+    // ============================================================
+    function simularEstambre() {
+        const n = parseInt(document.getElementById('n-estambre').value);
+        document.getElementById('n-estambre-val').textContent = n;
+        
+        const nSim = 10000;
+        let ciclosUnicos = 0;
+        
+        for(let sim=0; sim<nSim; sim++) {
+            // Simular anudado de 2n extremos
+            let extremos = [];
+            for(let i=0; i<2*n; i++) extremos.push(Math.floor(i/2));
+            
+            // Mezclar
+            for(let i=extremos.length-1; i>0; i--) {
+                const j = Math.floor(Math.random() * (i+1));
+                [extremos[i], extremos[j]] = [extremos[j], extremos[i]];
+            }
+            
+            // Anudar por pares (posición 0-1, 2-3, ...)
+            let padre = new Array(n);
+            for(let i=0; i<n; i++) padre[i] = i;
+            
+            function find(x) {
+                if(padre[x] !== x) padre[x] = find(padre[x]);
+                return padre[x];
+            }
+            
+            function union(x,y) {
+                const rx = find(x), ry = find(y);
+                if(rx !== ry) padre[ry] = rx;
+            }
+            
+            for(let i=0; i<n; i++) {
+                union(extremos[2*i], extremos[2*i+1]);
+            }
+            
+            // Verificar si hay un solo ciclo
+            const raiz = find(0);
+            let unico = true;
+            for(let i=1; i<n; i++) {
+                if(find(i) !== raiz) { unico = false; break; }
+            }
+            if(unico) ciclosUnicos++;
+        }
+        
+        const probTeorica = 1 / (2*n - 1);
+        const probMuestral = ciclosUnicos / nSim;
+        
+        document.getElementById('estambre-info').innerHTML = 
+            `Para ${n} estambres (${2*n} extremos):<br>
+            Probabilidad teórica de ciclo único: ${probTeorica.toFixed(6)} (1/(2n-1))<br>
+            Simulación (${nSim} experimentos): ${probMuestral.toFixed(6)}`;
+    }
+    
+    // ============================================================
+    // INICIALIZACIÓN
+    // ============================================================
+    window.inicializarModuloActual = function() {
+        // Módulo 1
+        const rCumple = document.getElementById('r-cumple');
+        const btnCumple = document.getElementById('simular-cumple');
+        if(rCumple) rCumple.addEventListener('input', simularCumpleanos);
+        if(btnCumple) btnCumple.addEventListener('click', simularCumpleanos);
+        simularCumpleanos();
+        
+        // Módulo 2
+        const nComb = document.getElementById('n-comb');
+        const rComb = document.getElementById('r-comb');
+        if(nComb) nComb.addEventListener('input', actualizarCombinaciones);
+        if(rComb) rComb.addEventListener('input', actualizarCombinaciones);
+        actualizarCombinaciones();
+        
+        // Módulo 3
+        const NHiper = document.getElementById('N-hiper');
+        const KHiper = document.getElementById('K-hiper');
+        const nHiper = document.getElementById('n-hiper');
+        const btnHiper = document.getElementById('simular-hiper');
+        if(NHiper) NHiper.addEventListener('input', simularHipergeometrica);
+        if(KHiper) KHiper.addEventListener('input', simularHipergeometrica);
+        if(nHiper) nHiper.addEventListener('input', simularHipergeometrica);
+        if(btnHiper) btnHiper.addEventListener('click', simularHipergeometrica);
+        simularHipergeometrica();
+        
+        // Módulo 4
+        const nEmpates = document.getElementById('n-empates');
+        const btnEmpates = document.getElementById('simular-empates');
+        if(nEmpates) nEmpates.addEventListener('input', simularEmpates);
+        if(btnEmpates) btnEmpates.addEventListener('click', simularEmpates);
+        simularEmpates();
+        
+        // Módulo 5
+        const rCajas = document.getElementById('r-cajas');
+        const nCajas = document.getElementById('n-cajas');
+        const btnCajas = document.getElementById('simular-cajas');
+        if(rCajas) rCajas.addEventListener('input', simularCajasVacias);
+        if(nCajas) nCajas.addEventListener('input', simularCajasVacias);
+        if(btnCajas) btnCajas.addEventListener('click', simularCajasVacias);
+        simularCajasVacias();
+        
+        // Módulo 6
+        const nEstambre = document.getElementById('n-estambre');
+        const btnEstambre = document.getElementById('simular-estambre');
+        if(nEstambre) nEstambre.addEventListener('input', simularEstambre);
+        if(btnEstambre) btnEstambre.addEventListener('click', simularEstambre);
+        simularEstambre();
+        
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
+        });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
+</script>
+</body>
+</html>
