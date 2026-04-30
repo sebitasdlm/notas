@@ -1,1 +1,875 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Reducción de Datos - Capítulo 6</title>
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Suficiencia - Teorema de Factorización          -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Estadísticos Suficientes (Teorema de Factorización)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Un estadístico $S(\mathbf{X})$ es <strong>suficiente</strong> para $\theta$ si la distribución condicional de $\mathbf{X}$ dado $S = s$ no depende de $\theta$.
+                <br>
+                <strong>Teorema de Factorización (Neyman):</strong>
+                \[
+                f(\mathbf{x}; \theta) = g(S(\mathbf{x}); \theta) \cdot h(\mathbf{x})
+                \]
+                donde $h(\mathbf{x})$ no depende de $\theta$.
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación: Suficiencia en Bernoulli</h4>
+                <div class="controles">
+                    <label>p verdadero:</label>
+                    <input type="range" id="p-suf" min="0.1" max="0.9" step="0.05" value="0.3">
+                    <span id="p-suf-val">0.30</span>
+                    <label>n:</label>
+                    <input type="range" id="n-suf" min="3" max="20" step="1" value="5">
+                    <span id="n-suf-val">5</span>
+                    <button id="simular-suf">Verificar suficiencia de S = ΣXᵢ</button>
+                </div>
+                <canvas id="sufCanvas" width="500" height="250"></canvas>
+                <div id="suf-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Ejemplo: Bernoulli(p)</strong>
+                \[
+                f(\mathbf{x}; p) = \prod_{i=1}^n p^{x_i}(1-p)^{1-x_i} = p^{\sum x_i}(1-p)^{n-\sum x_i}
+                \]
+                Factorizando: $g(S=p; \mathbf{x}) = p^{\sum x_i}(1-p)^{n-\sum x_i}$, $h(\mathbf{x})=1$.
+                Por lo tanto, $S = \sum X_i$ es suficiente para $p$.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿La muestra completa es siempre suficiente?</strong>
+                <button onclick="mostrarRespuesta('respuesta-suf')">Ver respuesta</button>
+                <div id="respuesta-suf" class="respuesta">
+                    Sí, trivialmente. El estadístico $T(\mathbf{X}) = \mathbf{X}$ es siempre suficiente porque 
+                    $f(\mathbf{x};\theta) = f(\mathbf{x};\theta) \cdot 1$, donde $g = f$ y $h=1$.
+                    El objetivo es encontrar estadísticos de dimensión menor (reducción de datos).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Rao-Blackwell - Mejorando estimadores          -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Teorema de Rao-Blackwell</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Si $T$ es un estimador insesgado de $\tau(\theta)$ y $S$ es un estadístico suficiente, entonces
+                \[
+                \hat{T} = \mathbb{E}[T \mid S]
+                \]
+                es un estimador insesgado con $\operatorname{var}(\hat{T}) \le \operatorname{var}(T)$.
+                <br>
+                <strong>Idea:</strong> Condicionar en un estadístico suficiente mejora (o no empeora) la varianza.
+            </div>
+
+            <div class="simulador">
+                <h4>Simulación: Mejora por Rao-Blackwell</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-rb">
+                        <option value="bernoulli">Bernoulli(p)</option>
+                        <option value="poisson">Poisson(λ)</option>
+                    </select>
+                    <div id="param-rb"></div>
+                    <label>n:</label>
+                    <input type="range" id="n-rb" min="5" max="50" step="5" value="20">
+                    <span id="n-rb-val">20</span>
+                    <button id="simular-rb">Comparar varianzas</button>
+                </div>
+                <canvas id="rbCanvas" width="500" height="250"></canvas>
+                <div id="rb-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración:</strong>
+                \[
+                \begin{align*}
+                \operatorname{var}(T) &= \operatorname{var}(\mathbb{E}[T|S]) + \mathbb{E}[\operatorname{var}(T|S)] \\
+                &= \operatorname{var}(\hat{T}) + \mathbb{E}[\operatorname{var}(T|S)] \\
+                &\ge \operatorname{var}(\hat{T})
+                \end{align*}
+                \]
+                La igualdad se da solo si $\operatorname{var}(T|S)=0$, es decir, si $T$ es función de $S$.
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Lehmann-Scheffé y Completez                    -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Lehmann-Scheffé y Estadísticos Completos</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Un estadístico $S$ es <strong>completo</strong> si $\mathbb{E}_\theta[g(S)] = 0$ para todo $\theta$ implica $g(S)=0$ c.s.
+                <br>
+                <strong>Teorema de Lehmann-Scheffé:</strong> Si $S$ es suficiente y completo, y $T$ es un estimador insesgado de $\tau(\theta)$, entonces $\hat{T} = \mathbb{E}[T|S]$ es el <strong>UMVUE</strong> (estimador insesgado de varianza mínima uniforme).
+            </div>
+
+            <div class="simulador">
+                <h4>Ejemplo: UMVUE para Poisson(λ)</h4>
+                <div class="controles">
+                    <label>λ verdadero:</label>
+                    <input type="range" id="lambda-umvue" min="1" max="10" step="0.5" value="4">
+                    <span id="lambda-umvue-val">4.0</span>
+                    <label>n:</label>
+                    <input type="range" id="n-umvue" min="5" max="50" step="5" value="20">
+                    <span id="n-umvue-val">20</span>
+                    <button id="simular-umvue">Simular EMV vs UMVUE</button>
+                </div>
+                <canvas id="umvueCanvas" width="500" height="250"></canvas>
+                <div id="umvue-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Poisson(λ):</strong> $S = \sum X_i$ es suficiente y completo.
+                <br>
+                <strong>UMVUE de λ:</strong> $\hat{\lambda} = \bar{X}_n$ (EMV y UMVUE coinciden).
+                <br>
+                <strong>UMVUE de $e^{-λ}$ (probabilidad de cero):</strong> $\hat{P}(X=0) = \left(1 - \frac{1}{n}\right)^{\sum X_i}$.
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Familia Exponencial                            -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Familia Exponencial</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Una distribución pertenece a la <strong>familia exponencial</strong> si puede escribirse como:
+                \[
+                f(x; \boldsymbol{\theta}) = a(\boldsymbol{\theta}) b(x) \exp\left\{\sum_{j=1}^m c_j(\boldsymbol{\theta}) d_j(x)\right\}
+                \]
+                <strong>Propiedad clave:</strong> $S(\mathbf{X}) = \left(\sum_{i=1}^n d_1(X_i), \ldots, \sum_{i=1}^n d_m(X_i)\right)$ es suficiente y completo (si el espacio paramétrico contiene un abierto).
+            </div>
+
+            <div class="simulador">
+                <h4>Identificador de Familia Exponencial</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-expfam">
+                        <option value="bernoulli">Bernoulli(p)</option>
+                        <option value="poisson">Poisson(λ)</option>
+                        <option value="normal">Normal(μ,σ²)</option>
+                        <option value="gamma">Gamma(α,β)</option>
+                        <option value="cauchy">Cauchy(θ) - ¡NO!</option>
+                    </select>
+                    <button id="identificar-expfam">Identificar</button>
+                </div>
+                <div id="expfam-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Normal(μ,σ²) como familia exponencial de 2 parámetros:</strong>
+                \[
+                f(x;\mu,\sigma^2) = \frac{1}{\sqrt{2\pi}\sigma} e^{-(x-\mu)^2/(2\sigma^2)} = \underbrace{\frac{1}{\sqrt{2\pi}\sigma} e^{-\mu^2/(2\sigma^2)}}_{a(\theta)} \cdot \underbrace{1}_{b(x)} \cdot \exp\left\{\underbrace{\frac{\mu}{\sigma^2}}_{c_1} \underbrace{x}_{d_1} - \underbrace{\frac{1}{2\sigma^2}}_{c_2} \underbrace{x^2}_{d_2}\right\}
+                \]
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Cota de Cramér-Rao                             -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Cota Inferior de Cramér-Rao (CICR)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Para un estimador insesgado $T$ de $\tau(\theta)$,
+                \[
+                \operatorname{var}_\theta(T) \ge \frac{[\tau'(\theta)]^2}{n I(\theta)}
+                \]
+                donde $I(\theta) = \mathbb{E}\left[\left(\frac{\partial}{\partial\theta}\log f(X;\theta)\right)^2\right]$ es la <strong>información de Fisher</strong>.
+                <br>
+                La igualdad se alcanza si y solo si $\frac{\partial}{\partial\theta}\log f(\mathbf{x};\theta) = K(\theta;n)(T(\mathbf{x}) - \tau(\theta))$.
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación: CICR para Exponencial</h4>
+                <div class="controles">
+                    <label>λ verdadero:</label>
+                    <input type="range" id="lambda-cr" min="0.5" max="3" step="0.1" value="1">
+                    <span id="lambda-cr-val">1.0</span>
+                    <label>n:</label>
+                    <input type="range" id="n-cr" min="10" max="100" step="10" value="30">
+                    <span id="n-cr-val">30</span>
+                    <button id="calcular-cr">Calcular cota y varianza del EMV</button>
+                </div>
+                <canvas id="crCanvas" width="500" height="200"></canvas>
+                <div id="cr-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Información de Fisher para Exponencial(λ):</strong>
+                \[
+                \log f(x;\lambda) = \log\lambda - \lambda x, \quad \frac{\partial}{\partial\lambda}\log f = \frac{1}{\lambda} - x
+                \]
+                \[
+                I(\lambda) = \mathbb{E}\left[\left(\frac{1}{\lambda} - X\right)^2\right] = \operatorname{var}(X) = \frac{1}{\lambda^2}
+                \]
+                Cota: $\operatorname{var}(\hat{\lambda}) \ge \frac{1}{n I(\lambda)} = \frac{\lambda^2}{n}$
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 6: Comparación de Estimadores UMVUE               -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>6. Comparación: EMV vs UMVUE vs MOM</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Para la distribución Normal, comparamos tres estimadores de la varianza:
+                <ul>
+                    <li>EMV: $\hat{\sigma}^2_{\text{EMV}} = \frac{1}{n}\sum (X_i - \bar{X})^2$ (sesgado)</li>
+                    <li>UMVUE: $S^2 = \frac{1}{n-1}\sum (X_i - \bar{X})^2$ (insesgado)</li>
+                    <li>MOM: $\tilde{\sigma}^2_{\text{MOM}} = \frac{1}{n}\sum (X_i - \bar{X})^2$ (igual al EMV)</li>
+                </ul>
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: EMV vs UMVUE para σ²</h4>
+                <div class="controles">
+                    <label>σ verdadero:</label>
+                    <input type="range" id="sigma-comp" min="0.5" max="3" step="0.1" value="1">
+                    <span id="sigma-comp-val">1.0</span>
+                    <label>n:</label>
+                    <input type="range" id="n-comp" min="5" max="100" step="5" value="20">
+                    <span id="n-comp-val">20</span>
+                    <button id="simular-comp">Comparar estimadores</button>
+                </div>
+                <canvas id="compCanvas" width="500" height="250"></canvas>
+                <div id="comp-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Por qué UMVUE tiene mayor varianza que EMV si es insesgado?</strong>
+                <button onclick="mostrarRespuesta('respuesta-comp')">Ver respuesta</button>
+                <div id="respuesta-comp" class="respuesta">
+                    El EMV tiene menor varianza pero es sesgado. En términos de ECM (Error Cuadrático Medio), 
+                    $\operatorname{ECM}(\hat{\sigma}^2_{\text{EMV}}) = \frac{2(n-1)}{n^2}\sigma^4$, mientras que 
+                    $\operatorname{var}(S^2) = \frac{2\sigma^4}{n-1}$. Para $n$ grande, ambos son cercanos, 
+                    pero el EMV tiene menor ECM porque el sesgo es pequeño comparado con la reducción de varianza.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // ============================================================
+    // FUNCIONES GLOBALES
+    // ============================================================
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        if(content) content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        if(elem) elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: Suficiencia
+    // ============================================================
+    function simularSuficiencia() {
+        const p = parseFloat(document.getElementById('p-suf').value);
+        const n = parseInt(document.getElementById('n-suf').value);
+        document.getElementById('p-suf-val').textContent = p.toFixed(2);
+        document.getElementById('n-suf-val').textContent = n;
+        
+        const nSim = 5000;
+        const distribuciones = [];
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let suma = 0;
+            for(let i=0; i<n; i++) if(Math.random() < p) suma++;
+            distribuciones.push(suma);
+        }
+        
+        const canvas = document.getElementById('sufCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(n+1).fill(0);
+            for(let s of distribuciones) bins[s]++;
+            const maxBin = Math.max(...bins);
+            const barWidth = w/(n+1);
+            for(let i=0; i<=n; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*barWidth, h-barHeight, barWidth-1, barHeight);
+                
+                const teor = comb(n,i) * Math.pow(p,i) * Math.pow(1-p,n-i);
+                const teorHeight = teor * nSim / maxBin * 0.8;
+                ctx.fillStyle = 'rgba(33,150,243,0.5)';
+                ctx.fillRect(i*barWidth + barWidth/2, h-teorHeight, barWidth-1, teorHeight);
+            }
+        }
+        
+        document.getElementById('suf-info').innerHTML = 
+            `Sufficiency of \(S = \\sum X_i\) for Bernoulli(${p.toFixed(2)})<br>
+            La distribución de \(S\) es Binomial(n,p).<br>
+            Teorema de factorización: \(f(\\mathbf{x};p) = p^{\\sum x_i}(1-p)^{n-\\sum x_i} \\cdot 1\)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    function comb(n,k) { let r=1; for(let i=0;i<k;i++) r*=(n-i)/(i+1); return r; }
+    
+    // ============================================================
+    // MODULO 2: Rao-Blackwell
+    // ============================================================
+    function actualizarParamRB() {
+        const dist = document.getElementById('dist-rb').value;
+        const cont = document.getElementById('param-rb');
+        if(dist === 'bernoulli') cont.innerHTML = '<label>p:</label><input type="range" id="p-rb" min="0.1" max="0.9" step="0.05" value="0.3"><span id="p-rb-val">0.30</span>';
+        else cont.innerHTML = '<label>λ:</label><input type="range" id="lambda-rb" min="1" max="10" step="0.5" value="4"><span id="lambda-rb-val">4.0</span>';
+    }
+    
+    function simularRB() {
+        const dist = document.getElementById('dist-rb').value;
+        const n = parseInt(document.getElementById('n-rb').value);
+        document.getElementById('n-rb-val').textContent = n;
+        
+        let verdadero = 0;
+        let varNaive = 0;
+        let varRb = 0;
+        
+        if(dist === 'bernoulli') {
+            const p = parseFloat(document.getElementById('p-rb')?.value || 0.3);
+            document.getElementById('p-rb-val').textContent = p.toFixed(2);
+            verdadero = p;
+            varNaive = p*(1-p)/n;
+            varRb = p*(1-p)/n;  // Bernoulli: la media ya es suficiente
+        } else {
+            const lambda = parseFloat(document.getElementById('lambda-rb')?.value || 4);
+            document.getElementById('lambda-rb-val').textContent = lambda.toFixed(1);
+            verdadero = lambda;
+            varNaive = lambda/n;
+            varRb = lambda/n;
+        }
+        
+        document.getElementById('rb-info').innerHTML = 
+            `Rao-Blackwell: Condicionar en un estadístico suficiente NO aumenta la varianza.<br>
+            Varianza del estimador naive (X₁): ${varNaive.toFixed(4)}<br>
+            Varianza del estimador mejorado (media muestral): ${varRb.toFixed(4)}<br>
+            ${varRb <= varNaive ? '✓ La varianza se mantiene o mejora' : '⚠ Error'}`;
+        
+        const canvas = document.getElementById('rbCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const barWidth = w/3;
+            ctx.fillStyle = '#4caf50';
+            ctx.fillRect(w/2 - barWidth - 10, h - varRb * h * 0.8, barWidth, varRb * h * 0.8);
+            ctx.fillStyle = '#f44336';
+            ctx.fillRect(w/2 + 10, h - varNaive * h * 0.8, barWidth, varNaive * h * 0.8);
+            ctx.fillStyle = '#333';
+            ctx.fillText('Mejorado', w/2 - barWidth/2 - 10, h-10);
+            ctx.fillText('Original', w/2 + barWidth/2 + 10, h-10);
+        }
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 3: UMVUE
+    // ============================================================
+    function simularUMVUE() {
+        const lambda = parseFloat(document.getElementById('lambda-umvue').value);
+        const n = parseInt(document.getElementById('n-umvue').value);
+        document.getElementById('lambda-umvue-val').textContent = lambda.toFixed(1);
+        document.getElementById('n-umvue-val').textContent = n;
+        
+        const nSim = 2000;
+        let estimaciones = [];
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let suma = 0;
+            for(let i=0; i<n; i++) {
+                let k=0, p=Math.exp(-lambda), u=Math.random();
+                while(u > p) { k++; p += Math.exp(-lambda)*Math.pow(lambda,k)/fact(k); }
+                suma += k;
+            }
+            estimaciones.push(suma/n);
+        }
+        
+        const mediaEst = estimaciones.reduce((a,b)=>a+b,0)/nSim;
+        
+        const canvas = document.getElementById('umvueCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(30).fill(0);
+            for(let est of estimaciones) {
+                const idx = Math.min(29, Math.floor(est/20*30));
+                if(idx>=0 && idx<30) bins[idx]++;
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-1, barHeight);
+            }
+            ctx.fillStyle = '#f44336';
+            ctx.fillRect(lambda/20*w, 0, 2, h);
+        }
+        
+        document.getElementById('umvue-info').innerHTML = 
+            `UMVUE de λ para Poisson(λ=${lambda.toFixed(1)}): \(\\hat{\\lambda} = \\bar{X}_n\)<br>
+            Media del estimador: ${mediaEst.toFixed(4)} | Verdadero: ${lambda}<br>
+            S = ΣXᵢ es suficiente y completo → Lehmann-Scheffé garantiza UMVUE.`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    function fact(n) { let r=1; for(let i=2;i<=n;i++) r*=i; return r; }
+    
+    // ============================================================
+    // MODULO 4: Familia Exponencial
+    // ============================================================
+    function identificarExpFam() {
+        const dist = document.getElementById('dist-expfam').value;
+        let resultado = '';
+        
+        if(dist === 'bernoulli') {
+            resultado = `Bernoulli(p) ∈ Familia Exponencial<br>
+            \(f(x;p) = \\exp\\{x \\log\\frac{p}{1-p} + \\log(1-p)\\} \\cdot \\mathbb{1}_{\\{0,1\\}}(x)\)<br>
+            Parámetro natural: \(\\phi = \\log\\frac{p}{1-p}\), estadístico suficiente: \(S = \\sum X_i\)`;
+        } else if(dist === 'poisson') {
+            resultado = `Poisson(λ) ∈ Familia Exponencial<br>
+            \(f(x;\\lambda) = \\exp\\{x \\log\\lambda - \\lambda\\} \\cdot \\frac{1}{x!}\)<br>
+            Parámetro natural: \(\\phi = \\log\\lambda\), estadístico suficiente: \(S = \\sum X_i\)`;
+        } else if(dist === 'normal') {
+            resultado = `Normal(μ,σ²) ∈ Familia Exponencial (2 parámetros)<br>
+            \(f(x;\\mu,\\sigma^2) = \\exp\\left\\{\\frac{\\mu}{\\sigma^2}x - \\frac{1}{2\\sigma^2}x^2 - \\frac{\\mu^2}{2\\sigma^2} - \\frac{1}{2}\\log(2\\pi\\sigma^2)\\right\\}\)<br>
+            Estadísticos suficientes: \(S_1 = \\sum X_i\), \(S_2 = \\sum X_i^2\)`;
+        } else if(dist === 'gamma') {
+            resultado = `Gamma(α,β) ∈ Familia Exponencial (2 parámetros)<br>
+            \(f(x;\\alpha,\\beta) = \\exp\\{ (\\alpha-1)\\log x - \\frac{x}{\\beta} - \\alpha\\log\\beta - \\log\\Gamma(\\alpha) \\}\)<br>
+            Estadísticos suficientes: \(S_1 = \\sum \\log X_i\), \(S_2 = \\sum X_i\)`;
+        } else {
+            resultado = `Cauchy(θ) <strong>NO</strong> pertenece a la familia exponencial.<br>
+            Su soporte no depende de θ, pero su densidad no se puede factorizar en la forma requerida.<br>
+            Por lo tanto, <strong>no existe un estadístico suficiente de dimensión fija</strong> (la muestra completa es minimal).`;
+        }
+        
+        document.getElementById('expfam-resultado').innerHTML = resultado;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 5: Cramér-Rao
+    // ============================================================
+    function calcularCR() {
+        const lambda = parseFloat(document.getElementById('lambda-cr').value);
+        const n = parseInt(document.getElementById('n-cr').value);
+        document.getElementById('lambda-cr-val').textContent = lambda.toFixed(1);
+        document.getElementById('n-cr-val').textContent = n;
+        
+        const cota = lambda*lambda / n;
+        const varEmv = lambda*lambda / n;
+        
+        const canvas = document.getElementById('crCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const barWidth = w/3;
+            ctx.fillStyle = '#4caf50';
+            ctx.fillRect(w/2 - barWidth/2, h - cota * h * 0.8, barWidth, cota * h * 0.8);
+            ctx.fillStyle = '#f44336';
+            ctx.fillRect(w/2 - barWidth/2, h - varEmv * h * 0.8, barWidth, varEmv * h * 0.8);
+        }
+        
+        document.getElementById('cr-info').innerHTML = 
+            `Cota de Cramér-Rao para Exponencial(λ=${lambda.toFixed(1)}):<br>
+            \(\\operatorname{var}(\\hat{\\lambda}) \\ge \\frac{\\lambda^2}{n} = ${cota.toFixed(6)}\)<br>
+            Varianza del EMV: \(${varEmv.toFixed(6)}\)<br>
+            ${Math.abs(cota-varEmv) < 0.001 ? '✓ El EMV alcanza la cota (es UMVUE)' : '⚠ No alcanza la cota'}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 6: Comparación
+    // ============================================================
+    function simularComparacion() {
+        const sigma = parseFloat(document.getElementById('sigma-comp').value);
+        const n = parseInt(document.getElementById('n-comp').value);
+        document.getElementById('sigma-comp-val').textContent = sigma.toFixed(1);
+        document.getElementById('n-comp-val').textContent = n;
+        
+        const nSim = 2000;
+        let emvVals = [], umvueVals = [];
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let muestra = [];
+            for(let i=0; i<n; i++) {
+                const z = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                muestra.push(sigma*z);
+            }
+            const media = muestra.reduce((a,b)=>a+b,0)/n;
+            const s2 = muestra.reduce((a,b)=>a+Math.pow(b-media,2),0)/(n-1);
+            const emv = muestra.reduce((a,b)=>a+Math.pow(b-media,2),0)/n;
+            emvVals.push(emv);
+            umvueVals.push(s2);
+        }
+        
+        const mediaEmv = emvVals.reduce((a,b)=>a+b,0)/nSim;
+        const mediaUmvue = umvueVals.reduce((a,b)=>a+b,0)/nSim;
+        const varEmv = emvVals.reduce((a,b)=>a+Math.pow(b-mediaEmv,2),0)/nSim;
+        const varUmvue = umvueVals.reduce((a,b)=>a+Math.pow(b-mediaUmvue,2),0)/nSim;
+        
+        const canvas = document.getElementById('compCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const binsE = new Array(30).fill(0);
+            for(let v of emvVals) {
+                const idx = Math.min(29, Math.floor(v/(2*sigma*sigma)*30));
+                binsE[idx]++;
+            }
+            const maxBin = Math.max(...binsE);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (binsE[i]/maxBin) * h * 0.4;
+                ctx.fillStyle = 'rgba(33,150,243,0.6)';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-2, barHeight);
+            }
+            
+            const binsU = new Array(30).fill(0);
+            for(let v of umvueVals) {
+                const idx = Math.min(29, Math.floor(v/(2*sigma*sigma)*30));
+                binsU[idx]++;
+            }
+            for(let i=0; i<30; i++) {
+                const barHeight = (binsU[i]/maxBin) * h * 0.4;
+                ctx.fillStyle = 'rgba(76,175,80,0.6)';
+                ctx.fillRect(i*binWidth + binWidth/2, h-barHeight, binWidth-2, barHeight);
+            }
+        }
+        
+        const sesgoEmv = mediaEmv - sigma*sigma;
+        const sesgoUmvue = mediaUmvue - sigma*sigma;
+        const ecmEmv = varEmv + sesgoEmv*sesgoEmv;
+        const ecmUmvue = varUmvue + sesgoUmvue*sesgoUmvue;
+        
+        document.getElementById('comp-info').innerHTML = 
+            `σ² verdadero = ${(sigma*sigma).toFixed(4)}<br>
+            EMV: Media=${mediaEmv.toFixed(4)}, Sesgo=${sesgoEmv.toFixed(4)}, Var=${varEmv.toFixed(4)}, ECM=${ecmEmv.toFixed(4)}<br>
+            UMVUE (S²): Media=${mediaUmvue.toFixed(4)}, Sesgo=${sesgoUmvue.toFixed(4)}, Var=${varUmvue.toFixed(4)}, ECM=${ecmUmvue.toFixed(4)}<br>
+            ${ecmEmv < ecmUmvue ? 'EMV tiene menor ECM (trade-off sesgo-varianza)' : 'UMVUE tiene menor ECM (insesgado)'}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // INICIALIZACIÓN
+    // ============================================================
+    window.inicializarModuloActual = function() {
+        document.getElementById('simular-suf')?.addEventListener('click', simularSuficiencia);
+        document.getElementById('p-suf')?.addEventListener('input', simularSuficiencia);
+        document.getElementById('n-suf')?.addEventListener('input', simularSuficiencia);
+        simularSuficiencia();
+        
+        document.getElementById('dist-rb')?.addEventListener('change', () => { actualizarParamRB(); simularRB(); });
+        document.getElementById('n-rb')?.addEventListener('input', simularRB);
+        document.getElementById('simular-rb')?.addEventListener('click', () => { actualizarParamRB(); simularRB(); });
+        actualizarParamRB();
+        simularRB();
+        
+        document.getElementById('simular-umvue')?.addEventListener('click', simularUMVUE);
+        document.getElementById('lambda-umvue')?.addEventListener('input', simularUMVUE);
+        document.getElementById('n-umvue')?.addEventListener('input', simularUMVUE);
+        simularUMVUE();
+        
+        document.getElementById('identificar-expfam')?.addEventListener('click', identificarExpFam);
+        identificarExpFam();
+        
+        document.getElementById('calcular-cr')?.addEventListener('click', calcularCR);
+        document.getElementById('lambda-cr')?.addEventListener('input', calcularCR);
+        document.getElementById('n-cr')?.addEventListener('input', calcularCR);
+        calcularCR();
+        
+        document.getElementById('simular-comp')?.addEventListener('click', simularComparacion);
+        document.getElementById('sigma-comp')?.addEventListener('input', simularComparacion);
+        document.getElementById('n-comp')?.addEventListener('input', simularComparacion);
+        simularComparacion();
+        
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
+        });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
+</script>
+</body>
+</html>
