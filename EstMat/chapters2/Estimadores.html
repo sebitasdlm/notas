@@ -1,1 +1,1048 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Estimadores Puntuales - Capítulo 5</title>
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Sesgo, Varianza y ECM                           -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Sesgo, Varianza y Error Cuadrático Medio (ECM)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Sesgo:</strong> $\operatorname{Bias}(\hat{\theta}) = \mathbb{E}[\hat{\theta}] - \theta$
+                <br>
+                <strong>Error Cuadrático Medio (ECM):</strong> $\operatorname{ECM}(\hat{\theta}) = \mathbb{E}[(\hat{\theta} - \theta)^2] = \operatorname{var}(\hat{\theta}) + \operatorname{Bias}^2(\hat{\theta})$
+                <br>
+                Un estimador es <strong>insesgado</strong> si $\operatorname{Bias}(\hat{\theta}) = 0$.
+            </div>
+
+            <div class="simulador">
+                <h4>Simulación: Sesgo y varianza de estimadores</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-ecm">
+                        <option value="normal">Normal(μ=5, σ=2)</option>
+                        <option value="exponencial">Exponencial(λ=0.5)</option>
+                    </select>
+                    <label>n (tamaño muestra):</label>
+                    <input type="range" id="n-ecm" min="5" max="200" step="5" value="30">
+                    <span id="n-ecm-val">30</span>
+                    <button id="simular-ecm">Simular 2000 muestras</button>
+                </div>
+                <canvas id="ecmCanvas" width="500" height="250"></canvas>
+                <div id="ecm-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración de la descomposición ECM:</strong>
+                \[
+                \begin{align*}
+                \operatorname{ECM}(\hat{\theta}) &= \mathbb{E}[(\hat{\theta} - \theta)^2] \\
+                &= \mathbb{E}[((\hat{\theta} - \mathbb{E}[\hat{\theta}]) + (\mathbb{E}[\hat{\theta}] - \theta))^2] \\
+                &= \operatorname{var}(\hat{\theta}) + (\mathbb{E}[\hat{\theta}] - \theta)^2 + 2(\mathbb{E}[\hat{\theta}] - \theta)\mathbb{E}[\hat{\theta} - \mathbb{E}[\hat{\theta}]] \\
+                &= \operatorname{var}(\hat{\theta}) + \operatorname{Bias}^2(\hat{\theta})
+                \end{align*}
+                \]
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Puede un estimador sesgado tener menor ECM que uno insesgado?</strong>
+                <button onclick="mostrarRespuesta('respuesta-ecm')">Ver respuesta</button>
+                <div id="respuesta-ecm" class="respuesta">
+                    ¡Sí! Es el trade-off sesgo-varianza. Un estimador puede tener un pequeño sesgo pero una varianza mucho menor, resultando en un ECM menor. Esto es común en métodos de regularización como Ridge regression.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Método de Momentos                              -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Método de Momentos (EMM)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                El <strong>método de momentos</strong> iguala momentos poblacionales con momentos muestrales.
+                \[
+                \mu_r = \mathbb{E}[X^r], \quad m_r = \frac{1}{n}\sum_{i=1}^n X_i^r
+                \]
+                Se resuelve $\mu_r(\theta) = m_r$ para $r=1,\ldots,k$ para obtener $\tilde{\theta}_{\text{EMM}}$.
+            </div>
+
+            <div class="simulador">
+                <h4>Estimación por Momentos: Gamma</h4>
+                <div class="controles">
+                    <label>α verdadero:</label>
+                    <input type="range" id="alpha-mom" min="1" max="5" step="0.5" value="2">
+                    <span id="alpha-mom-val">2.0</span>
+                    <label>β verdadero:</label>
+                    <input type="range" id="beta-mom" min="0.5" max="3" step="0.1" value="1">
+                    <span id="beta-mom-val">1.0</span>
+                    <label>n:</label>
+                    <input type="range" id="n-mom" min="20" max="500" step="10" value="100">
+                    <span id="n-mom-val">100</span>
+                    <button id="simular-mom">Simular 1000 muestras</button>
+                </div>
+                <canvas id="momCanvas" width="500" height="250"></canvas>
+                <div id="mom-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Para Gamma(α,β):</strong>
+                \[
+                \mu_1 = \alpha\beta, \quad \mu_2 = \alpha\beta^2 + \alpha^2\beta^2
+                \]
+                Resolviendo: $\tilde{\alpha}_{\text{EMM}} = \frac{m_1^2}{m_2 - m_1^2}$, $\tilde{\beta}_{\text{EMM}} = \frac{m_2 - m_1^2}{m_1}$
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Máxima Verosimilitud (EMV)                      -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Método de Máxima Verosimilitud (EMV)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>función de verosimilitud</strong> es $L(\theta; \mathbf{x}) = \prod_{i=1}^n f(x_i; \theta)$.
+                <br>
+                El <strong>estimador de máxima verosimilitud (EMV)</strong> es $\hat{\theta}_{\text{EMV}} = \arg\max_{\theta} L(\theta; \mathbf{x})$.
+                <br>
+                Equivalentemente, maximiza $\ell(\theta; \mathbf{x}) = \log L(\theta; \mathbf{x})$.
+            </div>
+
+            <div class="simulador">
+                <h4>EMV para diferentes distribuciones</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-emv">
+                        <option value="poisson">Poisson(λ)</option>
+                        <option value="exponencial">Exponencial(θ)</option>
+                        <option value="normal">Normal(μ,σ)</option>
+                        <option value="uniforme">Uniforme(0,θ)</option>
+                    </select>
+                    <div id="param-emv"></div>
+                    <label>n:</label>
+                    <input type="range" id="n-emv" min="10" max="200" step="10" value="50">
+                    <span id="n-emv-val">50</span>
+                    <button id="simular-emv">Simular 1000 muestras</button>
+                </div>
+                <canvas id="emvCanvas" width="500" height="250"></canvas>
+                <div id="emv-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>EMV para Poisson(λ):</strong> $\hat{\lambda}_{\text{EMV}} = \bar{X}_n$
+                <br>
+                <strong>EMV para Exponencial(θ):</strong> $\hat{\theta}_{\text{EMV}} = \bar{X}_n$
+                <br>
+                <strong>EMV para Uniforme(0,θ):</strong> $\hat{\theta}_{\text{EMV}} = X_{(n)}$ (el máximo muestral)
+                <br>
+                <strong>EMV para Normal(μ,σ²):</strong> $\hat{\mu}_{\text{EMV}} = \bar{X}_n$, $\hat{\sigma}^2_{\text{EMV}} = \frac{1}{n}\sum (X_i - \bar{X}_n)^2$
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿El EMV de σ² en Normal es insesgado?</strong>
+                <button onclick="mostrarRespuesta('respuesta-emv')">Ver respuesta</button>
+                <div id="respuesta-emv" class="respuesta">
+                    No. $\mathbb{E}[\hat{\sigma}^2_{\text{EMV}}] = \frac{n-1}{n}\sigma^2$, tiene sesgo $-\sigma^2/n$. 
+                    El estimador insesgado es $S^2 = \frac{n}{n-1}\hat{\sigma}^2_{\text{EMV}}$. 
+                    Sin embargo, $\hat{\sigma}^2_{\text{EMV}}$ es consistente (el sesgo tiende a 0 cuando $n\to\infty$).
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Información de Fisher y Cramér-Rao             -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Información de Fisher y Cota de Cramér-Rao</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Información de Fisher:</strong> 
+                \[
+                I(\theta) = \mathbb{E}\left[\left(\frac{\partial}{\partial\theta}\log f(X;\theta)\right)^2\right] = -\mathbb{E}\left[\frac{\partial^2}{\partial\theta^2}\log f(X;\theta)\right]
+                \]
+                <strong>Cota de Cramér-Rao:</strong> Para cualquier estimador insesgado $\hat{\theta}$,
+                \[
+                \operatorname{var}(\hat{\theta}) \ge \frac{1}{n I(\theta)}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación: EMV alcanza la cota</h4>
+                <div class="controles">
+                    <label>Distribución (exponencial):</label>
+                    <select id="dist-fisher">
+                        <option value="exp">Exponencial(λ)</option>
+                        <option value="poisson">Poisson(λ)</option>
+                        <option value="normal">Normal(μ conocida)</option>
+                    </select>
+                    <div id="param-fisher"></div>
+                    <label>n:</label>
+                    <input type="range" id="n-fisher" min="10" max="200" step="10" value="50">
+                    <span id="n-fisher-val">50</span>
+                    <button id="calcular-fisher">Calcular cota y varianza</button>
+                </div>
+                <div id="fisher-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Información de Fisher para Exponencial(λ):</strong>
+                \[
+                \log f(x;\lambda) = \log\lambda - \lambda x, \quad \frac{\partial}{\partial\lambda}\log f = \frac{1}{\lambda} - x
+                \]
+                \[
+                I(\lambda) = \mathbb{E}\left[\left(\frac{1}{\lambda} - X\right)^2\right] = \operatorname{var}(X) = \frac{1}{\lambda^2}
+                \]
+                Cota: $\operatorname{var}(\hat{\lambda}) \ge \frac{1}{n I(\lambda)} = \frac{\lambda^2}{n}$
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Consistencia y Normalidad Asintótica           -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Consistencia y Normalidad Asintótica del EMV</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Bajo condiciones de regularidad, el EMV es <strong>consistente</strong> y <strong>asintóticamente normal</strong>:
+                \[
+                \sqrt{n}(\hat{\theta}_n - \theta_0) \xrightarrow{D} N\left(0, \frac{1}{I(\theta_0)}\right)
+                \]
+                Es decir, para $n$ grande, $\hat{\theta}_n \approx N\left(\theta_0, \frac{1}{n I(\theta_0)}\right)$.
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación: Normalidad asintótica del EMV</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-asint">
+                        <option value="poisson">Poisson(λ=3)</option>
+                        <option value="exponencial">Exponencial(λ=2)</option>
+                        <option value="bernoulli">Bernoulli(p=0.3)</option>
+                    </select>
+                    <label>n:</label>
+                    <input type="range" id="n-asint" min="5" max="200" step="5" value="50">
+                    <span id="n-asint-val">50</span>
+                    <button id="simular-asint">Simular 2000 estimaciones</button>
+                </div>
+                <canvas id="asintCanvas" width="500" height="250"></canvas>
+                <div id="asint-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Interpretación:</strong> La varianza asintótica del EMV es $\frac{1}{nI(\theta_0)}$, que es la cota de Cramér-Rao. 
+                El EMV es <strong>asintóticamente eficiente</strong>: alcanza la mínima varianza posible para muestras grandes.
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 6: Invarianza del EMV                              -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>6. Principio de Invarianza del EMV</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Si $\hat{\theta}$ es el EMV de $\theta$, entonces para cualquier función $\tau$, el EMV de $\tau(\theta)$ es $\tau(\hat{\theta})$.
+                <br>
+                Esto se debe a que la función de verosimilitud se maximiza en el mismo punto.
+            </div>
+
+            <div class="simulador">
+                <h4>Ejemplo: EMV de la varianza en Bernoulli</h4>
+                <div class="controles">
+                    <label>p verdadero:</label>
+                    <input type="range" id="p-invar" min="0.1" max="0.9" step="0.05" value="0.3">
+                    <span id="p-invar-val">0.30</span>
+                    <label>n:</label>
+                    <input type="range" id="n-invar" min="10" max="200" step="10" value="50">
+                    <span id="n-invar-val">50</span>
+                    <button id="simular-invar">Simular 2000 muestras</button>
+                </div>
+                <canvas id="invarCanvas" width="500" height="250"></canvas>
+                <div id="invar-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                Para Bernoulli(p), $\operatorname{var}(X) = p(1-p)$. Por invarianza,
+                \[
+                \widehat{\operatorname{var}(X)} = \hat{p}(1-\hat{p}) = \bar{X}_n(1-\bar{X}_n)
+                \]
+                Este estimador es sesgado (porque $\mathbb{E}[\bar{X}_n^2] = p^2 + p(1-p)/n$), pero consistente.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿La invarianza se cumple para cualquier función τ?</strong>
+                <button onclick="mostrarRespuesta('respuesta-invar')">Ver respuesta</button>
+                <div id="respuesta-invar" class="respuesta">
+                    Sí, para cualquier función medible. Sin embargo, si τ no es uno-a-uno, puede haber múltiples EMV. 
+                    Por ejemplo, para $X \sim N(\mu,1)$, $\hat{\mu}_{\text{EMV}} = \bar{X}$, entonces el EMV de $\mu^2$ es $\bar{X}^2$, 
+                    aunque $\mu^2$ no sea uno-a-uno.
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // ============================================================
+    // FUNCIONES GLOBALES
+    // ============================================================
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        if(content) content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        if(elem) elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: ECM
+    // ============================================================
+    function simularECM() {
+        const dist = document.getElementById('dist-ecm').value;
+        const n = parseInt(document.getElementById('n-ecm').value);
+        document.getElementById('n-ecm-val').textContent = n;
+        
+        const nSim = 2000;
+        let estimacionesMedia = [];
+        let estimacionesMediana = [];
+        let verdadero = 0;
+        
+        if(dist === 'normal') {
+            verdadero = 5;
+            for(let sim=0; sim<nSim; sim++) {
+                let muestra = [];
+                for(let i=0; i<n; i++) {
+                    const z = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                    muestra.push(5 + 2*z);
+                }
+                const media = muestra.reduce((a,b)=>a+b,0)/n;
+                muestra.sort((a,b)=>a-b);
+                const mediana = n%2===0 ? (muestra[n/2-1]+muestra[n/2])/2 : muestra[Math.floor(n/2)];
+                estimacionesMedia.push(media);
+                estimacionesMediana.push(mediana);
+            }
+        } else {
+            verdadero = 2;
+            for(let sim=0; sim<nSim; sim++) {
+                let muestra = [];
+                for(let i=0; i<n; i++) muestra.push(-Math.log(Math.random())/0.5);
+                const media = muestra.reduce((a,b)=>a+b,0)/n;
+                muestra.sort((a,b)=>a-b);
+                const mediana = n%2===0 ? (muestra[n/2-1]+muestra[n/2])/2 : muestra[Math.floor(n/2)];
+                estimacionesMedia.push(media);
+                estimacionesMediana.push(mediana);
+            }
+        }
+        
+        const sesgoMedia = estimacionesMedia.reduce((a,b)=>a+b,0)/nSim - verdadero;
+        const sesgoMediana = estimacionesMediana.reduce((a,b)=>a+b,0)/nSim - verdadero;
+        const varMedia = estimacionesMedia.reduce((a,b)=>a+Math.pow(b-(estimacionesMedia.reduce((c,d)=>c+d,0)/nSim),2),0)/nSim;
+        const varMediana = estimacionesMediana.reduce((a,b)=>a+Math.pow(b-(estimacionesMediana.reduce((c,d)=>c+d,0)/nSim),2),0)/nSim;
+        const ecmMedia = varMedia + sesgoMedia*sesgoMedia;
+        const ecmMediana = varMediana + sesgoMediana*sesgoMediana;
+        
+        const canvas = document.getElementById('ecmCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const binsM = new Array(30).fill(0);
+            for(let m of estimacionesMedia) {
+                const idx = Math.min(29, Math.max(0, Math.floor((m-(verdadero-3))/6 * 30)));
+                binsM[idx]++;
+            }
+            const maxBin = Math.max(...binsM);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (binsM[i]/maxBin) * h * 0.4;
+                ctx.fillStyle = 'rgba(33,150,243,0.6)';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-2, barHeight);
+            }
+            
+            const binsMed = new Array(30).fill(0);
+            for(let med of estimacionesMediana) {
+                const idx = Math.min(29, Math.max(0, Math.floor((med-(verdadero-3))/6 * 30)));
+                binsMed[idx]++;
+            }
+            for(let i=0; i<30; i++) {
+                const barHeight = (binsMed[i]/maxBin) * h * 0.4;
+                ctx.fillStyle = 'rgba(76,175,80,0.6)';
+                ctx.fillRect(i*binWidth + binWidth/2, h-barHeight, binWidth-2, barHeight);
+            }
+            ctx.fillStyle = isDark ? '#eee' : '#333';
+            ctx.fillText('Media', w/3, h-10);
+            ctx.fillText('Mediana', 2*w/3, h-10);
+        }
+        
+        document.getElementById('ecm-info').innerHTML = 
+            `Media: Sesgo=${sesgoMedia.toFixed(4)}, Var=${varMedia.toFixed(4)}, ECM=${ecmMedia.toFixed(4)}<br>
+            Mediana: Sesgo=${sesgoMediana.toFixed(4)}, Var=${varMediana.toFixed(4)}, ECM=${ecmMediana.toFixed(4)}<br>
+            ${ecmMedia < ecmMediana ? 'La media tiene menor ECM (más eficiente en normal)' : 'La mediana tiene menor ECM (más robusta)'}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 2: Método de Momentos
+    // ============================================================
+    function simularMomentos() {
+        const alphaTrue = parseFloat(document.getElementById('alpha-mom').value);
+        const betaTrue = parseFloat(document.getElementById('beta-mom').value);
+        const n = parseInt(document.getElementById('n-mom').value);
+        document.getElementById('alpha-mom-val').textContent = alphaTrue.toFixed(1);
+        document.getElementById('beta-mom-val').textContent = betaTrue.toFixed(1);
+        document.getElementById('n-mom-val').textContent = n;
+        
+        const nSim = 1000;
+        let estimacionesAlpha = [];
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let muestra = [];
+            for(let i=0; i<n; i++) {
+                let g = 1;
+                for(let j=0; j<alphaTrue; j++) g *= Math.pow(-Math.log(Math.random()), 1/alphaTrue);
+                muestra.push(g / betaTrue);
+            }
+            const m1 = muestra.reduce((a,b)=>a+b,0)/n;
+            const m2 = muestra.reduce((a,b)=>a+b*b,0)/n;
+            const alphaEst = m1*m1 / (m2 - m1*m1);
+            estimacionesAlpha.push(alphaEst);
+        }
+        
+        const canvas = document.getElementById('momCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(30).fill(0);
+            for(let a of estimacionesAlpha) {
+                if(a > 0 && a < alphaTrue*3) {
+                    const idx = Math.min(29, Math.floor(a/(alphaTrue*3)*30));
+                    bins[idx]++;
+                }
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-1, barHeight);
+            }
+            ctx.fillStyle = '#f44336';
+            ctx.fillRect(alphaTrue/(alphaTrue*3)*w, 0, 2, h);
+        }
+        
+        const mediaAlpha = estimacionesAlpha.reduce((a,b)=>a+b,0)/nSim;
+        const sesgo = mediaAlpha - alphaTrue;
+        document.getElementById('mom-info').innerHTML = 
+            `Estimador de momentos para α (Gamma):<br>
+            α verdadero = ${alphaTrue.toFixed(2)}<br>
+            Media de α̂: ${mediaAlpha.toFixed(4)}, Sesgo: ${sesgo.toFixed(4)}<br>
+            β̂ = m₁/α̂ (estimación de β)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 3: EMV
+    // ============================================================
+    let emvValores = [];
+    
+    function actualizarParamEMV() {
+        const dist = document.getElementById('dist-emv').value;
+        const cont = document.getElementById('param-emv');
+        if(dist === 'poisson') cont.innerHTML = '<label>λ verdadero:</label><input type="range" id="lambda-emv" min="0.5" max="10" step="0.5" value="3"><span id="lambda-emv-val">3.0</span>';
+        else if(dist === 'exponencial') cont.innerHTML = '<label>θ verdadero:</label><input type="range" id="theta-emv" min="0.5" max="5" step="0.1" value="2"><span id="theta-emv-val">2.0</span>';
+        else if(dist === 'normal') cont.innerHTML = '<label>μ verdadero:</label><input type="range" id="mu-emv" min="-5" max="5" step="0.5" value="0"><span id="mu-emv-val">0</span><label>σ verdadero:</label><input type="range" id="sigma-emv" min="0.5" max="3" step="0.1" value="1"><span id="sigma-emv-val">1.0</span>';
+        else cont.innerHTML = '<label>θ verdadero:</label><input type="range" id="theta-unif" min="1" max="10" step="0.5" value="5"><span id="theta-unif-val">5.0</span>';
+    }
+    
+    function simularEMV() {
+        const dist = document.getElementById('dist-emv').value;
+        const n = parseInt(document.getElementById('n-emv').value);
+        document.getElementById('n-emv-val').textContent = n;
+        
+        const nSim = 1000;
+        let estimaciones = [];
+        let verdadero = 0;
+        
+        if(dist === 'poisson') {
+            const lambda = parseFloat(document.getElementById('lambda-emv')?.value || 3);
+            document.getElementById('lambda-emv-val').textContent = lambda.toFixed(1);
+            verdadero = lambda;
+            for(let sim=0; sim<nSim; sim++) {
+                let suma = 0;
+                for(let i=0; i<n; i++) {
+                    let k=0, p=Math.exp(-lambda), u=Math.random();
+                    while(u > p) { k++; p += Math.exp(-lambda)*Math.pow(lambda,k)/fact(k); }
+                    suma += k;
+                }
+                estimaciones.push(suma/n);
+            }
+        } else if(dist === 'exponencial') {
+            const theta = parseFloat(document.getElementById('theta-emv')?.value || 2);
+            document.getElementById('theta-emv-val').textContent = theta.toFixed(1);
+            verdadero = theta;
+            for(let sim=0; sim<nSim; sim++) {
+                let suma = 0;
+                for(let i=0; i<n; i++) suma += -Math.log(Math.random())*theta;
+                estimaciones.push(suma/n);
+            }
+        } else if(dist === 'normal') {
+            const mu = parseFloat(document.getElementById('mu-emv')?.value || 0);
+            const sigma = parseFloat(document.getElementById('sigma-emv')?.value || 1);
+            document.getElementById('mu-emv-val').textContent = mu;
+            document.getElementById('sigma-emv-val').textContent = sigma.toFixed(1);
+            verdadero = mu;
+            for(let sim=0; sim<nSim; sim++) {
+                let suma = 0;
+                for(let i=0; i<n; i++) {
+                    const z = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                    suma += mu + sigma*z;
+                }
+                estimaciones.push(suma/n);
+            }
+        } else {
+            const theta = parseFloat(document.getElementById('theta-unif')?.value || 5);
+            document.getElementById('theta-unif-val').textContent = theta.toFixed(1);
+            verdadero = theta;
+            for(let sim=0; sim<nSim; sim++) {
+                let maxVal = 0;
+                for(let i=0; i<n; i++) {
+                    const u = Math.random() * theta;
+                    if(u > maxVal) maxVal = u;
+                }
+                estimaciones.push(maxVal);
+            }
+        }
+        
+        const mediaEst = estimaciones.reduce((a,b)=>a+b,0)/nSim;
+        const sesgo = mediaEst - verdadero;
+        const varEst = estimaciones.reduce((a,b)=>a+Math.pow(b-mediaEst,2),0)/nSim;
+        
+        const canvas = document.getElementById('emvCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            let minVal = Math.min(...estimaciones, verdadero);
+            let maxVal = Math.max(...estimaciones, verdadero);
+            if(dist === 'uniforme') minVal = verdadero - 2;
+            const bins = new Array(30).fill(0);
+            for(let v of estimaciones) {
+                if(v >= minVal && v <= maxVal) {
+                    const idx = Math.floor((v-minVal)/(maxVal-minVal)*30);
+                    if(idx>=0 && idx<30) bins[idx]++;
+                }
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-1, barHeight);
+            }
+            ctx.fillStyle = '#f44336';
+            const xTrue = (verdadero-minVal)/(maxVal-minVal)*w;
+            ctx.fillRect(xTrue, 0, 2, h);
+        }
+        
+        document.getElementById('emv-info').innerHTML = 
+            `EMV para ${dist}:<br>
+            Verdadero: ${verdadero.toFixed(4)} | Media del EMV: ${mediaEst.toFixed(4)}<br>
+            Sesgo: ${sesgo.toFixed(4)} | Varianza: ${varEst.toFixed(4)}<br>
+            ${dist === 'uniforme' ? 'EMV = X₍ₙ₎ (máximo muestral)' : 'EMV = media muestral'}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    function fact(n) { let r=1; for(let i=2;i<=n;i++) r*=i; return r; }
+    
+    // ============================================================
+    // MODULO 4: Fisher
+    // ============================================================
+    function calcularFisher() {
+        const dist = document.getElementById('dist-fisher').value;
+        const n = parseInt(document.getElementById('n-fisher').value);
+        document.getElementById('n-fisher-val').textContent = n;
+        
+        let cota = 0;
+        let varTeorica = 0;
+        let param = 0;
+        
+        if(dist === 'exp') {
+            const lambda = parseFloat(document.getElementById('lambda-fisher')?.value || 1);
+            param = lambda;
+            cota = lambda*lambda / n;
+            varTeorica = lambda*lambda / n;
+        } else if(dist === 'poisson') {
+            const lambdaP = parseFloat(document.getElementById('lambdaP-fisher')?.value || 3);
+            param = lambdaP;
+            cota = lambdaP / n;
+            varTeorica = lambdaP / n;
+        } else {
+            const sigma = parseFloat(document.getElementById('sigma-fisher')?.value || 1);
+            param = sigma;
+            cota = (sigma*sigma) / n;
+            varTeorica = (sigma*sigma) / n;
+        }
+        
+        document.getElementById('fisher-info').innerHTML = 
+            `Información de Fisher: \(I(\\theta) = ${dist === 'exp' ? '1/λ²' : (dist === 'poisson' ? '1/λ' : '1/σ²')}\)<br>
+            Cota de Cramér-Rao: \(\\operatorname{var}(\\hat{\\theta}) \\ge \\frac{1}{nI(\\theta)} = ${cota.toFixed(6)}\)<br>
+            Varianza del EMV: ${varTeorica.toFixed(6)} ${Math.abs(cota - varTeorica) < 0.001 ? '✓ Alcanza la cota' : ''}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 5: Asintótica
+    // ============================================================
+    function simularAsintotica() {
+        const dist = document.getElementById('dist-asint').value;
+        const n = parseInt(document.getElementById('n-asint').value);
+        document.getElementById('n-asint-val').textContent = n;
+        
+        if(dist === 'cauchy') {
+            document.getElementById('asint-info').innerHTML = '⚠ Cauchy no tiene varianza finita, EMV no es asintóticamente normal (converge más lento)';
+            return;
+        }
+        
+        const nSim = 2000;
+        let estimaciones = [];
+        let verdadero = 0;
+        let varTeor = 0;
+        
+        if(dist === 'poisson') {
+            const lambda = 3;
+            verdadero = lambda;
+            varTeor = lambda/n;
+            for(let sim=0; sim<nSim; sim++) {
+                let suma = 0;
+                for(let i=0; i<n; i++) {
+                    let k=0, p=Math.exp(-lambda), u=Math.random();
+                    while(u > p) { k++; p += Math.exp(-lambda)*Math.pow(lambda,k)/fact(k); }
+                    suma += k;
+                }
+                estimaciones.push((suma/n - lambda)/Math.sqrt(varTeor));
+            }
+        } else if(dist === 'exponencial') {
+            const lambda = 2;
+            verdadero = lambda;
+            varTeor = lambda*lambda/n;
+            for(let sim=0; sim<nSim; sim++) {
+                let suma = 0;
+                for(let i=0; i<n; i++) suma += -Math.log(Math.random())/lambda;
+                estimaciones.push((suma/n - 1/lambda)/Math.sqrt(varTeor));
+            }
+        } else {
+            const p = 0.3;
+            verdadero = p;
+            varTeor = p*(1-p)/n;
+            for(let sim=0; sim<nSim; sim++) {
+                let suma = 0;
+                for(let i=0; i<n; i++) if(Math.random() < p) suma++;
+                estimaciones.push((suma/n - p)/Math.sqrt(varTeor));
+            }
+        }
+        
+        const canvas = document.getElementById('asintCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(30).fill(0);
+            for(let z of estimaciones) {
+                if(z > -3 && z < 3) {
+                    const idx = Math.floor((z+3)/6*30);
+                    if(idx>=0 && idx<30) bins[idx]++;
+                }
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-1, barHeight);
+            }
+            
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const z = -3 + (i/w)*6;
+                const dens = Math.exp(-z*z/2)/Math.sqrt(2*Math.PI);
+                const y = h - dens * h * 1.5;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        document.getElementById('asint-info').innerHTML = 
+            `Distribución asintótica del EMV: \(\\sqrt{n}(\\hat{\\theta}_n - \\theta_0) \\xrightarrow{D} N(0, ${varTeor*n})$<br>
+            El histograma se aproxima a N(0,1) (curva roja) cuando n es grande.`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 6: Invarianza
+    // ============================================================
+    function simularInvarianza() {
+        const p = parseFloat(document.getElementById('p-invar').value);
+        const n = parseInt(document.getElementById('n-invar').value);
+        document.getElementById('p-invar-val').textContent = p.toFixed(2);
+        document.getElementById('n-invar-val').textContent = n;
+        
+        const nSim = 2000;
+        let estimacionesVar = [];
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let suma = 0;
+            for(let i=0; i<n; i++) if(Math.random() < p) suma++;
+            const phat = suma/n;
+            estimacionesVar.push(phat*(1-phat));
+        }
+        
+        const varTeorica = p*(1-p);
+        const varBias = estimacionesVar.reduce((a,b)=>a+b,0)/nSim - varTeorica;
+        
+        const canvas = document.getElementById('invarCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(30).fill(0);
+            for(let v of estimacionesVar) {
+                if(v > 0 && v < 0.5) {
+                    const idx = Math.min(29, Math.floor(v/0.5*30));
+                    bins[idx]++;
+                }
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-1, barHeight);
+            }
+            ctx.fillStyle = '#f44336';
+            ctx.fillRect(varTeorica/0.5*w, 0, 2, h);
+        }
+        
+        document.getElementById('invar-info').innerHTML = 
+            `Por invarianza, EMV de varianza = \(\\hat{p}(1-\\hat{p})\)<br>
+            Varianza verdadera: ${varTeorica.toFixed(4)}<br>
+            Media del EMV: ${(estimacionesVar.reduce((a,b)=>a+b,0)/nSim).toFixed(4)} | Sesgo: ${varBias.toFixed(4)}<br>
+            Aunque es sesgado, es consistente (sesgo → 0 cuando n → ∞)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // INICIALIZACIÓN
+    // ============================================================
+    window.inicializarModuloActual = function() {
+        document.getElementById('simular-ecm')?.addEventListener('click', simularECM);
+        document.getElementById('n-ecm')?.addEventListener('input', simularECM);
+        document.getElementById('dist-ecm')?.addEventListener('change', simularECM);
+        simularECM();
+        
+        document.getElementById('simular-mom')?.addEventListener('click', simularMomentos);
+        document.getElementById('alpha-mom')?.addEventListener('input', simularMomentos);
+        document.getElementById('beta-mom')?.addEventListener('input', simularMomentos);
+        document.getElementById('n-mom')?.addEventListener('input', simularMomentos);
+        simularMomentos();
+        
+        document.getElementById('dist-emv')?.addEventListener('change', () => { actualizarParamEMV(); simularEMV(); });
+        document.getElementById('n-emv')?.addEventListener('input', simularEMV);
+        document.getElementById('simular-emv')?.addEventListener('click', () => { actualizarParamEMV(); simularEMV(); });
+        actualizarParamEMV();
+        simularEMV();
+        
+        document.getElementById('dist-fisher')?.addEventListener('change', () => { 
+            const cont = document.getElementById('param-fisher');
+            if(document.getElementById('dist-fisher').value === 'exp') cont.innerHTML = '<label>λ:</label><input type="range" id="lambda-fisher" min="0.5" max="3" step="0.1" value="1"><span id="lambda-fisher-val">1.0</span>';
+            else if(document.getElementById('dist-fisher').value === 'poisson') cont.innerHTML = '<label>λ:</label><input type="range" id="lambdaP-fisher" min="0.5" max="5" step="0.5" value="3"><span id="lambdaP-fisher-val">3.0</span>';
+            else cont.innerHTML = '<label>σ:</label><input type="range" id="sigma-fisher" min="0.5" max="3" step="0.1" value="1"><span id="sigma-fisher-val">1.0</span>';
+        });
+        document.getElementById('calcular-fisher')?.addEventListener('click', calcularFisher);
+        calcularFisher();
+        
+        document.getElementById('simular-asint')?.addEventListener('click', simularAsintotica);
+        document.getElementById('n-asint')?.addEventListener('input', simularAsintotica);
+        document.getElementById('dist-asint')?.addEventListener('change', simularAsintotica);
+        simularAsintotica();
+        
+        document.getElementById('simular-invar')?.addEventListener('click', simularInvarianza);
+        document.getElementById('p-invar')?.addEventListener('input', simularInvarianza);
+        document.getElementById('n-invar')?.addEventListener('input', simularInvarianza);
+        simularInvarianza();
+        
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
+        });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
+</script>
+</body>
+</html>
