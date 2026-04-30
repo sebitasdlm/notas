@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.body.appendChild(newScript);
                 });
 
-                if (filePath === "cover1.html") {
+                if (filePath === "cover2.html") {
                     mainContent.classList.add("cover");
                 } else {
                     mainContent.classList.remove("cover");
