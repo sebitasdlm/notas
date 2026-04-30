@@ -239,12 +239,12 @@
 
     <!-- ENCABEZADO -->
     <div class="header">
-        <h1>📊 Taller de R - Estadística Matemática</h1>
+        <h1>Taller de R - Estadística Matemática</h1>
         <button class="theme-btn" onclick="toggleTheme()">🌓 Tema oscuro/claro</button>
     </div>
 
     <div class="nota">
-        📌 <strong>Instrucciones:</strong> Haz clic en cada módulo para expandirlo. Dentro de cada módulo, haz clic en cada ejemplo para ver el código y la visualización. 
+        <strong>Instrucciones:</strong> Haz clic en cada módulo para expandirlo. Dentro de cada módulo, haz clic en cada ejemplo para ver el código y la visualización. 
         Puedes copiar el código con el botón "Copiar" y pegarlo en RStudio para ejecutarlo.
     </div>
 
@@ -253,7 +253,7 @@
     <!-- ========================================================= -->
     <div class="modulo">
         <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📊 1. Distribuciones de Probabilidad</h3>
+            <h3>Distribuciones de Probabilidad</h3>
             <span>▼</span>
         </div>
         <div class="modulo-content">
@@ -265,16 +265,16 @@
             <div class="badge">Exponencial</div>
             <hr>
 
-            <!-- Ejemplo 1.1 - Normal -->
+            <!-- Ejemplo - Normal -->
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    🔵 1.1 Distribución Normal (densidad)
+                    Distribución Normal (densidad)
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 # Densidad de la normal estándar
@@ -284,22 +284,22 @@ curve(dnorm(x), from = -4, to = 4,
 abline(h = 0, col = "gray", lty = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat1.png" alt="Densidad Normal" onerror="this.style.display='none'">
-                        <p>📸 Figura 1: Densidad de la distribución Normal(0,1)</p>
+                        <img src="plots/plot-estmat1.png" alt="Densidad Normal" onerror="this.style.display='none'">
+                        <p>Plot 1: Densidad de la distribución Normal(0,1)</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Ejemplo 1.2 - Normal vs t-Student -->
+            <!-- Ejemplo - Normal vs t-Student -->
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    🔵 1.2 Normal vs t-Student (comparación)
+                    Normal vs t-Student (comparación)
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 # Comparación t-Student vs Normal
@@ -312,22 +312,22 @@ legend("topright", legend = c("N(0,1)", "t₃", "t₁₀"),
        col = c("black", "red", "blue"), lwd = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat2.png" alt="Normal vs t-Student" onerror="this.style.display='none'">
-                        <p>📸 Figura 2: Comparación de densidades Normal vs t-Student</p>
+                        <img src="plots/plot-estmat5.png" alt="Normal vs t-Student" onerror="this.style.display='none'">
+                        <p>Plot 2: Comparación de densidades Normal vs t-Student</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Ejemplo 1.3 - Distribución χ² -->
+            <!-- Ejemplo - Distribución χ² -->
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    🔵 1.3 Distribución χ² (Ji-Cuadrada)
+                    Distribución χ² (Ji-Cuadrada)
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 # Distribución χ²
@@ -340,22 +340,22 @@ legend("topright", legend = c("χ²₃", "χ²₅", "χ²₁₀"),
        col = c("red", "blue", "green"), lwd = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat3.png" alt="Distribución χ²" onerror="this.style.display='none'">
-                        <p>📸 Figura 3: Densidades de la distribución χ²</p>
+                        <img src="plots/plot-estmat6.png" alt="Distribución χ²" onerror="this.style.display='none'">
+                        <p>Plot 3: Densidades de la distribución χ²</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Ejemplo 1.4 - Distribución F -->
+            <!-- Ejemplo - Distribución F -->
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    🔵 1.4 Distribución F
+                    Distribución F
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 # Distribución F
@@ -368,22 +368,22 @@ legend("topright", legend = c("F₃,₁₀", "F₅,₂₀", "F₁₀,₃₀"),
        col = c("blue", "red", "green"), lwd = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat4.png" alt="Distribución F" onerror="this.style.display='none'">
-                        <p>📸 Figura 4: Densidades de la distribución F</p>
+                        <img src="plots/plot-estmat7.png" alt="Distribución F" onerror="this.style.display='none'">
+                        <p>Plot 4: Densidades de la distribución F</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Ejemplo 1.5 - Distribución Exponencial -->
+            <!-- Ejemplo - Distribución Exponencial -->
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    🔵 1.5 Distribución Exponencial
+                    Distribución Exponencial
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 # Densidad exponencial
@@ -396,22 +396,22 @@ legend("topright", legend = c("λ=1", "λ=0.5", "λ=2"),
        col = c("blue", "red", "green"), lwd = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat5.png" alt="Distribución Exponencial" onerror="this.style.display='none'">
-                        <p>📸 Figura 5: Densidades de la distribución Exponencial</p>
+                        <img src="plots/plot-estmat8.png" alt="Distribución Exponencial" onerror="this.style.display='none'">
+                        <p>Plot 5: Densidades de la distribución Exponencial</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Ejemplo 1.6 - Distribución Gamma -->
+            <!-- Ejemplo - Distribución Gamma -->
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    🔵 1.6 Distribución Gamma
+                    Distribución Gamma
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 # Distribución Gamma
@@ -424,22 +424,22 @@ legend("topright", legend = c("α=1", "α=2", "α=3"),
        col = c("blue", "red", "green"), lwd = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat6.png" alt="Distribución Gamma" onerror="this.style.display='none'">
-                        <p>📸 Figura 6: Densidades de la distribución Gamma</p>
+                        <img src="plots/plot-estmat9.png" alt="Distribución Gamma" onerror="this.style.display='none'">
+                        <p>Plot 6: Densidades de la distribución Gamma</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Ejemplo 1.7 - Distribución Beta -->
+            <!-- Ejemplo - Distribución Beta -->
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    🔵 1.7 Distribución Beta
+                    Distribución Beta
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 # Distribución Beta
@@ -452,22 +452,22 @@ legend("topright", legend = c("α=0.5,β=0.5", "α=1,β=1", "α=2,β=2"),
        col = c("blue", "red", "green"), lwd = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat7.png" alt="Distribución Beta" onerror="this.style.display='none'">
-                        <p>📸 Figura 7: Densidades de la distribución Beta</p>
+                        <img src="plots/plot-estmat10.png" alt="Distribución Beta" onerror="this.style.display='none'">
+                        <p>Plot 7: Densidades de la distribución Beta</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Ejemplo 1.8 - Distribución Cauchy -->
+            <!-- Ejemplo - Distribución Cauchy -->
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    🔵 1.8 Distribución Cauchy (colas pesadas)
+                    Distribución Cauchy (colas pesadas)
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 # Distribución Cauchy vs Normal
@@ -479,8 +479,8 @@ legend("topright", legend = c("Cauchy(0,1)", "N(0,1)"),
        col = c("blue", "red"), lwd = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat8.png" alt="Distribución Cauchy" onerror="this.style.display='none'">
-                        <p>📸 Figura 8: Comparación Cauchy vs Normal</p>
+                        <img src="plots/plot-estmat13.png" alt="Distribución Cauchy" onerror="this.style.display='none'">
+                        <p>Plot 8: Comparación Cauchy vs Normal</p>
                     </div>
                 </div>
             </div>
@@ -492,7 +492,7 @@ legend("topright", legend = c("Cauchy(0,1)", "N(0,1)"),
     <!-- ========================================================= -->
     <div class="modulo">
         <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📈 2. Ley de los Grandes Números (LGN)</h3>
+            <h3>Ley de los Grandes Números (LGN)</h3>
             <span>▼</span>
         </div>
         <div class="modulo-content">
@@ -504,13 +504,13 @@ legend("topright", legend = c("Cauchy(0,1)", "N(0,1)"),
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    📈 2.1 LGN para Normal(μ=10, σ=2)
+                    LGN para Normal(μ=10, σ=2)
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 set.seed(123)
@@ -522,21 +522,21 @@ plot(1:n_max, medias, type = "l", col = "blue",
 abline(h = 10, col = "red", lwd = 2, lty = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat9.png" alt="LGN Normal" onerror="this.style.display='none'">
-                        <p>📸 Figura 9: Convergencia de la media muestral (Normal)</p>
+                        <img src="plots/plot-estmat14.png" alt="LGN Normal" onerror="this.style.display='none'">
+                        <p>Plot 9: Convergencia de la media muestral (Normal)</p>
                     </div>
                 </div>
             </div>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    📈 2.2 LGN para Bernoulli (proporción)
+                    LGN para Bernoulli (proporción)
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 set.seed(123)
@@ -549,21 +549,21 @@ plot(1:n_max, proporciones, type = "l", col = "blue",
 abline(h = p, col = "red", lwd = 2, lty = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat10.png" alt="LGN Bernoulli" onerror="this.style.display='none'">
-                        <p>📸 Figura 10: Convergencia de la proporción muestral (Bernoulli)</p>
+                        <img src="plots/plot-estmat15.png" alt="LGN Bernoulli" onerror="this.style.display='none'">
+                        <p>Plot 10: Convergencia de la proporción muestral (Bernoulli)</p>
                     </div>
                 </div>
             </div>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    ⚠️ 2.3 Contraejemplo: Cauchy (no tiene media)
+                    Contraejemplo: Cauchy (no tiene media)
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 set.seed(123)
@@ -575,8 +575,8 @@ plot(1:500, cauchy_medias, type = "l",
 abline(h = 0, col = "red", lty = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat11.png" alt="Cauchy no converge" onerror="this.style.display='none'">
-                        <p>📸 Figura 11: La distribución Cauchy NO cumple la LGN</p>
+                        <img src="plots/plot-estmat17.png" alt="Cauchy no converge" onerror="this.style.display='none'">
+                        <p>Plot 11: La distribución Cauchy NO cumple la LGN</p>
                     </div>
                 </div>
             </div>
@@ -588,7 +588,7 @@ abline(h = 0, col = "red", lty = 2)</pre>
     <!-- ========================================================= -->
     <div class="modulo">
         <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📐 3. Teorema Central del Límite (TCL)</h3>
+            <h3>Teorema Central del Límite (TCL)</h3>
             <span>▼</span>
         </div>
         <div class="modulo-content">
@@ -600,13 +600,13 @@ abline(h = 0, col = "red", lty = 2)</pre>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    📐 3.1 Medias de Uniformes(0,1) → Normal
+                    Medias de Uniformes(0,1) → Normal
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 set.seed(123)
@@ -619,21 +619,21 @@ curve(dnorm(x, mean = 0.5, sd = sqrt(1/12/n_muestra)),
       add = TRUE, col = "red", lwd = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat12.png" alt="TCL Uniforme" onerror="this.style.display='none'">
-                        <p>📸 Figura 12: Histograma de medias de uniformes (converge a Normal)</p>
+                        <img src="plots/plot-estmat18.png" alt="TCL Uniforme" onerror="this.style.display='none'">
+                        <p>Plot 12: Histograma de medias de uniformes (converge a Normal)</p>
                     </div>
                 </div>
             </div>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    📐 3.2 Medias de Exponenciales(1) → Normal
+                    Medias de Exponenciales(1) → Normal
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 set.seed(123)
@@ -644,21 +644,21 @@ curve(dnorm(x, mean = 1, sd = 1/sqrt(n_muestra)),
       add = TRUE, col = "red", lwd = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat13.png" alt="TCL Exponencial" onerror="this.style.display='none'">
-                        <p>📸 Figura 13: Histograma de medias de exponenciales (converge a Normal)</p>
+                        <img src="plots/plot-estmat20.png" alt="TCL Exponencial" onerror="this.style.display='none'">
+                        <p>Plot 13: Histograma de medias de exponenciales (converge a Normal)</p>
                     </div>
                 </div>
             </div>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    📐 3.3 Aproximación Normal a Binomial
+                    Aproximación Normal a Binomial
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 n <- 100
@@ -673,21 +673,21 @@ legend("topright", legend = c("Binomial", "Normal aprox"),
        col = c("blue", "red"), lwd = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat14.png" alt="Aprox Binomial" onerror="this.style.display='none'">
-                        <p>📸 Figura 14: Aproximación Normal a la distribución Binomial</p>
+                        <img src="plots/plot-estmat22.png" alt="Aprox Binomial" onerror="this.style.display='none'">
+                        <p>Plot 14: Aproximación Normal a la distribución Binomial</p>
                     </div>
                 </div>
             </div>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    📐 3.4 Q-Q plot para verificar normalidad
+                    Q-Q plot para verificar normalidad
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 qqnorm(medias_unif, main = "Q-Q Plot (Medias de Uniformes)")
@@ -695,8 +695,8 @@ qqline(medias_unif, col = "red", lwd = 2)
 # Si los puntos siguen la línea, hay normalidad</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat15.png" alt="Q-Q plot" onerror="this.style.display='none'">
-                        <p>📸 Figura 15: Q-Q plot para verificar normalidad</p>
+                        <img src="plots/plot-estmat19.png" alt="Q-Q plot" onerror="this.style.display='none'">
+                        <p>Plot 15: Q-Q plot para verificar normalidad</p>
                     </div>
                 </div>
             </div>
@@ -708,7 +708,7 @@ qqline(medias_unif, col = "red", lwd = 2)
     <!-- ========================================================= -->
     <div class="modulo">
         <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>🔢 4. Estimación Puntual</h3>
+            <h3>Estimación Puntual</h3>
             <span>▼</span>
         </div>
         <div class="modulo-content">
@@ -719,13 +719,13 @@ qqline(medias_unif, col = "red", lwd = 2)
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    🔢 4.1 Máxima Verosimilitud para Poisson
+                    Máxima Verosimilitud para Poisson
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 set.seed(123)
@@ -735,22 +735,18 @@ muestra <- rpois(n, lambda_true)
 lambda_mle <- mean(muestra)
 cat("MLE de λ:", lambda_mle)</pre>
                     </div>
-                    <div class="visualizacion">
-                        <img src="plot-estmat16.png" alt="MLE Poisson" onerror="this.style.display='none'">
-                        <p>📸 Figura 16: Estimación MLE para Poisson</p>
-                    </div>
                 </div>
             </div>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    🔢 4.2 Bootstrap para error estándar
+                Bootstrap para error estándar
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 B <- 1000
@@ -760,8 +756,8 @@ hist(lambda_boot, breaks = 30, probability = TRUE,
 abline(v = lambda_true, col = "red", lwd = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat17.png" alt="Bootstrap" onerror="this.style.display='none'">
-                        <p>📸 Figura 17: Distribución bootstrap del estimador MLE</p>
+                        <img src="plots/plot-estmat25.png" alt="Bootstrap" onerror="this.style.display='none'">
+                        <p>Plot 16: Distribución bootstrap del estimador MLE</p>
                     </div>
                 </div>
             </div>
@@ -773,7 +769,7 @@ abline(v = lambda_true, col = "red", lwd = 2)</pre>
     <!-- ========================================================= -->
     <div class="modulo">
         <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📏 5. Intervalos de Confianza</h3>
+            <h3>Intervalos de Confianza</h3>
             <span>▼</span>
         </div>
         <div class="modulo-content">
@@ -784,35 +780,31 @@ abline(v = lambda_true, col = "red", lwd = 2)</pre>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    📏 5.1 IC para la media con t-Student
+                    IC para la media con t-Student
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 set.seed(123)
 muestra <- rnorm(30, mean = 10, sd = 2)
 t.test(muestra, conf.level = 0.95)</pre>
                     </div>
-                    <div class="visualizacion">
-                        <img src="plot-estmat18.png" alt="IC t-Student" onerror="this.style.display='none'">
-                        <p>📸 Figura 18: Intervalo de confianza para la media (t-Student)</p>
-                    </div>
                 </div>
             </div>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    📏 5.2 Simulación de cobertura del IC
+                    Simulación de cobertura del IC
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 n_sim <- 1000
@@ -822,10 +814,6 @@ cobertura <- replicate(n_sim, {
   ic[1] <= 0 & ic[2] >= 0
 })
 cat("Cobertura observada:", mean(cobertura))</pre>
-                    </div>
-                    <div class="visualizacion">
-                        <img src="plot-estmat19.png" alt="Cobertura IC" onerror="this.style.display='none'">
-                        <p>📸 Figura 19: Simulación de cobertura del intervalo de confianza</p>
                     </div>
                 </div>
             </div>
@@ -837,7 +825,7 @@ cat("Cobertura observada:", mean(cobertura))</pre>
     <!-- ========================================================= -->
     <div class="modulo">
         <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>⚖️ 6. Pruebas de Hipótesis</h3>
+            <h3>Pruebas de Hipótesis</h3>
             <span>▼</span>
         </div>
         <div class="modulo-content">
@@ -848,13 +836,13 @@ cat("Cobertura observada:", mean(cobertura))</pre>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    ⚖️ 6.1 Prueba t de dos muestras
+                    Prueba t de dos muestras
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 set.seed(123)
@@ -862,32 +850,24 @@ grupo1 <- rnorm(30, mean = 50, sd = 10)
 grupo2 <- rnorm(30, mean = 55, sd = 10)
 t.test(grupo1, grupo2)</pre>
                     </div>
-                    <div class="visualizacion">
-                        <img src="plot-estmat20.png" alt="t-test" onerror="this.style.display='none'">
-                        <p>📸 Figura 20: Comparación de dos grupos con t-test</p>
-                    </div>
                 </div>
             </div>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    ⚖️ 6.2 Prueba χ² de independencia
+                    Prueba χ² de independencia
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 tabla <- matrix(c(30, 10, 15, 25), nrow = 2,
                 dimnames = list(Tratamiento = c("A", "B"),
                                 Resultado = c("Éxito", "Fracaso")))
 chisq.test(tabla)</pre>
-                    </div>
-                    <div class="visualizacion">
-                        <img src="plot-estmat21.png" alt="χ² independencia" onerror="this.style.display='none'">
-                        <p>📸 Figura 21: Mosaico plot de la tabla de contingencia</p>
                     </div>
                 </div>
             </div>
@@ -899,7 +879,7 @@ chisq.test(tabla)</pre>
     <!-- ========================================================= -->
     <div class="modulo">
         <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📐 7. Bondad de Ajuste</h3>
+            <h3>Bondad de Ajuste</h3>
             <span>▼</span>
         </div>
         <div class="modulo-content">
@@ -910,34 +890,30 @@ chisq.test(tabla)</pre>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    📐 7.1 Prueba de Kolmogorov-Smirnov
+                    Prueba de Kolmogorov-Smirnov
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 datos_norm <- rnorm(50)
 ks.test(datos_norm, "pnorm")</pre>
-                    </div>
-                    <div class="visualizacion">
-                        <img src="plot-estmat22.png" alt="Prueba KS" onerror="this.style.display='none'">
-                        <p>📸 Figura 22: Gráfico de la prueba de Kolmogorov-Smirnov</p>
                     </div>
                 </div>
             </div>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    📐 7.2 Función de distribución empírica (ECDF)
+                    Función de distribución empírica (ECDF)
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 plot(ecdf(datos_norm), main = "ECDF vs Normal teórica")
@@ -946,8 +922,8 @@ legend("topleft", legend = c("ECDF", "Normal teórica"),
        col = c("black", "red"), lwd = 2)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat23.png" alt="ECDF" onerror="this.style.display='none'">
-                        <p>📸 Figura 23: Función de distribución empírica vs teórica</p>
+                        <img src="plots/plot-estmat26.png" alt="ECDF" onerror="this.style.display='none'">
+                        <p>Plot 17: Función de distribución empírica vs teórica</p>
                     </div>
                 </div>
             </div>
@@ -959,7 +935,7 @@ legend("topleft", legend = c("ECDF", "Normal teórica"),
     <!-- ========================================================= -->
     <div class="modulo">
         <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📈 8. Regresión Lineal</h3>
+            <h3>Regresión Lineal</h3>
             <span>▼</span>
         </div>
         <div class="modulo-content">
@@ -970,13 +946,13 @@ legend("topleft", legend = c("ECDF", "Normal teórica"),
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    📈 8.1 Regresión lineal simple con gráfico
+                    Regresión lineal simple con gráfico
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 set.seed(123)
@@ -989,21 +965,21 @@ abline(modelo, col = "red", lwd = 2)
 summary(modelo)</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat24.png" alt="Regresión lineal" onerror="this.style.display='none'">
-                        <p>📸 Figura 24: Diagrama de dispersión con recta de regresión</p>
+                        <img src="plots/plot-estmat28.png" alt="Regresión lineal" onerror="this.style.display='none'">
+                        <p>Plot 18: Diagrama de dispersión con recta de regresión</p>
                     </div>
                 </div>
             </div>
 
             <div class="ejemplo">
                 <div class="ejemplo-titulo" onclick="toggleEjemplo(this)">
-                    📈 8.2 Diagnóstico de residuos
+                    Diagnóstico de residuos
                     <span>▼</span>
                 </div>
                 <div class="ejemplo-contenido">
                     <div class="codigo-r">
                         <div class="codigo-header">
-                            <button class="btn-copiar" onclick="copiarCodigo(this)">📋 Copiar</button>
+                            <button class="btn-copiar" onclick="copiarCodigo(this)">Copiar</button>
                         </div>
                         <pre>
 par(mfrow = c(2, 2))
@@ -1011,8 +987,8 @@ plot(modelo)
 par(mfrow = c(1, 1))</pre>
                     </div>
                     <div class="visualizacion">
-                        <img src="plot-estmat25.png" alt="Diagnóstico regresión" onerror="this.style.display='none'">
-                        <p>📸 Figura 25: Gráficos de diagnóstico de la regresión</p>
+                        <img src="plots/plot-estmat29.png" alt="Diagnóstico regresión" onerror="this.style.display='none'">
+                        <p>Plot 19: Gráficos de diagnóstico de la regresión</p>
                     </div>
                 </div>
             </div>
