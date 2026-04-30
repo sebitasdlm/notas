@@ -1,1 +1,878 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Resultados Límite - Capítulo 4</title>
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Modos de Convergencia                           -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Modos de Convergencia de Variables Aleatorias</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Convergencia casi segura (c.s.):</strong> $X_n \xrightarrow{c.s.} X$ si $\mathbb{P}(\lim_{n\to\infty} X_n = X) = 1$
+                <br>
+                <strong>Convergencia en probabilidad (P):</strong> $X_n \xrightarrow{P} X$ si $\forall \epsilon>0$, $\lim_{n\to\infty} \mathbb{P}(|X_n-X|>\epsilon)=0$
+                <br>
+                <strong>Convergencia en media cuadrática (m.c.):</strong> $X_n \xxrightarrow{m.c.} X$ si $\lim_{n\to\infty} \mathbb{E}[(X_n-X)^2]=0$
+                <br>
+                <strong>Convergencia en distribución (D):</strong> $X_n \xrightarrow{D} X$ si $F_{X_n}(x) \to F_X(x)$ en puntos de continuidad
+            </div>
+
+            <div class="simulador">
+                <h4>Simulación: Convergencia de la media muestral</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-convergencia">
+                        <option value="normal">Normal(0,1)</option>
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="exponencial">Exponencial(1)</option>
+                        <option value="bernoulli">Bernoulli(0.5)</option>
+                    </select>
+                    <label>n (tamaño máximo):</label>
+                    <input type="range" id="n-convergencia" min="10" max="500" step="10" value="200">
+                    <span id="n-convergencia-val">200</span>
+                    <button id="simular-convergencia">Simular trayectoria</button>
+                </div>
+                <canvas id="convergenciaCanvas" width="500" height="250"></canvas>
+                <div id="convergencia-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Relaciones entre modos de convergencia:</strong>
+                <ul>
+                    <li>$X_n \xrightarrow{c.s.} X \implies X_n \xrightarrow{P} X \implies X_n \xrightarrow{D} X$</li>
+                    <li>$X_n \xrightarrow{m.c.} X \implies X_n \xrightarrow{P} X$</li>
+                    <li>Los recíprocos no son ciertos en general</li>
+                    <li>Contraejemplo: $X_n$ que converge en distribución a una constante pero no en probabilidad</li>
+                </ul>
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Puede haber convergencia en distribución sin convergencia en probabilidad?</strong>
+                <button onclick="mostrarRespuesta('respuesta-convergencia')">Ver respuesta</button>
+                <div id="respuesta-convergencia" class="respuesta">
+                    ¡Sí! Por ejemplo, si $X_n = X$ para todo $n$ pero $Y$ tiene la misma distribución que $X$, entonces $X_n \xrightarrow{D} Y$ pero no converge en probabilidad a $Y$ (a menos que $X_n$ e $Y$ sean iguales). La convergencia en distribución es la más débil.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Teoremas de Slutsky y Mapeo Continuo           -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Teoremas de Slutsky y Mapeo Continuo</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Teorema de Slutsky:</strong> Si $X_n \xrightarrow{D} X$ y $Y_n \xrightarrow{P} c$ (constante), entonces:
+                \[
+                X_n + Y_n \xrightarrow{D} X + c, \quad X_n Y_n \xrightarrow{D} cX, \quad X_n/Y_n \xrightarrow{D} X/c \ (c \neq 0)
+                \]
+                <strong>Teorema de mapeo continuo:</strong> Si $g$ es continua y $X_n \xrightarrow{D} X$, entonces $g(X_n) \xrightarrow{D} g(X)$.
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación: Slutsky con simulación</h4>
+                <div class="controles">
+                    <label>Distribución de $X_n$:</label>
+                    <select id="dist-slutsky">
+                        <option value="normal">Normal(0,1)</option>
+                        <option value="uniforme">Uniforme(-1,1)</option>
+                    </select>
+                    <label>c (constante):</label>
+                    <input type="range" id="c-slutsky" min="-2" max="2" step="0.5" value="1">
+                    <span id="c-slutsky-val">1.0</span>
+                    <label>n:</label>
+                    <input type="range" id="n-slutsky" min="10" max="200" step="10" value="50">
+                    <span id="n-slutsky-val">50</span>
+                    <button id="simular-slutsky">Simular</button>
+                </div>
+                <canvas id="slutskyCanvas" width="500" height="200"></canvas>
+                <div id="slutsky-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Aplicación importante:</strong> Si $\bar{X}_n \xrightarrow{P} \mu$ y $S_n^2 \xrightarrow{P} \sigma^2$, entonces por Slutsky:
+                \[
+                \frac{\bar{X}_n - \mu}{S_n/\sqrt{n}} = \frac{(\bar{X}_n - \mu)/(\sigma/\sqrt{n})}{\sqrt{S_n^2/\sigma^2}} \xrightarrow{D} \frac{N(0,1)}{1} = N(0,1)
+                \]
+                ¡Esto justifica el uso de la t-Student con varianza estimada!
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Ley de los Grandes Números (LGN)               -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Ley de los Grandes Números</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Ley Débil (LDGN):</strong> Si $X_1,\ldots,X_n$ son i.i.d. con $\mathbb{E}[X_i]=\mu$, entonces
+                \[
+                \bar{X}_n \xrightarrow{P} \mu
+                \]
+                <strong>Ley Fuerte (LFGN):</strong> $\bar{X}_n \xrightarrow{c.s.} \mu$
+                <br>
+                <strong>Demostración LDGN (con varianza finita):</strong> Por Chebyshev,
+                \[
+                \mathbb{P}(|\bar{X}_n - \mu| \ge \epsilon) \le \frac{\sigma^2}{n\epsilon^2} \to 0
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Simulación: LGN para Bernoulli</h4>
+                <div class="controles">
+                    <label>p (probabilidad de éxito):</label>
+                    <input type="range" id="p-lgn" min="0.1" max="0.9" step="0.05" value="0.3">
+                    <span id="p-lgn-val">0.30</span>
+                    <label>n máximo:</label>
+                    <input type="range" id="n-lgn" min="10" max="1000" step="10" value="200">
+                    <span id="n-lgn-val">200</span>
+                    <button id="simular-lgn">Simular trayectoria</button>
+                </div>
+                <canvas id="lgnCanvas" width="500" height="250"></canvas>
+                <div id="lgn-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (encuesta):</strong> Para $\epsilon=0.05$, $\delta=0.10$:
+                \[
+                n \ge \frac{1}{4\delta\epsilon^2} = \frac{1}{4 \cdot 0.10 \cdot 0.0025} = 1000
+                \]
+                Si $p \approx 0.3$, $n \ge 840$; si $p \approx 0.15$, $n \ge 510$.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Cuál es la diferencia entre la ley débil y la ley fuerte?</strong>
+                <button onclick="mostrarRespuesta('respuesta-lgn')">Ver respuesta</button>
+                <div id="respuesta-lgn" class="respuesta">
+                    La ley débil dice que la probabilidad de que $\bar{X}_n$ se desvíe de $\mu$ tiende a 0.
+                    La ley fuerte dice que para casi toda trayectoria, $\bar{X}_n$ converge a $\mu$ casi seguramente.
+                    La ley fuerte es un enunciado más fuerte porque implica la ley débil.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Teorema Central del Límite (TCL)               -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Teorema Central del Límite</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Teorema Central del Límite (Lindberg-Lévy):</strong>
+                \[
+                Z_n = \frac{\bar{X}_n - \mu}{\sigma/\sqrt{n}} = \frac{S_n - n\mu}{\sigma\sqrt{n}} \xrightarrow{D} Z \sim N(0,1)
+                \]
+                Es decir, para $n$ grande, $\bar{X}_n \approx N(\mu, \sigma^2/n)$.
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización del TCL</h4>
+                <div class="controles">
+                    <label>Distribución original:</label>
+                    <select id="dist-tcl">
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="exponencial">Exponencial(λ=1)</option>
+                        <option value="bernoulli">Bernoulli(p=0.2)</option>
+                        <option value="cauchy">Cauchy(0,1) - ¡contraejemplo!</option>
+                    </select>
+                    <label>n (tamaño muestra):</label>
+                    <input type="range" id="n-tcl" min="1" max="100" step="1" value="30">
+                    <span id="n-tcl-val">30</span>
+                    <button id="simular-tcl">Simular distribución de $\bar{X}_n$</button>
+                </div>
+                <canvas id="tclCanvas" width="500" height="250"></canvas>
+                <div id="tcl-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración (via FGM):</strong> Sea $Y_i = \frac{X_i - \mu}{\sigma}$ (media 0, varianza 1). Entonces:
+                \[
+                m_{\sqrt{n}\bar{Y}_n}(t) = \left[m_Y\left(\frac{t}{\sqrt{n}}\right)\right]^n
+                \]
+                Desarrollando $\log m_Y(s) = \frac{s^2}{2} + o(s^2)$, se obtiene:
+                \[
+                \log m_{\sqrt{n}\bar{Y}_n}(t) \to \frac{t^2}{2}
+                \]
+                Por continuidad, $m_{\sqrt{n}\bar{Y}_n}(t) \to e^{t^2/2}$, que es la FGM de $N(0,1)$.
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (lámparas):</strong> Exponencial con media 10 días.
+                \[
+                \mathbb{P}(S_{50} < 365) \approx \Phi\left(\frac{365 - 500}{10\sqrt{50}}\right) = \Phi\left(\frac{-135}{70.71}\right) = \Phi(-1.91) \approx 0.028
+                \]
+                ¡Solo 2.8% de probabilidad de necesitar más de 50 lámparas!
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué pasa si aplicamos TCL a una distribución Cauchy?</strong>
+                <button onclick="mostrarRespuesta('respuesta-tcl-cauchy')">Ver respuesta</button>
+                <div id="respuesta-tcl-cauchy" class="respuesta">
+                    La distribución Cauchy <strong>no tiene varianza finita</strong>, por lo que el TCL no aplica. 
+                    De hecho, la media muestral de Cauchy sigue siendo Cauchy (no se concentra). 
+                    ¡Es el contraejemplo clásico del TCL!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Aplicaciones del TCL (Encuestas)               -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Aplicaciones: TCL en Encuestas</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Para una proporción $p$, el estimador $\hat{p} = \bar{X}_n$ satisface:
+                \[
+                \frac{\hat{p} - p}{\sqrt{p(1-p)/n}} \xrightarrow{D} N(0,1)
+                \]
+                En la práctica, reemplazamos $p$ por $\hat{p}$ (por Slutsky):
+                \[
+                \frac{\hat{p} - p}{\sqrt{\hat{p}(1-\hat{p})/n}} \xrightarrow{D} N(0,1)
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Calculadora de tamaño de muestra</h4>
+                <div class="controles">
+                    <label>p (proporción esperada):</label>
+                    <input type="range" id="p-encuesta" min="0.1" max="0.9" step="0.01" value="0.5">
+                    <span id="p-encuesta-val">0.50</span>
+                    <label>Margen de error (E):</label>
+                    <input type="range" id="error-encuesta" min="0.01" max="0.1" step="0.005" value="0.03">
+                    <span id="error-encuesta-val">0.030</span>
+                    <label>Nivel de confianza:</label>
+                    <select id="confianza-encuesta">
+                        <option value="0.90">90% (z=1.645)</option>
+                        <option value="0.95" selected>95% (z=1.96)</option>
+                        <option value="0.99">99% (z=2.576)</option>
+                    </select>
+                </div>
+                <div id="encuesta-resultado" class="formula-destacada"></div>
+                <canvas id="encuestaCanvas" width="500" height="150"></canvas>
+            </div>
+
+            <div class="demostracion">
+                <strong>Fórmula del tamaño de muestra:</strong>
+                \[
+                n = \frac{z_{\alpha/2}^2 \cdot p(1-p)}{E^2}
+                \]
+                Cuando $p$ es desconocido, se usa $p=0.5$ (máxima varianza): $n = \frac{z_{\alpha/2}^2}{4E^2}$.
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF:</strong> Para $n=900$, $E=0.025$, $p=0.5$:
+                \[
+                \mathbb{P}(|\hat{p}-p| \ge 0.025) \approx 2\Phi\left(\frac{-0.025}{0.5/\sqrt{900}}\right) = 2\Phi(-1.5) = 0.1336
+                \]
+                Para lograr $\mathbb{P}(|\hat{p}-p| \ge 0.025) = 0.01$, se necesita $n \approx 2654$.
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // ============================================================
+    // FUNCIONES GLOBALES
+    // ============================================================
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        if(content) content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        if(elem) elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: Convergencia
+    // ============================================================
+    let convergenciaPromedios = [];
+    let convergenciaN = [];
+
+    function simularConvergencia() {
+        const dist = document.getElementById('dist-convergencia').value;
+        const nMax = parseInt(document.getElementById('n-convergencia').value);
+        document.getElementById('n-convergencia-val').textContent = nMax;
+        
+        let suma = 0;
+        let promedios = [];
+        let mediaPob = 0;
+        
+        for(let i=1; i<=nMax; i++) {
+            let val;
+            if(dist === 'normal') {
+                val = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                mediaPob = 0;
+            } else if(dist === 'uniforme') {
+                val = Math.random();
+                mediaPob = 0.5;
+            } else if(dist === 'exponencial') {
+                val = -Math.log(Math.random());
+                mediaPob = 1;
+            } else {
+                val = Math.random() < 0.5 ? 1 : 0;
+                mediaPob = 0.5;
+            }
+            suma += val;
+            promedios.push(suma / i);
+        }
+        
+        const canvas = document.getElementById('convergenciaCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            ctx.beginPath();
+            let first = true;
+            for(let i=0; i<promedios.length; i++) {
+                const x = (i / nMax) * w;
+                const y = h - (promedios[i] / (Math.abs(mediaPob)*2 + 1)) * h * 0.8;
+                if(first) { ctx.moveTo(x, y); first = false; }
+                else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(0, h - (mediaPob/(Math.abs(mediaPob)*2+1)) * h * 0.8);
+            ctx.lineTo(w, h - (mediaPob/(Math.abs(mediaPob)*2+1)) * h * 0.8);
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        const ultimo = promedios[promedios.length-1];
+        document.getElementById('convergencia-info').innerHTML = 
+            `\(\bar{X}_n\) final = ${ultimo.toFixed(4)} | \(\\mu = ${mediaPob}\)<br>
+            \(\\bar{X}_n \\xrightarrow{P} \\mu\) (LGN) y \(\\bar{X}_n \\xrightarrow{c.s.} \\mu\) (LFGN)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+
+    // ============================================================
+    // MODULO 2: Slutsky
+    // ============================================================
+    function simularSlutsky() {
+        const dist = document.getElementById('dist-slutsky').value;
+        const c = parseFloat(document.getElementById('c-slutsky').value);
+        const n = parseInt(document.getElementById('n-slutsky').value);
+        document.getElementById('c-slutsky-val').textContent = c.toFixed(1);
+        document.getElementById('n-slutsky-val').textContent = n;
+        
+        const nSim = 2000;
+        let sumas = [];
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let suma = 0;
+            for(let i=0; i<n; i++) {
+                let xi;
+                if(dist === 'normal') xi = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                else xi = -1 + 2*Math.random();
+                suma += xi;
+            }
+            const Xn = suma / n;
+            sumas.push(Xn + c);
+        }
+        
+        const canvas = document.getElementById('slutskyCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(30).fill(0);
+            for(let s of sumas) {
+                if(s > -3 && s < 3) {
+                    const idx = Math.floor((s+3)/6 * 30);
+                    if(idx>=0 && idx<30) bins[idx]++;
+                }
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-1, barHeight);
+            }
+        }
+        
+        document.getElementById('slutsky-info').innerHTML = 
+            `Si \(X_n \\xrightarrow{D} X\) y \(Y_n \\xrightarrow{P} c = ${c.toFixed(1)}\),<br>
+            entonces \(X_n + Y_n \\xrightarrow{D} X + c\).<br>
+            El histograma muestra la distribución de \(\\bar{X}_n + c\).`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+
+    // ============================================================
+    // MODULO 3: LGN Bernoulli
+    // ============================================================
+    function simularLGN() {
+        const p = parseFloat(document.getElementById('p-lgn').value);
+        const nMax = parseInt(document.getElementById('n-lgn').value);
+        document.getElementById('p-lgn-val').textContent = p.toFixed(2);
+        document.getElementById('n-lgn-val').textContent = nMax;
+        
+        let suma = 0;
+        let promedios = [];
+        for(let i=1; i<=nMax; i++) {
+            if(Math.random() < p) suma++;
+            promedios.push(suma / i);
+        }
+        
+        const canvas = document.getElementById('lgnCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            ctx.beginPath();
+            for(let i=0; i<promedios.length; i++) {
+                const x = (i / nMax) * w;
+                const y = h - promedios[i] * h * 0.8;
+                if(i===0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(0, h - p * h * 0.8);
+            ctx.lineTo(w, h - p * h * 0.8);
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        document.getElementById('lgn-info').innerHTML = 
+            `\(\\hat{p}_n = \\bar{X}_n\) converge a \(p = ${p.toFixed(2)}\)<br>
+            Por LGN, \(\\hat{p}_n \\xrightarrow{P} p\) (Ley Débil) y \(\\hat{p}_n \\xrightarrow{c.s.} p\) (Ley Fuerte)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+
+    // ============================================================
+    // MODULO 4: TCL
+    // ============================================================
+    function simularTCL() {
+        const dist = document.getElementById('dist-tcl').value;
+        const n = parseInt(document.getElementById('n-tcl').value);
+        document.getElementById('n-tcl-val').textContent = n;
+        
+        if(dist === 'cauchy') {
+            document.getElementById('tcl-info').innerHTML = 
+                '⚠ La distribución Cauchy <strong>no tiene varianza finita</strong>. El TCL no aplica. Las medias muestrales siguen siendo Cauchy.';
+            return;
+        }
+        
+        const nSim = 5000;
+        let medias = [];
+        let mediaPob = 0, varPob = 1;
+        
+        if(dist === 'uniforme') {
+            mediaPob = 0.5;
+            varPob = 1/12;
+            for(let sim=0; sim<nSim; sim++) {
+                let suma = 0;
+                for(let i=0; i<n; i++) suma += Math.random();
+                medias.push((suma/n - mediaPob) / Math.sqrt(varPob/n));
+            }
+        } else if(dist === 'exponencial') {
+            mediaPob = 1;
+            varPob = 1;
+            for(let sim=0; sim<nSim; sim++) {
+                let suma = 0;
+                for(let i=0; i<n; i++) suma += -Math.log(Math.random());
+                medias.push((suma/n - mediaPob) / Math.sqrt(varPob/n));
+            }
+        } else {
+            mediaPob = 0.2;
+            varPob = 0.2*0.8;
+            for(let sim=0; sim<nSim; sim++) {
+                let suma = 0;
+                for(let i=0; i<n; i++) if(Math.random() < 0.2) suma++;
+                medias.push((suma/n - mediaPob) / Math.sqrt(varPob/n));
+            }
+        }
+        
+        const canvas = document.getElementById('tclCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(30).fill(0);
+            for(let z of medias) {
+                if(z > -3 && z < 3) {
+                    const idx = Math.floor((z+3)/6 * 30);
+                    if(idx>=0 && idx<30) bins[idx]++;
+                }
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-1, barHeight);
+            }
+            
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const z = -3 + (i/w)*6;
+                const dens = Math.exp(-z*z/2) / Math.sqrt(2*Math.PI);
+                const y = h - dens * h * 1.5;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        document.getElementById('tcl-info').innerHTML = 
+            `Distribución original: ${dist}<br>
+            \(Z_n = \\frac{\\bar{X}_n - \\mu}{\\sigma/\\sqrt{n}} \\xrightarrow{D} N(0,1)\)<br>
+            Histograma de \(Z_n\) (verde) vs densidad N(0,1) (roja)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+
+    // ============================================================
+    // MODULO 5: Encuestas
+    // ============================================================
+    function calcularEncuesta() {
+        const p = parseFloat(document.getElementById('p-encuesta').value);
+        const E = parseFloat(document.getElementById('error-encuesta').value);
+        const conf = parseFloat(document.getElementById('confianza-encuesta').value);
+        
+        document.getElementById('p-encuesta-val').textContent = p.toFixed(2);
+        document.getElementById('error-encuesta-val').textContent = E.toFixed(3);
+        
+        let z;
+        if(conf === 0.90) z = 1.645;
+        else if(conf === 0.95) z = 1.96;
+        else z = 2.576;
+        
+        const n = Math.ceil(z*z * p * (1-p) / (E*E));
+        const nPeorCaso = Math.ceil(z*z * 0.25 / (E*E));
+        
+        const canvas = document.getElementById('encuestaCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const se = Math.sqrt(p*(1-p)/n);
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const px = -3*se + (i/w)*6*se;
+                const dens = Math.exp(-Math.pow(px,2)/(2*se*se)) / (se * Math.sqrt(2*Math.PI));
+                const y = h - dens * h * 1.5;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        document.getElementById('encuesta-resultado').innerHTML = 
+            `Para estimar \(p\) con margen de error \(E = ${E}\) y confianza ${conf*100}%:<br>
+            Tamaño de muestra necesario: \(n = ${n}\)<br>
+            Si no conoce \(p\), use \(p=0.5\) (peor caso): \(n = ${nPeorCaso}\)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+
+    // ============================================================
+    // INICIALIZACIÓN
+    // ============================================================
+    window.inicializarModuloActual = function() {
+        document.getElementById('simular-convergencia')?.addEventListener('click', simularConvergencia);
+        document.getElementById('n-convergencia')?.addEventListener('input', simularConvergencia);
+        document.getElementById('dist-convergencia')?.addEventListener('change', simularConvergencia);
+        simularConvergencia();
+        
+        document.getElementById('simular-slutsky')?.addEventListener('click', simularSlutsky);
+        document.getElementById('c-slutsky')?.addEventListener('input', simularSlutsky);
+        document.getElementById('n-slutsky')?.addEventListener('input', simularSlutsky);
+        document.getElementById('dist-slutsky')?.addEventListener('change', simularSlutsky);
+        simularSlutsky();
+        
+        document.getElementById('simular-lgn')?.addEventListener('click', simularLGN);
+        document.getElementById('p-lgn')?.addEventListener('input', simularLGN);
+        document.getElementById('n-lgn')?.addEventListener('input', simularLGN);
+        simularLGN();
+        
+        document.getElementById('simular-tcl')?.addEventListener('click', simularTCL);
+        document.getElementById('n-tcl')?.addEventListener('input', simularTCL);
+        document.getElementById('dist-tcl')?.addEventListener('change', simularTCL);
+        simularTCL();
+        
+        document.getElementById('p-encuesta')?.addEventListener('input', calcularEncuesta);
+        document.getElementById('error-encuesta')?.addEventListener('input', calcularEncuesta);
+        document.getElementById('confianza-encuesta')?.addEventListener('change', calcularEncuesta);
+        calcularEncuesta();
+        
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
+        });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
+</script>
+</body>
+</html>
