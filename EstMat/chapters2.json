@@ -1,1 +1,13 @@
-
+{
+    "chapters": {
+        "Intro.html": "Introducción",
+        "Probas.html": "Elementos de Cálculo de Probabilidades I y II",
+        "DistMuestrales.html": "Distribuciones Muestrales",
+        "Lim.html": "Resultados Límite",
+        "Estimadores.html": "Estimadores Puntuales",
+        "Datos.html": "Reducción de Datos",
+        "Confianza.html": "Intervalos y Regiones de Confianza",
+        "Hip.html": "Contraste de Hipótesis",
+        "R.html": "R studio en la Estadística"
+    }
+}
