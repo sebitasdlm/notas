@@ -3,417 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taller de R - Estadística Matemática (Google Colab)</title>
-    <script>
-        window.MathJax = {
-            tex: {
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
-            }
-        };
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+    <title>R en el navegador - WebR</title>
     <style>
-        :root {
-            --bg-primary: #ffffff;
-            --bg-secondary: #f5f5f5;
-            --text-primary: #212121;
-            --text-secondary: #616161;
-            --border: #e0e0e0;
-            --accent: #1976d2;
-            --accent-light: #e3f2fd;
-            --success: #4caf50;
-            --warning: #ff9800;
-            --info: #2196f3;
-        }
-
-        body.dark-theme {
-            --bg-primary: #1e1e1e;
-            --bg-secondary: #2d2d2d;
-            --text-primary: #e0e0e0;
-            --text-secondary: #b0b0b0;
-            --border: #404040;
-            --accent: #42a5f5;
-            --accent-light: #1a2a3a;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            transition: background 0.3s ease, color 0.3s ease;
-        }
-
-        .taller-container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 1rem;
-        }
-
-        .modulo {
-            background: var(--bg-primary);
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            overflow: hidden;
-            border: 1px solid var(--border);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .modulo-header {
-            background: var(--accent-light);
-            padding: 1rem 1.5rem;
-            border-bottom: 2px solid var(--accent);
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .modulo-header h3 {
-            margin: 0;
-            color: var(--accent);
-        }
-
-        .modulo-content {
-            padding: 1.5rem;
-            display: block;
-        }
-
-        .modulo-content.collapsed {
-            display: none;
-        }
-
-        .explicacion-intro {
-            background: var(--bg-secondary);
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1rem;
-            border-left: 4px solid var(--accent);
-        }
-
-        .colab-link {
-            display: inline-block;
-            background: #f9ab00;
-            color: #202124;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: bold;
-            text-decoration: none;
-            margin: 0.5rem 0;
-            transition: all 0.2s;
-            cursor: pointer;
-        }
-
-        .colab-link:hover {
-            opacity: 0.85;
-            transform: scale(1.02);
-        }
-
-        .badge {
-            background: var(--accent-light);
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            color: var(--accent);
-            display: inline-block;
-            margin-right: 0.5rem;
-        }
-
-        .instruccion {
-            background: var(--bg-secondary);
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-            font-size: 0.9rem;
-            border-left: 4px solid var(--info);
-        }
-
-        .instruccion code {
-            background: var(--bg-primary);
-            padding: 0.2rem 0.4rem;
-            border-radius: 4px;
-            font-family: monospace;
-        }
-
-        hr {
-            margin: 2rem 0;
-            border-color: var(--border);
-        }
-
-        @media (max-width: 768px) {
-            .modulo-content {
-                padding: 1rem;
-            }
-            .colab-link {
-                display: block;
-                text-align: center;
-            }
-        }
+        body { font-family: Arial, sans-serif; max-width: 900px; margin: 2rem auto; padding: 1rem; }
+        .r-code { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; font-family: monospace; overflow-x: auto; }
+        button { background: #1976d2; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; margin: 0.5rem 0; }
+        pre { background: #2d2d2d; color: #e0e0e0; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+        .status { padding: 0.5rem; border-radius: 6px; margin: 1rem 0; }
+        .status.loading { background: #fff3e0; color: #ff9800; }
+        .status.ready { background: #e8f5e9; color: #4caf50; }
+        .modulo { border: 1px solid #ddd; border-radius: 12px; margin-bottom: 2rem; padding: 1rem; }
     </style>
 </head>
 <body>
-<main>
-<div class="taller-container">
+    <h1>📊 Taller de R - Ejecuta código aquí mismo</h1>
+    <p>Los botones ejecutan R <strong>directamente en tu navegador</strong> (sin salir de la página).</p>
 
-    <div class="explicacion-intro">
-        <strong>📊 Taller de R para Estadística Matemática</strong><br>
-        Este taller utiliza <strong>Google Colab con kernel R</strong>. Cada módulo es un notebook que se abre con un clic.
-        <br><br>
-        <strong>🔧 ¿Cómo usar?</strong>
-        <ol>
-            <li>Haz clic en el botón <strong>"Abrir en Google Colab"</strong> de cada módulo</li>
-            <li>El notebook se abrirá en una nueva pestaña de Colab</li>
-            <li>Ejecuta las celdas con <strong>Shift + Enter</strong> o el botón ▶</li>
-            <li>El notebook se guarda automáticamente en tu Google Drive</li>
-        </ol>
-        <strong>📌 Nota:</strong> Necesitas una <strong>cuenta de Google</strong> (Gmail) para usar Colab.
+    <div id="status" class="status loading">⏳ Cargando WebR (primera vez toma ~15 segundos)...</div>
+
+    <!-- MÓDULO 1: Distribuciones -->
+    <div class="modulo">
+        <h3>📊 Distribución Normal</h3>
+        <div class="r-code">
+            <pre># Calcular cuantiles de la normal
+qnorm(0.975)  # ≈ 1.96
+qnorm(0.95)   # ≈ 1.645
+qnorm(0.99)   # ≈ 2.326</pre>
+        </div>
+        <button onclick="ejecutarR(`print('Cuantiles de la Normal:'); c(qnorm(0.975), qnorm(0.95), qnorm(0.99))`)">▶ Ejecutar</button>
+
+        <div class="r-code" style="margin-top: 1rem;">
+            <pre># Probabilidades acumuladas
+pnorm(1.96)   # ≈ 0.975
+pnorm(0)      # ≈ 0.5
+pnorm(-1.96)  # ≈ 0.025</pre>
+        </div>
+        <button onclick="ejecutarR(`print('Probabilidades:'); c(pnorm(1.96), pnorm(0), pnorm(-1.96))`)">▶ Ejecutar</button>
     </div>
 
-    <!-- MÓDULO 1: Configuración -->
+    <!-- MÓDULO 2: Distribución t-Student -->
     <div class="modulo">
-        <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📓 1. Configuración de R en Colab</h3>
+        <h3>📐 Distribución t-Student</h3>
+        <div class="r-code">
+            <pre># Comparar cuantiles t vs normal
+c(qt(0.975, df=5), qt(0.975, df=30), qnorm(0.975))</pre>
         </div>
-        <div class="modulo-content">
-            <div class="badge">⚠️ Hacer una vez</div>
-            <p>Cómo cambiar el kernel de Python a R en Colab.</p>
-            
-            <div class="instruccion">
-                <strong>📖 Instrucciones para cambiar el kernel:</strong><br>
-                1. Abre el notebook<br>
-                2. Ve a <strong>Runtime → Change runtime type</strong><br>
-                3. En "Runtime type" selecciona <strong>R</strong><br>
-                4. Haz clic en <strong>Save</strong>
-            </div>
-
-            <a href="https://colab.research.google.com/notebook#create=true&language=r" target="_blank" class="colab-link">
-                🚀 Abrir notebook en blanco (kernel R)
-            </a>
-        </div>
+        <button onclick="ejecutarR(`c(qt(0.975, df=5), qt(0.975, df=30), qnorm(0.975))`)">▶ Ejecutar</button>
     </div>
 
-    <!-- MÓDULO 2: Distribuciones -->
+    <!-- MÓDULO 3: Simulación LGN -->
     <div class="modulo">
-        <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📊 2. Distribuciones de Probabilidad</h3>
+        <h3>📈 Ley de Grandes Números</h3>
+        <div class="r-code">
+            <pre># Simular convergencia de la media
+set.seed(123)
+n <- 1:500
+medias <- sapply(n, function(i) mean(rnorm(i, mean=10, sd=2)))
+cat("Media final:", tail(medias, 1), "\n")
+cat("Diferencia con μ=10:", abs(tail(medias, 1) - 10))</pre>
         </div>
-        <div class="modulo-content">
-            <div class="badge">📈 Normal</div>
-            <div class="badge">🎲 Binomial</div>
-            <div class="badge">⚡ Poisson</div>
-            <div class="badge">📐 t-Student</div>
-            <div class="badge">📏 χ²</div>
-            <div class="badge">🔀 F</div>
-            
-            <p>Trabaja con las funciones dnorm, pnorm, qnorm, rnorm, y sus análogas para otras distribuciones.</p>
-            
-            <a href="https://colab.research.google.com/github/sebitasdlm/notas/blob/main/EM/01_distribuciones.ipynb" target="_blank" class="colab-link">
-                🚀 Abrir módulo 2 en Colab
-            </a>
-            
-            <details style="margin-top: 1rem;">
-                <summary style="cursor: pointer; color: var(--accent);">📋 Vista previa del código</summary>
-                <pre style="background: var(--bg-secondary); padding: 0.5rem; border-radius: 6px; margin-top: 0.5rem; overflow-x: auto;">
-# Normal
-curve(dnorm(x), from=-4, to=4, col="blue", lwd=2)
-# t-Student vs Normal
-curve(dnorm(x), from=-4, to=4, col="black", lwd=2)
-curve(dt(x, df=5), add=TRUE, col="red", lwd=2)
-# Cuantiles
-qnorm(0.975)  # 1.96
-qt(0.975, df=10)  # 2.228
-qchisq(0.95, df=5)  # 11.07</pre>
-            </details>
-        </div>
-    </div>
-
-    <!-- MÓDULO 3: LGN -->
-    <div class="modulo">
-        <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📈 3. Ley de los Grandes Números (LGN)</h3>
-        </div>
-        <div class="modulo-content">
-            <div class="badge">📊 Convergencia</div>
-            <div class="badge">🎲 Bernoulli</div>
-            <div class="badge">⚠️ Cauchy (contraejemplo)</div>
-            
-            <p>Simula la convergencia de la media muestral a la media poblacional.</p>
-            
-            <a href="https://colab.research.google.com/github/sebitasdlm/notas/blob/main/EM/02_lgn.ipynb" target="_blank" class="colab-link">
-                🚀 Abrir módulo 3 en Colab
-            </a>
-        </div>
+        <button onclick="ejecutarR(`set.seed(123); n <- 1:500; medias <- sapply(n, function(i) mean(rnorm(i, mean=10, sd=2))); cat('Media final:', tail(medias,1), '\\nDiferencia:', abs(tail(medias,1)-10))`)">▶ Ejecutar</button>
     </div>
 
     <!-- MÓDULO 4: TCL -->
     <div class="modulo">
-        <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📐 4. Teorema Central del Límite (TCL)</h3>
+        <h3>📐 Teorema Central del Límite</h3>
+        <div class="r-code">
+            <pre># Simular medias de exponenciales
+set.seed(123)
+medias <- replicate(1000, mean(rexp(30, rate=1)))
+cat("Media de las medias:", mean(medias), "\n")
+cat("Varianza de las medias:", var(medias), "\n")
+cat("Varianza teórica (1/30):", 1/30)</pre>
         </div>
-        <div class="modulo-content">
-            <div class="badge">📊 Uniforme → Normal</div>
-            <div class="badge">📈 Exponencial → Normal</div>
-            <div class="badge">🎲 Binomial → Normal</div>
-            <div class="badge">📏 Q-Q plots</div>
-            
-            <p>Verifica empíricamente que la media muestral se distribuye normalmente.</p>
-            
-            <a href="https://colab.research.google.com/github/sebitasdlm/notas/blob/main/EM/03_tcl.ipynb" target="_blank" class="colab-link">
-                🚀 Abrir módulo 4 en Colab
-            </a>
-        </div>
+        <button onclick="ejecutarR(`set.seed(123); medias <- replicate(1000, mean(rexp(30, rate=1))); cat('Media de medias:', mean(medias), '\\nVarianza muestral:', var(medias), '\\nVarianza teórica (1/30):', 1/30)`)">▶ Ejecutar</button>
     </div>
 
-    <!-- MÓDULO 5: Estimación -->
+    <!-- MÓDULO 5: Intervalos de confianza -->
     <div class="modulo">
-        <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>🔢 5. Estimación Puntual (MLE y Momentos)</h3>
+        <h3>📏 Intervalo de Confianza</h3>
+        <div class="r-code">
+            <pre># IC para la media con t.test
+set.seed(123)
+muestra <- rnorm(30, mean=50, sd=10)
+t.test(muestra, conf.level=0.95)$conf.int</pre>
         </div>
-        <div class="modulo-content">
-            <div class="badge">📊 Método de Momentos</div>
-            <div class="badge">🎯 Máxima Verosimilitud</div>
-            <div class="badge">📈 Sesgo y varianza</div>
-            <div class="badge">🔄 Bootstrap</div>
-            
-            <p>Implementa estimadores y calcula su error estándar mediante bootstrap.</p>
-            
-            <a href="https://colab.research.google.com/github/sebitasdlm/notas/blob/main/EM/04_estimacion.ipynb" target="_blank" class="colab-link">
-                🚀 Abrir módulo 5 en Colab
-            </a>
-        </div>
+        <button onclick="ejecutarR(`set.seed(123); muestra <- rnorm(30, mean=50, sd=10); t.test(muestra, conf.level=0.95)$conf.int`)">▶ Ejecutar</button>
     </div>
 
-    <!-- MÓDULO 6: Intervalos de Confianza -->
+    <!-- MÓDULO 6: Prueba de hipótesis -->
     <div class="modulo">
-        <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📏 6. Intervalos de Confianza</h3>
+        <h3>⚖️ Prueba t de Student</h3>
+        <div class="r-code">
+            <pre># Comparar dos grupos
+grupo1 <- rnorm(30, mean=50, sd=10)
+grupo2 <- rnorm(30, mean=55, sd=10)
+t.test(grupo1, grupo2)</pre>
         </div>
-        <div class="modulo-content">
-            <div class="badge">📊 t.test()</div>
-            <div class="badge">📏 var.test()</div>
-            <div class="badge">🎯 prop.test()</div>
-            <div class="badge">🔀 Diferencia de medias</div>
-            
-            <p>Construye intervalos de confianza para media, varianza, proporción y diferencia.</p>
-            
-            <a href="https://colab.research.google.com/github/sebitasdlm/notas/blob/main/EM/05_intervalos.ipynb" target="_blank" class="colab-link">
-                🚀 Abrir módulo 6 en Colab
-            </a>
-        </div>
+        <button onclick="ejecutarR(`set.seed(123); grupo1 <- rnorm(30, mean=50, sd=10); grupo2 <- rnorm(30, mean=55, sd=10); t.test(grupo1, grupo2)$p.value`)">▶ Ejecutar (valor-p)</button>
     </div>
 
-    <!-- MÓDULO 7: Pruebas de Hipótesis -->
+    <!-- MÓDULO 7: Bondad de ajuste -->
     <div class="modulo">
-        <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>⚖️ 7. Pruebas de Hipótesis</h3>
+        <h3>📐 Prueba de Kolmogorov-Smirnov</h3>
+        <div class="r-code">
+            <pre># Verificar normalidad
+set.seed(123)
+muestra <- rnorm(50)
+ks.test(muestra, "pnorm")</pre>
         </div>
-        <div class="modulo-content">
-            <div class="badge">📊 t-test</div>
-            <div class="badge">🎲 prop.test()</div>
-            <div class="badge">📐 F-test</div>
-            <div class="badge">📏 χ² independencia</div>
-            <div class="badge">💪 Potencia</div>
-            
-            <p>Realiza pruebas de hipótesis y calcula la potencia mediante simulación.</p>
-            
-            <a href="https://colab.research.google.com/github/sebitasdlm/notas/blob/main/EM/06_hipotesis.ipynb" target="_blank" class="colab-link">
-                🚀 Abrir módulo 7 en Colab
-            </a>
-        </div>
+        <button onclick="ejecutarR(`set.seed(123); muestra <- rnorm(50); ks.test(muestra, 'pnorm')$p.value`)">▶ Ejecutar (valor-p)</button>
     </div>
 
-    <!-- MÓDULO 8: Bondad de Ajuste -->
+    <!-- MÓDULO 8: Bootstrap -->
     <div class="modulo">
-        <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📐 8. Bondad de Ajuste</h3>
+        <h3>🔄 Bootstrap</h3>
+        <div class="r-code">
+            <pre># Estimar error estándar de la media
+set.seed(123)
+datos <- rnorm(100, mean=50, sd=10)
+B <- 200
+boot_means <- replicate(B, mean(sample(datos, replace=TRUE)))
+cat("Error estándar bootstrap:", sd(boot_means), "\n")
+cat("Error estándar teórico:", sd(datos)/sqrt(100))</pre>
         </div>
-        <div class="modulo-content">
-            <div class="badge">📊 χ² bondad</div>
-            <div class="badge">📈 Prueba KS</div>
-            <div class="badge">📏 Q-Q plots</div>
-            <div class="badge">📐 ECDF</div>
-            
-            <p>Evalúa si los datos siguen una distribución específica.</p>
-            
-            <a href="https://colab.research.google.com/github/sebitasdlm/notas/blob/main/EM/07_bondad.ipynb" target="_blank" class="colab-link">
-                🚀 Abrir módulo 8 en Colab
-            </a>
-        </div>
+        <button onclick="ejecutarR(`set.seed(123); datos <- rnorm(100, mean=50, sd=10); B <- 200; boot_means <- replicate(B, mean(sample(datos, replace=TRUE))); cat('Error estándar bootstrap:', sd(boot_means), '\\nError teórico:', sd(datos)/sqrt(100))`)">▶ Ejecutar</button>
     </div>
 
-    <!-- MÓDULO 9: Regresión Lineal -->
+    <!-- Resultados -->
     <div class="modulo">
-        <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📈 9. Regresión Lineal (Bonus)</h3>
-        </div>
-        <div class="modulo-content">
-            <div class="badge">📊 lm()</div>
-            <div class="badge">📈 Mínimos cuadrados</div>
-            <div class="badge">📐 Diagnóstico</div>
-            <div class="badge">📏 Predicción</div>
-            
-            <p>Modela relaciones entre variables y realiza predicciones.</p>
-            
-            <a href="https://colab.research.google.com/github/sebitasdlm/notas/blob/main/EM/08_regresion.ipynb" target="_blank" class="colab-link">
-                🚀 Abrir módulo 9 en Colab
-            </a>
-        </div>
+        <h3>📤 Resultados</h3>
+        <pre id="output">--- Los resultados aparecerán aquí ---</pre>
     </div>
 
-    <!-- MÓDULO 10: Resumen -->
-    <div class="modulo">
-        <div class="modulo-header" onclick="toggleModulo(this)">
-            <h3>📚 10. Resumen y Recursos</h3>
-        </div>
-        <div class="modulo-content">
-            <p><strong>🎓 Temas cubiertos:</strong></p>
-            <ul>
-                <li>✅ Distribuciones de probabilidad (d/p/q/r)</li>
-                <li>✅ Ley de los Grandes Números</li>
-                <li>✅ Teorema Central del Límite</li>
-                <li>✅ Estimación puntual (MLE, bootstrap)</li>
-                <li>✅ Intervalos de confianza</li>
-                <li>✅ Pruebas de hipótesis (t-test, χ², F-test)</li>
-                <li>✅ Bondad de ajuste (KS, χ², Q-Q)</li>
-                <li>✅ Regresión lineal</li>
-            </ul>
-            
-            <hr>
-            
-            <p><strong>📖 Recursos adicionales:</strong></p>
-            <ul>
-                <li><a href="https://cran.r-project.org/doc/contrib/R-libro-espanol.pdf" target="_blank">Introducción a R (PDF en español)</a></li>
-                <li><a href="https://r4ds.had.co.nz/" target="_blank">R for Data Science (libro online)</a></li>
-                <li><a href="https://posit.co/resources/cheatsheets/" target="_blank">Cheatsheets de RStudio</a></li>
-                <li><a href="https://github.com/sebitasdlm/notas" target="_blank">Repositorio del curso</a></li>
-            </ul>
-            
-            <div class="instruccion">
-                <strong>💾 ¿Cómo guardar tu trabajo?</strong><br>
-                Colab guarda automáticamente en Drive. También puedes descargar: <strong>File → Download → Download .ipynb</strong>
-            </div>
-        </div>
-    </div>
+    <script type="module">
+        const outputElem = document.getElementById('output');
+        const statusElem = document.getElementById('status');
+        let webR = null;
 
-</div>
-</main>
+        async function initWebR() {
+            try {
+                statusElem.textContent = "⏳ Cargando WebR... (primera vez 10-20 segundos)";
+                statusElem.className = "status loading";
+                
+                const { WebR } = await import('https://webr.r-wasm.org/v0.1.0/webr.mjs');
+                webR = new WebR();
+                await webR.init();
+                
+                statusElem.textContent = "✅ WebR listo! Puedes ejecutar código R.";
+                statusElem.className = "status ready";
+            } catch (err) {
+                statusElem.textContent = "❌ Error: " + err.message;
+                statusElem.className = "status error";
+                console.error(err);
+            }
+        }
 
-<script>
-    window.toggleModulo = function(header) {
-        const content = header.nextElementSibling;
-        content.classList.toggle('collapsed');
-    }
-    
-    if(window.MathJax) {
-        MathJax.texReset();
-        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
-    }
-</script>
+        window.ejecutarR = async function(codigo) {
+            if (!webR) {
+                outputElem.textContent = "⏳ WebR no está listo. Espera a que termine la carga...";
+                return;
+            }
+            
+            outputElem.textContent = "⏳ Ejecutando...";
+            
+            try {
+                const resultado = await webR.evalR(codigo);
+                const salida = await resultado.toJs();
+                
+                if (typeof salida === 'object' && salida !== null) {
+                    outputElem.textContent = JSON.stringify(salida, null, 2);
+                } else {
+                    outputElem.textContent = String(salida);
+                }
+            } catch (err) {
+                outputElem.textContent = "❌ Error: " + err.message;
+            }
+        };
+
+        initWebR();
+    </script>
 </body>
 </html>
