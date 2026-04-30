@@ -1,1 +1,1512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Contraste de Hipótesis - Capítulo 8</title>
+    
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Errores Tipo I y II, Potencia                  -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Errores Tipo I y II, Potencia de una Prueba</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Error Tipo I:</strong> Rechazar $H_0$ cuando es verdadera. $\alpha = \mathbb{P}(\text{Rechazar } H_0 | H_0)$
+                <br>
+                <strong>Error Tipo II:</strong> No rechazar $H_0$ cuando es falsa. $\beta = \mathbb{P}(\text{No rechazar } H_0 | H_1)$
+                <br>
+                <strong>Potencia:</strong> $1 - \beta = \mathbb{P}(\text{Rechazar } H_0 | H_1)$
+                <br>
+                <strong>Nivel de significancia:</strong> $\alpha$ (probabilidad de error tipo I)
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Prueba de media con $\sigma$ conocida</h4>
+                <div class="controles">
+                    <label>$H_0: \mu = \mu_0$:</label>
+                    <input type="range" id="mu0" min="-2" max="2" step="0.1" value="0">
+                    <span id="mu0-val">0.0</span>
+                    <label>$H_1: \mu = \mu_1$:</label>
+                    <input type="range" id="mu1" min="-2" max="2" step="0.1" value="1">
+                    <span id="mu1-val">1.0</span>
+                    <label>$\sigma$:</label>
+                    <input type="range" id="sigma-test" min="0.5" max="2" step="0.1" value="1">
+                    <span id="sigma-test-val">1.0</span>
+                    <label>n:</label>
+                    <input type="range" id="n-test" min="5" max="100" step="5" value="25">
+                    <span id="n-test-val">25</span>
+                    <label>Regla: rechazar si $\bar{X} > c$</label>
+                    <input type="range" id="c-test" min="-1" max="2" step="0.05" value="0.3">
+                    <span id="c-test-val">0.30</span>
+                    <button id="calcular-error">Calcular errores y potencia</button>
+                </div>
+                <canvas id="errorCanvas" width="500" height="250"></canvas>
+                <div id="error-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Relación α-β:</strong> Para un tamaño de muestra fijo, disminuir α aumenta β y viceversa.
+                Aumentar n reduce ambos errores simultáneamente.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué significa un valor-p pequeño?</strong>
+                <button onclick="mostrarRespuesta('respuesta-pvalor')">Ver respuesta</button>
+                <div id="respuesta-pvalor" class="respuesta">
+                    El valor-p es la probabilidad de obtener un resultado tan extremo o más que el observado, 
+                    suponiendo que $H_0$ es verdadera. Un valor-p pequeño (típicamente < 0.05) indica 
+                    evidencia en contra de $H_0$.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Lema de Neyman-Pearson                         -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Lema de Neyman-Pearson (Prueba Más Potente)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Para contrastar $H_0: \theta = \theta_0$ vs $H_1: \theta = \theta_1$ (hipótesis simples), 
+                la <strong>prueba más potente</strong> de nivel $\alpha$ tiene región de rechazo:
+                \[
+                \mathcal{R} = \left\{ \mathbf{x} : \frac{L(\theta_0; \mathbf{x})}{L(\theta_1; \mathbf{x})} \le c \right\}
+                \]
+                donde $c$ se elige para que $\mathbb{P}_0(\mathcal{R}) = \alpha$.
+            </div>
+
+            <div class="simulador">
+                <h4>Ejemplo: Prueba de dos monedas</h4>
+                <div class="controles">
+                    <label>$H_0: p = 0.5$:</label>
+                    <input type="range" id="p0" min="0.1" max="0.9" step="0.05" value="0.5">
+                    <span id="p0-val">0.50</span>
+                    <label>$H_1: p = 0.7$:</label>
+                    <input type="range" id="p1" min="0.1" max="0.9" step="0.05" value="0.7">
+                    <span id="p1-val">0.70</span>
+                    <label>n (lanzamientos):</label>
+                    <input type="range" id="n-np" min="5" max="30" step="1" value="10">
+                    <span id="n-np-val">10</span>
+                    <label>Región: rechazar si $X \ge c$</label>
+                    <input type="range" id="c-np" min="0" max="30" step="1" value="7">
+                    <span id="c-np-val">7</span>
+                    <button id="calcular-np">Calcular cociente de verosimilitudes</button>
+                </div>
+                <canvas id="npCanvas" width="500" height="250"></canvas>
+                <div id="np-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Interpretación:</strong> El cociente de verosimilitudes $\Lambda = L(\theta_0)/L(\theta_1)$.
+                Si $\Lambda < 1$, los datos son más probables bajo $H_1$; si $\Lambda > 1$, bajo $H_0$.
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Prueba Uniformemente Más Potente (PUMP)        -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Pruebas Uniformemente Más Potentes (PUMP)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Una prueba es <strong>uniformemente más potente (PUMP)</strong> de nivel $\alpha$ si es la más potente 
+                para todo $\theta \in \Theta_1$. Para familias con razón de verosimilitud monótona (MLR), 
+                existen PUMP para hipótesis unilaterales.
+            </div>
+
+            <div class="simulador">
+                <h4>Ejemplo: Normal con $\sigma$ conocida</h4>
+                <div class="controles">
+                    <label>$H_0: \mu \le \mu_0$:</label>
+                    <input type="range" id="mu0-pump" min="-2" max="2" step="0.1" value="0">
+                    <span id="mu0-pump-val">0.0</span>
+                    <label>$\sigma$:</label>
+                    <input type="range" id="sigma-pump" min="0.5" max="2" step="0.1" value="1">
+                    <span id="sigma-pump-val">1.0</span>
+                    <label>n:</label>
+                    <input type="range" id="n-pump" min="5" max="50" step="5" value="25">
+                    <span id="n-pump-val">25</span>
+                    <label>$\alpha$:</label>
+                    <select id="alpha-pump">
+                        <option value="0.10">10%</option>
+                        <option value="0.05" selected>5%</option>
+                        <option value="0.01">1%</option>
+                    </select>
+                    <button id="calcular-pump">Calcular PUMP</button>
+                </div>
+                <canvas id="pumpCanvas" width="500" height="200"></canvas>
+                <div id="pump-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                Para $X \sim N(\mu, \sigma^2)$ con $\sigma$ conocida, la PUMP para $H_0: \mu \le \mu_0$ vs $H_1: \mu > \mu_0$ es:
+                \[
+                \text{Rechazar } H_0 \text{ si } \bar{X} > \mu_0 + z_{1-\alpha} \frac{\sigma}{\sqrt{n}}
+                \]
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Relación IC y Prueba de Hipótesis              -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Relación entre Intervalos de Confianza y Pruebas de Hipótesis</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Existe una dualidad entre intervalos de confianza y pruebas de hipótesis:
+                \[
+                \text{Un IC de nivel } 1-\alpha \text{ para } \theta \text{ contiene a } \theta_0 \iff \text{no rechazamos } H_0: \theta = \theta_0 \text{ con nivel } \alpha
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación: IC vs Prueba para la media</h4>
+                <div class="controles">
+                    <label>Muestra observada:</label>
+                    <button id="generar-muestra">Generar muestra (n=30)</button>
+                    <span id="muestra-info"></span>
+                </div>
+                <canvas id="icPruebaCanvas" width="500" height="200"></canvas>
+                <div id="icPrueba-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                IC para $\mu$ (con $\sigma$ conocida): $\bar{X} \pm z_{1-\alpha/2} \frac{\sigma}{\sqrt{n}}$
+                <br>
+                Prueba para $H_0: \mu = \mu_0$: rechazar si $|\bar{X} - \mu_0| > z_{1-\alpha/2} \frac{\sigma}{\sqrt{n}}$
+                <br>
+                ¡Son exactamente equivalentes!
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Cociente de Verosimilitud Generalizado (CVG)   -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Cociente de Verosimilitud Generalizado (CVG)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Para hipótesis compuestas, el <strong>CVG</strong> se define como:
+                \[
+                \Lambda(\mathbf{X}) = \frac{\sup_{\theta \in \Theta_0} L(\theta; \mathbf{X})}{\sup_{\theta \in \Theta} L(\theta; \mathbf{X})}
+                \]
+                Bajo $H_0$ y condiciones de regularidad, $-2\log\Lambda(\mathbf{X}) \xrightarrow{D} \chi^2_{\text{df}}$, 
+                donde df = dim($\Theta$) - dim($\Theta_0$).
+            </div>
+
+            <div class="simulador">
+                <h4>Ejemplo: CVG para media normal (varianza desconocida)</h4>
+                <div class="controles">
+                    <label>$\mu_0$ (bajo $H_0$):</label>
+                    <input type="range" id="mu0-cvg" min="-2" max="2" step="0.1" value="0">
+                    <span id="mu0-cvg-val">0.0</span>
+                    <label>$\mu$ verdadero:</label>
+                    <input type="range" id="mu-cvg" min="-2" max="2" step="0.1" value="0.5">
+                    <span id="mu-cvg-val">0.5</span>
+                    <label>$\sigma$ verdadero:</label>
+                    <input type="range" id="sigma-cvg" min="0.5" max="2" step="0.1" value="1">
+                    <span id="sigma-cvg-val">1.0</span>
+                    <label>n:</label>
+                    <input type="range" id="n-cvg" min="10" max="200" step="10" value="50">
+                    <span id="n-cvg-val">50</span>
+                    <button id="simular-cvg">Simular 1000 muestras</button>
+                </div>
+                <canvas id="cvgCanvas" width="500" height="250"></canvas>
+                <div id="cvg-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Caso Normal (varianza desconocida):</strong>
+                \[
+                -2\log\Lambda = n\log\left(1 + \frac{n(\bar{X} - \mu_0)^2}{(n-1)S^2}\right) \approx \frac{(\bar{X} - \mu_0)^2}{S^2/n} \sim \chi^2_1
+                \]
+                Esta es la base de la prueba t de Student (aunque se usa t-student exacta en lugar de χ²).
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 6: Prueba χ² de Bondad de Ajuste                  -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>6. Prueba χ² de Bondad de Ajuste</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Para probar si los datos siguen una distribución específica:
+                \[
+                X^2 = \sum_{i=1}^k \frac{(O_i - E_i)^2}{E_i} \xrightarrow{D} \chi^2_{k-1-m}
+                \]
+                donde $m$ es el número de parámetros estimados.
+                <br>
+                <strong>Regla:</strong> Rechazar $H_0$ si $X^2 > \chi^2_{1-\alpha, k-1-m}$.
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Bondad de ajuste a Poisson</h4>
+                <div class="controles">
+                    <label>λ verdadero:</label>
+                    <input type="range" id="lambda-ba" min="1" max="10" step="0.5" value="4">
+                    <span id="lambda-ba-val">4.0</span>
+                    <label>n (tamaño muestra):</label>
+                    <input type="range" id="n-ba" min="50" max="500" step="50" value="200">
+                    <span id="n-ba-val">200</span>
+                    <button id="simular-ba">Simular y calcular $X^2$</button>
+                </div>
+                <canvas id="baCanvas" width="500" height="250"></canvas>
+                <div id="ba-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (emisión de partículas):</strong>
+                Con λ̂=8.392, $X^2=9.04$, gl=16-1-1=14, valor-p=0.828.
+                ¡No se rechaza la hipótesis de que los datos siguen Poisson!
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Cuándo es válida la aproximación χ²?</strong>
+                <button onclick="mostrarRespuesta('respuesta-ba')">Ver respuesta</button>
+                <div id="respuesta-ba" class="respuesta">
+                    Se recomienda que todos los valores esperados $E_i$ sean al menos 5. 
+                    Si no, se deben agrupar categorías adyacentes.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 7: Gráficas de Probabilidad (Q-Q Plots)           -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>7. Gráficas de Probabilidad (Q-Q Plots)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Las <strong>gráficas de probabilidad (Q-Q plots)</strong> son una herramienta visual para evaluar 
+                si una muestra proviene de una determinada distribución.
+                <br>
+                <strong>Idea:</strong> Graficar los cuantiles muestrales $X_{(j)}$ vs los cuantiles teóricos $F^{-1}\left(\frac{j}{n+1}\right)$.
+                Si los puntos se alinean aproximadamente en una recta, el ajuste es razonable.
+            </div>
+
+            <div class="simulador">
+                <h4>Generador de Q-Q Plots</h4>
+                <div class="controles">
+                    <label>Distribución real:</label>
+                    <select id="dist-qq">
+                        <option value="normal">Normal(0,1)</option>
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="exponencial">Exponencial(1)</option>
+                        <option value="cauchy">Cauchy(0,1)</option>
+                    </select>
+                    <label>Distribución teórica (para comparar):</label>
+                    <select id="dist-teorica">
+                        <option value="normal">Normal</option>
+                        <option value="uniforme">Uniforme</option>
+                        <option value="exponencial">Exponencial</option>
+                    </select>
+                    <label>n (tamaño muestra):</label>
+                    <input type="range" id="n-qq" min="10" max="200" step="10" value="50">
+                    <span id="n-qq-val">50</span>
+                    <button id="generar-qq">Generar Q-Q Plot</button>
+                </div>
+                <canvas id="qqCanvas" width="500" height="400"></canvas>
+                <div id="qq-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Teorema de transformación integral:</strong> Si $X$ tiene distribución continua $F$, entonces $F(X) \sim Unif(0,1)$.
+                <br>
+                Por lo tanto, $X_{(j)} \approx F^{-1}\left(\frac{j}{n+1}\right)$.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué indica una desviación sistemática de la recta en un Q-Q plot?</strong>
+                <button onclick="mostrarRespuesta('respuesta-qq')">Ver respuesta</button>
+                <div id="respuesta-qq" class="respuesta">
+                    Una curvatura sugiere asimetría; una forma de "S" sugiere colas más pesadas o más livianas que la distribución teórica; 
+                    una desviación en los extremos indica outliers.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 8: Función de Distribución Empírica               -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>8. Función de Distribución Empírica (FDE)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>función de distribución empírica (FDE)</strong> se define como:
+                \[
+                F_n(x) = \frac{1}{n} \sum_{i=1}^n \mathbf{1}_{(-\infty, x]}(X_i) = \frac{\#\{X_i \le x\}}{n}
+                \]
+                <strong>Propiedades:</strong>
+                <ul>
+                    <li>$\mathbb{E}[F_n(x)] = F(x)$ (insesgado)</li>
+                    <li>$\operatorname{var}(F_n(x)) = \frac{1}{n}F(x)(1-F(x))$</li>
+                    <li>$\sqrt{n}(F_n(x)-F(x)) \xrightarrow{D} N(0, F(x)(1-F(x)))$</li>
+                </ul>
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización: FDE vs Distribución Teórica</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-fde">
+                        <option value="normal">Normal(0,1)</option>
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="exponencial">Exponencial(1)</option>
+                    </select>
+                    <label>n:</label>
+                    <input type="range" id="n-fde" min="10" max="500" step="10" value="100">
+                    <span id="n-fde-val">100</span>
+                    <button id="simular-fde">Generar FDE</button>
+                </div>
+                <canvas id="fdeCanvas" width="500" height="300"></canvas>
+                <div id="fde-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Teorema de Glivenko-Cantelli:</strong>
+                \[
+                \mathbb{P}\left( \sup_{x \in \mathbb{R}} |F_n(x) - F(x)| \to 0 \right) = 1
+                \]
+                La convergencia de $F_n$ a $F$ es uniforme y casi segura.
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 9: Prueba de Kolmogorov-Smirnov                   -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>9. Prueba de Kolmogorov-Smirnov (KS)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                El <strong>estadístico de Kolmogorov-Smirnov</strong> mide la distancia máxima entre $F_n$ y $F_0$:
+                \[
+                D_n = \sup_{x \in \mathbb{R}} |F_n(x) - F_0(x)|
+                \]
+                Bajo $H_0: F = F_0$, la distribución de $\sqrt{n}D_n$ es conocida (<strong>libre de distribución</strong>).
+                <br>
+                <strong>Regla:</strong> Rechazar $H_0$ si $D_n > d_{\alpha, n}$ (valor crítico tabulado).
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Prueba KS</h4>
+                <div class="controles">
+                    <label>Distribución real:</label>
+                    <select id="dist-ks">
+                        <option value="normal">Normal(0,1)</option>
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="exponencial">Exponencial(1)</option>
+                        <option value="cauchy">Cauchy(0,1) - diferente</option>
+                    </select>
+                    <label>Distribución bajo $H_0$:</label>
+                    <select id="h0-ks">
+                        <option value="normal">Normal(0,1)</option>
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="exponencial">Exponencial(1)</option>
+                    </select>
+                    <label>n:</label>
+                    <input type="range" id="n-ks" min="10" max="200" step="10" value="50">
+                    <span id="n-ks-val">50</span>
+                    <button id="simular-ks">Simular y calcular KS</button>
+                </div>
+                <canvas id="ksCanvas" width="500" height="300"></canvas>
+                <div id="ks-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Valores críticos aproximados para KS ($\alpha=0.05$):</strong>
+                \[
+                d_{0.05, n} \approx \frac{1.36}{\sqrt{n}}, \quad d_{0.01, n} \approx \frac{1.63}{\sqrt{n}}
+                \]
+                Para $n=50$, $d_{0.05} \approx 0.192$.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué ventaja tiene KS sobre la prueba χ² de bondad de ajuste?</strong>
+                <button onclick="mostrarRespuesta('respuesta-ks')">Ver respuesta</button>
+                <div id="respuesta-ks" class="respuesta">
+                    KS es <strong>no paramétrica</strong> (libre de distribución) y no requiere agrupar datos en categorías. 
+                    Sin embargo, no es aplicable cuando los parámetros se estiman de los datos 
+                    (se requiere la prueba de Lilliefors). También es más sensible a diferencias en el centro de la distribución.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 10: Comparación de Pruebas - Resumen              -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>10. Comparación de Pruebas de Bondad de Ajuste</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Resumen de pruebas para bondad de ajuste:</strong>
+                <ul>
+                    <li><strong>χ² de Pearson:</strong> Para datos agrupados, requiere $E_i \ge 5$.</li>
+                    <li><strong>Kolmogorov-Smirnov:</strong> Para datos continuos, basado en $D_n = \sup|F_n-F_0|$.</li>
+                    <li><strong>Anderson-Darling:</strong> Da más peso a las colas.</li>
+                    <li><strong>Shapiro-Wilk:</strong> Específica para normalidad.</li>
+                </ul>
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador Comparativo: χ² vs KS</h4>
+                <div class="controles">
+                    <label>Distribución real:</label>
+                    <select id="dist-comp">
+                        <option value="normal">Normal(0,1)</option>
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="exponencial">Exponencial(1)</option>
+                        <option value="cauchy">Cauchy(0,1)</option>
+                    </select>
+                    <label>Distribución bajo $H_0$:</label>
+                    <select id="h0-comp">
+                        <option value="normal">Normal(0,1)</option>
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="exponencial">Exponencial(1)</option>
+                    </select>
+                    <label>n:</label>
+                    <input type="range" id="n-comp" min="20" max="200" step="10" value="100">
+                    <span id="n-comp-val">100</span>
+                    <button id="simular-comp">Comparar</button>
+                </div>
+                <canvas id="compPruebasCanvas" width="500" height="250"></canvas>
+                <div id="compPruebas-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Recomendaciones prácticas:</strong>
+                <ul>
+                    <li>Para muestras pequeñas (n < 30), usar KS (distribución exacta).</li>
+                    <li>Para muestras grandes, χ² es más potente cuando los datos son discretos.</li>
+                    <li>Si se estiman parámetros (ej. Normal con µ,σ desconocidos), usar Lilliefors.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // ============================================================
+    // FUNCIONES GLOBALES
+    // ============================================================
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        if(content) content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        if(elem) elem.classList.toggle('mostrar');
+    }
+
+    // Función para cuantiles normales
+    function qnorm(p) {
+        const a = [-39.6968302866538, 220.946098424521, -275.928510446969, 138.357751867269, -30.6647980661472, 2.50662827745924];
+        const b = [-54.4760987982241, 161.585836858041, -155.698979859887, 66.8013118877197, -13.2806815528857, 1];
+        const c = [-0.00778489400243029, -0.322396458041136, -2.40075827716184, -2.54973253934373, 4.37466414146497, 2.93816398269878];
+        const d = [0.00778469570904146, 0.32246712907004, 2.445134137143, 3.75440866190742, 1];
+        
+        let q = p - 0.5;
+        let r;
+        if(Math.abs(q) <= 0.425) {
+            r = 0.180625 - q * q;
+            return q * (((((a[5]*r + a[4])*r + a[3])*r + a[2])*r + a[1])*r + a[0]) / (((((b[5]*r + b[4])*r + b[3])*r + b[2])*r + b[1])*r + b[0]);
+        } else {
+            if(p < 0.5) r = p;
+            else r = 1 - p;
+            r = Math.sqrt(-Math.log(r));
+            const inv = (((((c[4]*r + c[3])*r + c[2])*r + c[1])*r + c[0]) / ((((d[3]*r + d[2])*r + d[1])*r + d[0])));
+            return (p < 0.5) ? -inv : inv;
+        }
+    }
+
+    function pnorm(z) {
+        return 0.5 * (1 + Math.erf(z / Math.sqrt(2)));
+    }
+
+    // Función para cuantiles exponenciales
+    function qexp(p) {
+        return -Math.log(1-p);
+    }
+
+    // ============================================================
+    // MODULO 1: Errores
+    // ============================================================
+    function calcularErrores() {
+        const mu0 = parseFloat(document.getElementById('mu0').value);
+        const mu1 = parseFloat(document.getElementById('mu1').value);
+        const sigma = parseFloat(document.getElementById('sigma-test').value);
+        const n = parseInt(document.getElementById('n-test').value);
+        const c = parseFloat(document.getElementById('c-test').value);
+        document.getElementById('mu0-val').textContent = mu0.toFixed(1);
+        document.getElementById('mu1-val').textContent = mu1.toFixed(1);
+        document.getElementById('sigma-test-val').textContent = sigma.toFixed(1);
+        document.getElementById('n-test-val').textContent = n;
+        document.getElementById('c-test-val').textContent = c.toFixed(2);
+        
+        const se = sigma / Math.sqrt(n);
+        const alpha = 1 - pnorm((c - mu0)/se);
+        const beta = pnorm((c - mu1)/se);
+        const potencia = 1 - beta;
+        
+        const canvas = document.getElementById('errorCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const x = mu0 - 4*se + (i/w) * 8*se;
+                const dens = Math.exp(-Math.pow((x-mu0)/se,2)/2) / (se * Math.sqrt(2*Math.PI));
+                const y = h - dens * h * 1.5;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const x = mu1 - 4*se + (i/w) * 8*se;
+                const dens = Math.exp(-Math.pow((x-mu1)/se,2)/2) / (se * Math.sqrt(2*Math.PI));
+                const y = h - dens * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            const xc = (c - (mu0 - 4*se)) / (8*se) * w;
+            ctx.beginPath();
+            ctx.moveTo(Math.max(0,Math.min(w,xc)), 0);
+            ctx.lineTo(Math.max(0,Math.min(w,xc)), h);
+            ctx.strokeStyle = '#4caf50';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        document.getElementById('error-info').innerHTML = 
+            `α (Error Tipo I) = ${alpha.toFixed(4)}<br>
+            β (Error Tipo II) = ${beta.toFixed(4)}<br>
+            Potencia (1-β) = ${potencia.toFixed(4)}<br>
+            Valor crítico: c = ${c.toFixed(2)}`;
+    }
+
+    // ============================================================
+    // MODULO 2: Neyman-Pearson
+    // ============================================================
+    function simularNP() {
+        const p0 = parseFloat(document.getElementById('p0').value);
+        const p1 = parseFloat(document.getElementById('p1').value);
+        const n = parseInt(document.getElementById('n-np').value);
+        const c = parseInt(document.getElementById('c-np').value);
+        document.getElementById('p0-val').textContent = p0.toFixed(2);
+        document.getElementById('p1-val').textContent = p1.toFixed(2);
+        document.getElementById('n-np-val').textContent = n;
+        document.getElementById('c-np-val').textContent = c;
+        
+        let probs0 = [], probs1 = [];
+        for(let x=0; x<=n; x++) {
+            probs0.push(comb(n,x) * Math.pow(p0,x) * Math.pow(1-p0,n-x));
+            probs1.push(comb(n,x) * Math.pow(p1,x) * Math.pow(1-p1,n-x));
+        }
+        
+        const canvas = document.getElementById('npCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const barWidth = w/(n+1);
+            for(let x=0; x<=n; x++) {
+                const barHeight0 = probs0[x] * h * 4;
+                const barHeight1 = probs1[x] * h * 2;
+                ctx.fillStyle = 'rgba(33,150,243,0.6)';
+                ctx.fillRect(x*barWidth, h-barHeight0, barWidth-2, barHeight0);
+                ctx.fillStyle = 'rgba(244,67,54,0.6)';
+                ctx.fillRect(x*barWidth + barWidth/2, h-barHeight1, barWidth-2, barHeight1);
+            }
+        }
+        
+        const alpha = probs0.slice(c).reduce((a,b)=>a+b,0);
+        const potencia = probs1.slice(c).reduce((a,b)=>a+b,0);
+        
+        document.getElementById('np-info').innerHTML = 
+            `Cociente de verosimilitudes: \(LR(x) = \\frac{${p0}^x(1-${p0})^{${n}-x}}{${p1}^x(1-${p1})^{${n}-x}}\)<br>
+            Región de rechazo: \(X \\ge ${c}\)<br>
+            α = ${alpha.toFixed(4)} | Potencia = ${potencia.toFixed(4)}<br>
+            La prueba es más potente por el Lema de Neyman-Pearson.`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    function comb(n,k) { let r=1; for(let i=0;i<k;i++) r*=(n-i)/(i+1); return r; }
+
+    // ============================================================
+    // MODULO 3: PUMP
+    // ============================================================
+    function calcularPUMP() {
+        const mu0 = parseFloat(document.getElementById('mu0-pump').value);
+        const sigma = parseFloat(document.getElementById('sigma-pump').value);
+        const n = parseInt(document.getElementById('n-pump').value);
+        const alpha = parseFloat(document.getElementById('alpha-pump').value);
+        document.getElementById('mu0-pump-val').textContent = mu0.toFixed(1);
+        document.getElementById('sigma-pump-val').textContent = sigma.toFixed(1);
+        document.getElementById('n-pump-val').textContent = n;
+        
+        const z = qnorm(1 - alpha);
+        const c = mu0 + z * sigma / Math.sqrt(n);
+        
+        const canvas = document.getElementById('pumpCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            ctx.fillStyle = '#4caf50';
+            ctx.fillRect(w/2 - 50, h - alpha * h * 0.8, 40, alpha * h * 0.8);
+            ctx.fillStyle = '#f44336';
+            ctx.fillRect(w/2 + 10, h - (1-alpha) * h * 0.8, 40, (1-alpha) * h * 0.8);
+        }
+        
+        document.getElementById('pump-info').innerHTML = 
+            `PUMP para \(H_0: \\mu \\le ${mu0}\) vs \(H_1: \\mu > ${mu0}\):<br>
+            Región de rechazo: \(\\bar{X} > ${c.toFixed(4)}\) (con nivel ${alpha*100}%)<br>
+            Esta prueba es uniformemente más potente (PUMP).`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+
+    // ============================================================
+    // MODULO 4: IC vs Prueba
+    // ============================================================
+    let muestraActual = null;
+    function generarMuestraIC() {
+        const mu = 0.5;
+        const sigma = 1;
+        const n = 30;
+        let muestra = [];
+        for(let i=0; i<n; i++) {
+            const z = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            muestra.push(mu + sigma*z);
+        }
+        muestraActual = muestra;
+        const xbar = muestra.reduce((a,b)=>a+b,0)/n;
+        const z = qnorm(0.975);
+        const LI = xbar - z * sigma / Math.sqrt(n);
+        const LS = xbar + z * sigma / Math.sqrt(n);
+        
+        document.getElementById('muestra-info').innerHTML = 
+            `\(\bar{x} = ${xbar.toFixed(4)}\) | IC 95%: (${LI.toFixed(4)}, ${LS.toFixed(4)})`;
+        
+        const canvas = document.getElementById('icPruebaCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(30).fill(0);
+            for(let v of muestra) {
+                const idx = Math.min(29, Math.floor((v+2)/4*30));
+                if(idx>=0 && idx<30) bins[idx]++;
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.6;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-2, barHeight);
+            }
+            
+            const x1 = (LI + 2)/4 * w;
+            const x2 = (LS + 2)/4 * w;
+            ctx.fillStyle = 'rgba(33,150,243,0.4)';
+            ctx.fillRect(x1, 0, x2-x1, h);
+        }
+        
+        document.getElementById('icPrueba-info').innerHTML = 
+            `Dualidad IC-Prueba:<br>
+            El IC 95% para μ es (${LI.toFixed(4)}, ${LS.toFixed(4)}).<br>
+            No rechazamos \(H_0: \\mu = \\mu_0\) si y solo si \(\\mu_0\) está en el IC.`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+
+    // ============================================================
+    // MODULO 5: CVG
+    // ============================================================
+    function simularCVG() {
+        const mu0 = parseFloat(document.getElementById('mu0-cvg').value);
+        const mu = parseFloat(document.getElementById('mu-cvg').value);
+        const sigma = parseFloat(document.getElementById('sigma-cvg').value);
+        const n = parseInt(document.getElementById('n-cvg').value);
+        document.getElementById('mu0-cvg-val').textContent = mu0.toFixed(1);
+        document.getElementById('mu-cvg-val').textContent = mu.toFixed(1);
+        document.getElementById('sigma-cvg-val').textContent = sigma.toFixed(1);
+        document.getElementById('n-cvg-val').textContent = n;
+        
+        const nSim = 1000;
+        let estadisticos = [];
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let muestra = [];
+            for(let i=0; i<n; i++) {
+                const z = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                muestra.push(mu + sigma*z);
+            }
+            const xbar = muestra.reduce((a,b)=>a+b,0)/n;
+            const s2 = muestra.reduce((a,b)=>a+Math.pow(b-xbar,2),0)/(n-1);
+            const t2 = n * (xbar - mu0)*(xbar - mu0) / s2;
+            estadisticos.push(t2);
+        }
+        
+        const canvas = document.getElementById('cvgCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(30).fill(0);
+            for(let v of estadisticos) {
+                if(v < 15) {
+                    const idx = Math.floor(v/15*30);
+                    if(idx>=0 && idx<30) bins[idx]++;
+                }
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-2, barHeight);
+            }
+            
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const x = (i/w)*15;
+                let dens = 0;
+                if(x>0) dens = Math.exp(-x/2) / Math.sqrt(2*Math.PI*x);
+                const y = h - dens * h * 1.5;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        const media = estadisticos.reduce((a,b)=>a+b,0)/nSim;
+        document.getElementById('cvg-info').innerHTML = 
+            `CVG: \(-2\\log\\Lambda = n\\log\\left(1+\\frac{n(\\bar{X}-\\mu_0)^2}{(n-1)S^2}\\right) \\approx \\frac{n(\\bar{X}-\\mu_0)^2}{S^2}\)<br>
+            Media de los estadísticos: ${media.toFixed(4)} (χ²₁ tiene media 1)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+
+    // ============================================================
+    // MODULO 6: Bondad de ajuste χ²
+    // ============================================================
+    function simularBondadAjuste() {
+        const lambda = parseFloat(document.getElementById('lambda-ba').value);
+        const n = parseInt(document.getElementById('n-ba').value);
+        document.getElementById('lambda-ba-val').textContent = lambda.toFixed(1);
+        document.getElementById('n-ba-val').textContent = n;
+        
+        let conteos = [];
+        for(let i=0; i<n; i++) {
+            let k=0, p=Math.exp(-lambda), u=Math.random();
+            while(u > p) { k++; p += Math.exp(-lambda)*Math.pow(lambda,k)/fact(k); }
+            if(k >= conteos.length) {
+                for(let j=conteos.length; j<=k; j++) conteos.push(0);
+            }
+            conteos[k]++;
+        }
+        
+        const lambdaHat = conteos.reduce((a,b,i)=>a+i*b,0)/n;
+        let chi2 = 0;
+        let gl = 0;
+        let categorias = [];
+        for(let k=0; k<conteos.length; k++) {
+            const esperado = n * Math.exp(-lambdaHat) * Math.pow(lambdaHat, k) / fact(k);
+            if(esperado >= 5) {
+                chi2 += Math.pow(conteos[k] - esperado, 2) / esperado;
+                categorias.push({obs: conteos[k], esp: esperado});
+                gl++;
+            }
+        }
+        gl = Math.max(1, gl - 2);
+        const pvalor = Math.exp(-chi2/2);
+        
+        const canvas = document.getElementById('baCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const barWidth = w / categorias.length;
+            for(let i=0; i<categorias.length; i++) {
+                const barObs = (categorias[i].obs / n) * h * 0.8;
+                const barEsp = (categorias[i].esp / n) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*barWidth + 2, h-barObs, barWidth-4, barObs);
+                ctx.fillStyle = '#f44336';
+                ctx.fillRect(i*barWidth + barWidth/2 + 2, h-barEsp, barWidth-4, barEsp);
+            }
+        }
+        
+        document.getElementById('ba-info').innerHTML = 
+            `Prueba χ² de bondad de ajuste a Poisson:<br>
+            λ̂ = ${lambdaHat.toFixed(4)}<br>
+            Estadístico X² = ${chi2.toFixed(4)}<br>
+            Grados de libertad ≈ ${gl}<br>
+            Valor-p ≈ ${pvalor.toFixed(4)}<br>
+            ${pvalor > 0.05 ? 'No se rechaza H₀' : 'Se rechaza H₀'}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    function fact(n) { let r=1; for(let i=2;i<=n;i++) r*=i; return r; }
+
+    // ============================================================
+    // MODULO 7: Q-Q Plots
+    // ============================================================
+    function generarQQ() {
+        const distReal = document.getElementById('dist-qq').value;
+        const distTeorica = document.getElementById('dist-teorica').value;
+        const n = parseInt(document.getElementById('n-qq').value);
+        document.getElementById('n-qq-val').textContent = n;
+        
+        let muestra = [];
+        for(let i=0; i<n; i++) {
+            let val;
+            if(distReal === 'normal') {
+                val = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            } else if(distReal === 'uniforme') {
+                val = Math.random();
+            } else if(distReal === 'exponencial') {
+                val = -Math.log(Math.random());
+            } else {
+                val = Math.tan(Math.PI * (Math.random() - 0.5));
+            }
+            muestra.push(val);
+        }
+        muestra.sort((a,b)=>a-b);
+        
+        const cuantilesTeoricos = [];
+        for(let j=1; j<=n; j++) {
+            const p = j / (n+1);
+            if(distTeorica === 'normal') {
+                cuantilesTeoricos.push(qnorm(p));
+            } else if(distTeorica === 'uniforme') {
+                cuantilesTeoricos.push(p);
+            } else {
+                cuantilesTeoricos.push(qexp(p));
+            }
+        }
+        
+        const canvas = document.getElementById('qqCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const xMin = Math.min(...cuantilesTeoricos);
+            const xMax = Math.max(...cuantilesTeoricos);
+            const yMin = Math.min(...muestra);
+            const yMax = Math.max(...muestra);
+            
+            for(let i=0; i<n; i++) {
+                const x = (cuantilesTeoricos[i] - xMin) / (xMax - xMin) * w;
+                const y = h - (muestra[i] - yMin) / (yMax - yMin) * h;
+                ctx.fillStyle = '#1976d2';
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, 2*Math.PI);
+                ctx.fill();
+            }
+            
+            ctx.beginPath();
+            ctx.moveTo(0, h);
+            ctx.lineTo(w, 0);
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        document.getElementById('qq-info').innerHTML = 
+            `Q-Q Plot: Muestra de ${distReal} vs cuantiles de ${distTeorica}<br>
+            Si los puntos siguen la línea roja, el ajuste es razonable.`;
+    }
+
+    // ============================================================
+    // MODULO 8: FDE
+    // ============================================================
+    function simularFDE() {
+        const dist = document.getElementById('dist-fde').value;
+        const n = parseInt(document.getElementById('n-fde').value);
+        document.getElementById('n-fde-val').textContent = n;
+        
+        let muestra = [];
+        for(let i=0; i<n; i++) {
+            let val;
+            if(dist === 'normal') {
+                val = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            } else if(dist === 'uniforme') {
+                val = Math.random();
+            } else {
+                val = -Math.log(Math.random());
+            }
+            muestra.push(val);
+        }
+        muestra.sort((a,b)=>a-b);
+        
+        const canvas = document.getElementById('fdeCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const xMin = Math.min(-3, muestra[0]);
+            const xMax = Math.max(3, muestra[n-1]);
+            
+            ctx.beginPath();
+            let fx = 0;
+            let idx = 0;
+            for(let i=0; i<w; i++) {
+                const x = xMin + (i/w)*(xMax - xMin);
+                while(idx < n && muestra[idx] <= x) {
+                    fx = (++idx)/n;
+                }
+                const y = h - fx * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+            
+            let teor = (x) => {
+                if(dist === 'normal') return pnorm(x);
+                if(dist === 'uniforme') return Math.min(1, Math.max(0, x));
+                return 1 - Math.exp(-x);
+            };
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const x = xMin + (i/w)*(xMax - xMin);
+                const y = h - teor(x) * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        document.getElementById('fde-info').innerHTML = 
+            `Función de distribución empírica (azul) vs teórica (roja)<br>
+            Por Glivenko-Cantelli: \(F_n \\xrightarrow{c.s.} F\) uniformemente.`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+
+    // ============================================================
+    // MODULO 9: KS
+    // ============================================================
+    function simularKS() {
+        const distReal = document.getElementById('dist-ks').value;
+        const h0Dist = document.getElementById('h0-ks').value;
+        const n = parseInt(document.getElementById('n-ks').value);
+        document.getElementById('n-ks-val').textContent = n;
+        
+        let muestra = [];
+        for(let i=0; i<n; i++) {
+            let val;
+            if(distReal === 'normal') {
+                val = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            } else if(distReal === 'uniforme') {
+                val = Math.random();
+            } else if(distReal === 'exponencial') {
+                val = -Math.log(Math.random());
+            } else {
+                val = Math.tan(Math.PI * (Math.random() - 0.5));
+            }
+            muestra.push(val);
+        }
+        muestra.sort((a,b)=>a-b);
+        
+        let F0 = (x) => {
+            if(h0Dist === 'normal') return pnorm(x);
+            if(h0Dist === 'uniforme') return Math.min(1, Math.max(0, x));
+            return 1 - Math.exp(-x);
+        };
+        
+        let maxD = 0;
+        for(let i=0; i<n; i++) {
+            const fn = (i+1)/n;
+            const f0 = F0(muestra[i]);
+            const d = Math.abs(fn - f0);
+            if(d > maxD) maxD = d;
+        }
+        
+        const dCritico = 1.36 / Math.sqrt(n);
+        
+        const canvas = document.getElementById('ksCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            ctx.beginPath();
+            let idx = 0;
+            for(let i=0; i<w; i++) {
+                const x = -3 + (i/w)*6;
+                while(idx < n && muestra[idx] <= x) idx++;
+                const fn = idx/n;
+                const f0 = F0(x);
+                const y = h - f0 * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            idx = 0;
+            for(let i=0; i<w; i++) {
+                const x = -3 + (i/w)*6;
+                while(idx < n && muestra[idx] <= x) idx++;
+                const fn = idx/n;
+                const y = h - fn * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+        }
+        
+        document.getElementById('ks-info').innerHTML = 
+            `Estadístico KS: D_n = ${maxD.toFixed(4)}<br>
+            Valor crítico (α=0.05): d ≈ ${dCritico.toFixed(4)}<br>
+            ${maxD > dCritico ? 'Rechazar H₀: las distribuciones son diferentes' : 'No rechazar H₀: datos compatibles con la distribución teórica'}`;
+    }
+
+    // ============================================================
+    // MODULO 10: Comparación
+    // ============================================================
+    function simularComparacionPruebas() {
+        const distReal = document.getElementById('dist-comp').value;
+        const h0Dist = document.getElementById('h0-comp').value;
+        const n = parseInt(document.getElementById('n-comp').value);
+        document.getElementById('n-comp-val').textContent = n;
+        
+        let muestra = [];
+        for(let i=0; i<n; i++) {
+            let val;
+            if(distReal === 'normal') {
+                val = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            } else if(distReal === 'uniforme') {
+                val = Math.random();
+            } else if(distReal === 'exponencial') {
+                val = -Math.log(Math.random());
+            } else {
+                val = Math.tan(Math.PI * (Math.random() - 0.5));
+            }
+            muestra.push(val);
+        }
+        
+        let F0 = (x) => {
+            if(h0Dist === 'normal') return pnorm(x);
+            if(h0Dist === 'uniforme') return Math.min(1, Math.max(0, x));
+            return 1 - Math.exp(-x);
+        };
+        
+        muestra.sort((a,b)=>a-b);
+        let maxD = 0;
+        for(let i=0; i<n; i++) {
+            const d = Math.abs((i+1)/n - F0(muestra[i]));
+            if(d > maxD) maxD = d;
+        }
+        
+        let chi2 = 0;
+        let numCats = Math.min(10, Math.floor(Math.sqrt(n)));
+        let esperados = new Array(numCats).fill(n/numCats);
+        let observados = new Array(numCats).fill(0);
+        for(let val of muestra) {
+            let cat = Math.min(numCats-1, Math.floor(F0(val) * numCats));
+            observados[cat]++;
+        }
+        for(let i=0; i<numCats; i++) {
+            chi2 += Math.pow(observados[i] - esperados[i], 2) / esperados[i];
+        }
+        
+        const canvas = document.getElementById('compPruebasCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const barWidth = w/3;
+            ctx.fillStyle = '#4caf50';
+            ctx.fillRect(w/2 - barWidth - 10, h - maxD * h * 0.8, barWidth, maxD * h * 0.8);
+            ctx.fillStyle = '#f44336';
+            ctx.fillRect(w/2 + 10, h - chi2 * h * 0.01, barWidth, chi2 * h * 0.01);
+        }
+        
+        document.getElementById('compPruebas-info').innerHTML = 
+            `Comparación de pruebas de bondad de ajuste:<br>
+            Prueba KS: D_n = ${maxD.toFixed(4)}<br>
+            Prueba χ²: X² = ${chi2.toFixed(4)} (gl≈${numCats-1})<br>
+            ${distReal === h0Dist ? 'Ambas pruebas tienden a NO rechazar H₀' : 'Ambas pruebas tienden a rechazar H₀'}`;
+    }
+
+    // ============================================================
+    // INICIALIZACIÓN
+    // ============================================================
+    window.inicializarModuloActual = function() {
+        document.getElementById('calcular-error')?.addEventListener('click', calcularErrores);
+        document.getElementById('mu0')?.addEventListener('input', calcularErrores);
+        document.getElementById('mu1')?.addEventListener('input', calcularErrores);
+        document.getElementById('sigma-test')?.addEventListener('input', calcularErrores);
+        document.getElementById('n-test')?.addEventListener('input', calcularErrores);
+        document.getElementById('c-test')?.addEventListener('input', calcularErrores);
+        calcularErrores();
+        
+        document.getElementById('calcular-np')?.addEventListener('click', simularNP);
+        document.getElementById('p0')?.addEventListener('input', simularNP);
+        document.getElementById('p1')?.addEventListener('input', simularNP);
+        document.getElementById('n-np')?.addEventListener('input', simularNP);
+        document.getElementById('c-np')?.addEventListener('input', simularNP);
+        simularNP();
+        
+        document.getElementById('calcular-pump')?.addEventListener('click', calcularPUMP);
+        document.getElementById('mu0-pump')?.addEventListener('input', calcularPUMP);
+        document.getElementById('sigma-pump')?.addEventListener('input', calcularPUMP);
+        document.getElementById('n-pump')?.addEventListener('input', calcularPUMP);
+        document.getElementById('alpha-pump')?.addEventListener('change', calcularPUMP);
+        calcularPUMP();
+        
+        document.getElementById('generar-muestra')?.addEventListener('click', generarMuestraIC);
+        generarMuestraIC();
+        
+        document.getElementById('simular-cvg')?.addEventListener('click', simularCVG);
+        document.getElementById('mu0-cvg')?.addEventListener('input', simularCVG);
+        document.getElementById('mu-cvg')?.addEventListener('input', simularCVG);
+        document.getElementById('sigma-cvg')?.addEventListener('input', simularCVG);
+        document.getElementById('n-cvg')?.addEventListener('input', simularCVG);
+        simularCVG();
+        
+        document.getElementById('simular-ba')?.addEventListener('click', simularBondadAjuste);
+        document.getElementById('lambda-ba')?.addEventListener('input', simularBondadAjuste);
+        document.getElementById('n-ba')?.addEventListener('input', simularBondadAjuste);
+        simularBondadAjuste();
+        
+        document.getElementById('generar-qq')?.addEventListener('click', generarQQ);
+        document.getElementById('dist-qq')?.addEventListener('change', generarQQ);
+        document.getElementById('dist-teorica')?.addEventListener('change', generarQQ);
+        document.getElementById('n-qq')?.addEventListener('input', generarQQ);
+        generarQQ();
+        
+        document.getElementById('simular-fde')?.addEventListener('click', simularFDE);
+        document.getElementById('dist-fde')?.addEventListener('change', simularFDE);
+        document.getElementById('n-fde')?.addEventListener('input', simularFDE);
+        simularFDE();
+        
+        document.getElementById('simular-ks')?.addEventListener('click', simularKS);
+        document.getElementById('dist-ks')?.addEventListener('change', simularKS);
+        document.getElementById('h0-ks')?.addEventListener('change', simularKS);
+        document.getElementById('n-ks')?.addEventListener('input', simularKS);
+        simularKS();
+        
+        document.getElementById('simular-comp')?.addEventListener('click', simularComparacionPruebas);
+        document.getElementById('dist-comp')?.addEventListener('change', simularComparacionPruebas);
+        document.getElementById('h0-comp')?.addEventListener('change', simularComparacionPruebas);
+        document.getElementById('n-comp')?.addEventListener('input', simularComparacionPruebas);
+        simularComparacionPruebas();
+        
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
+        });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
+</script>
+</body>
+</html>
