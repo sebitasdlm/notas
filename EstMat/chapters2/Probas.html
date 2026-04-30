@@ -1,1 +1,912 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Elementos de Probabilidad - Capítulo 2</title>
+    
+    <!-- MathJax para notación matemática -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        .tabla-momentos {
+            width: 100%;
+            max-width: 500px;
+            margin: 1rem auto;
+            border-collapse: collapse;
+        }
+
+        .tabla-momentos td, .tabla-momentos th {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Espacios de Probabilidad y Axiomas              -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Espacios de Probabilidad (Repaso)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Un <strong>espacio de probabilidad</strong> es una terna $(\Omega, \mathcal{F}, \mathbb{P})$ donde:
+                <ul>
+                    <li>$\Omega$: espacio muestral (conjunto de resultados posibles)</li>
+                    <li>$\mathcal{F}$: $\sigma$-álgebra (eventos, cerrada bajo complementos y uniones numerables)</li>
+                    <li>$\mathbb{P}$: medida de probabilidad (K1: no negativa, K2: $\mathbb{P}(\Omega)=1$, K3: aditividad numerable)</li>
+                </ul>
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación de probabilidad condicional</h4>
+                <div class="controles">
+                    <label>Evento A:</label>
+                    <select id="eventoA">
+                        <option value="par">X es par</option>
+                        <option value="mayor4">X > 4</option>
+                    </select>
+                    <label>Evento B:</label>
+                    <select id="eventoB">
+                        <option value="par">X es par</option>
+                        <option value="mayor4">X > 4</option>
+                    </select>
+                    <button id="verificar-condicional">Calcular P(A|B)</button>
+                </div>
+                <div id="condicional-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedades derivadas de los axiomas:</strong>
+                <ul>
+                    <li>$\mathbb{P}(A^C) = 1 - \mathbb{P}(A)$</li>
+                    <li>$\mathbb{P}(\emptyset) = 0$</li>
+                    <li>$\mathbb{P}(A \cup B) = \mathbb{P}(A) + \mathbb{P}(B) - \mathbb{P}(A \cap B)$</li>
+                    <li>Si $A \subseteq B$, entonces $\mathbb{P}(A) \le \mathbb{P}(B)$</li>
+                </ul>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración del Teorema de Probabilidad Total:</strong>
+                <br>
+                Si $\{A_i\}$ es una partición de $\Omega$, entonces:
+                \[
+                \mathbb{P}(B) = \sum_{i=1}^{\infty} \mathbb{P}(B|A_i)\mathbb{P}(A_i)
+                \]
+                <strong>Demostración:</strong> $B = B \cap \Omega = B \cap (\bigcup_i A_i) = \bigcup_i (B \cap A_i)$. Como los $A_i$ son ajenos, los $B \cap A_i$ también lo son. Por K3:
+                \[
+                \mathbb{P}(B) = \sum_i \mathbb{P}(B \cap A_i) = \sum_i \mathbb{P}(B|A_i)\mathbb{P}(A_i)
+                \]
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Variables Aleatorias y Momentos                 -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Variables Aleatorias y Momentos</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Variable aleatoria:</strong> Función $X: \Omega \to \mathbb{R}$ tal que $\{X \le x\} \in \mathcal{F}$ para todo $x \in \mathbb{R}$.
+                <br>
+                <strong>Valor esperado:</strong> $\mathbb{E}[X] = \int_{\Omega} X d\mathbb{P} = \begin{cases} \sum x_i f(x_i) & \text{discreto} \\ \int x f(x) dx & \text{continuo} \end{cases}$
+            </div>
+
+            <div class="simulador">
+                <h4>Calculadora de Momentos</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-momentos">
+                        <option value="normal">Normal(μ=0, σ=1)</option>
+                        <option value="exponencial">Exponencial(λ=1)</option>
+                        <option value="uniforme">Uniforme(0,1)</option>
+                    </select>
+                    <button id="calcular-momentos">Calcular momentos</button>
+                </div>
+                <div id="momentos-resultado" class="formula-destacada"></div>
+                <table class="tabla-momentos">
+                    <thead><tr><th>r</th><th>Momento $\mathbb{E}[X^r]$</th><th>Momento central $\mathbb{E}[(X-\mu)^r]$</th><th>Interpretación</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td id="mom1">-</td><td id="cen1">0</td><td>Localización (media)</td></tr>
+                        <tr><td>2</td><td id="mom2">-</td><td id="cen2">-</td><td>Dispersión (varianza)</td></tr>
+                        <tr><td>3</td><td id="mom3">-</td><td id="cen3">-</td><td>Asimetría (sesgo)</td></tr>
+                        <tr><td>4</td><td id="mom4">-</td><td id="cen4">-</td><td>Curtosis (peso de colas)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Función Generadora de Momentos (FGM):</strong>
+                \[
+                m_X(t) = \mathbb{E}[e^{tX}], \quad \text{si existe para } |t| < \delta
+                \]
+                <strong>Propiedad:</strong> $\mathbb{E}[X^r] = m_X^{(r)}(0)$
+                <br>
+                <strong>Función Característica (FC):</strong> $\varphi_X(t) = \mathbb{E}[e^{itX}]$ (siempre existe)
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Cuándo no existe la FGM?</strong>
+                <button onclick="mostrarRespuesta('respuesta-fgm')">Ver respuesta</button>
+                <div id="respuesta-fgm" class="respuesta">
+                    La FGM no existe si la integral $\int e^{tx}f(x)dx$ diverge para todo $t>0$. Ejemplos: 
+                    Cauchy (no tiene momentos), Lognormal (tiene todos los momentos pero la FGM diverge).
+                    La función característica $\varphi_X(t)$ siempre existe.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Desigualdades (Markov, Chebyshev, Jensen)      -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Desigualdades Probabilísticas</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Desigualdad de Markov:</strong> Para $X \ge 0$, $\mathbb{P}(X \ge k) \le \frac{\mathbb{E}[X]}{k}$
+                <br>
+                <strong>Desigualdad de Chebyshev:</strong> $\mathbb{P}(|X-\mu| \ge \epsilon) \le \frac{\sigma^2}{\epsilon^2}$
+                <br>
+                <strong>Desigualdad de Jensen:</strong> Si $h$ es convexa, $\mathbb{E}[h(X)] \ge h(\mathbb{E}[X])$
+            </div>
+
+            <div class="simulador">
+                <h4>Verificación de Chebyshev</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-cheby">
+                        <option value="normal">Normal(0,1)</option>
+                        <option value="uniforme">Uniforme(-√3, √3)</option>
+                        <option value="exponencial">Exponencial(1) centrada</option>
+                    </select>
+                    <label>k (desviaciones):</label>
+                    <input type="range" id="k-cheby" min="1" max="4" step="0.1" value="2">
+                    <span id="k-cheby-val">2.0</span>
+                    <button id="verificar-cheby">Verificar</button>
+                </div>
+                <canvas id="chebyCanvas" width="500" height="200"></canvas>
+                <div id="cheby-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración de Chebyshev a partir de Markov:</strong>
+                <br>
+                Sea $Y = (X - \mu)^2 \ge 0$. Por Markov con $c = \epsilon^2$:
+                \[
+                \mathbb{P}((X-\mu)^2 \ge \epsilon^2) \le \frac{\mathbb{E}[(X-\mu)^2]}{\epsilon^2} = \frac{\sigma^2}{\epsilon^2}
+                \]
+                Como $(X-\mu)^2 \ge \epsilon^2 \iff |X-\mu| \ge \epsilon$, se obtiene el resultado.
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Vectores Aleatorios y Covarianza               -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Vectores Aleatorios y Covarianza</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Para un vector aleatorio $\mathbf{X} = (X_1, \ldots, X_n)^T$:
+                \[
+                \boldsymbol{\mu} = \mathbb{E}[\mathbf{X}], \quad \boldsymbol{\Sigma} = \operatorname{cov}(\mathbf{X}) = \mathbb{E}[(\mathbf{X}-\boldsymbol{\mu})(\mathbf{X}-\boldsymbol{\mu})^T]
+                \]
+                La <strong>covarianza</strong> entre $X_i$ y $X_j$ es $\sigma_{ij} = \mathbb{E}[X_i X_j] - \mathbb{E}[X_i]\mathbb{E}[X_j]$
+            </div>
+
+            <div class="simulador">
+                <h4>Simulación de correlación</h4>
+                <div class="controles">
+                    <label>ρ (correlación):</label>
+                    <input type="range" id="rho" min="-0.95" max="0.95" step="0.05" value="0.7">
+                    <span id="rho-val">0.70</span>
+                    <button id="simular-correlacion">Generar muestra</button>
+                </div>
+                <canvas id="correlacionCanvas" width="400" height="400"></canvas>
+                <div id="correlacion-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Esperanza y varianza condicional:</strong>
+                \[
+                \mathbb{E}[Y|X=x] = \int y f(y|x) dy
+                \]
+                \[
+                \mathbb{E}[Y] = \mathbb{E}[\mathbb{E}[Y|X]], \quad \operatorname{var}(Y) = \operatorname{var}(\mathbb{E}[Y|X]) + \mathbb{E}[\operatorname{var}(Y|X)]
+                \]
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué significa $\operatorname{cov}(X,Y)=0$?</strong>
+                <button onclick="mostrarRespuesta('respuesta-cov')">Ver respuesta</button>
+                <div id="respuesta-cov" class="respuesta">
+                    Significa que $X$ e $Y$ están <strong>no correlacionadas</strong>. 
+                    Esto NO implica independencia (a menos que sean conjuntamente normales).
+                    El contraejemplo clásico: $X \sim N(0,1)$, $Y = X^2$ tiene covarianza cero pero son dependientes.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Transformaciones y Método Delta                -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Transformaciones y Método Delta</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                <strong>Teorema de transformación (univariado):</strong> Si $Y = g(X)$ con $g$ monótona y $h = g^{-1}$,
+                \[
+                f_Y(y) = f_X(h(y)) \left| \frac{dh}{dy} \right|
+                \]
+                <strong>Método Delta:</strong> Para $h$ dos veces diferenciable,
+                \[
+                \mathbb{E}[h(X)] \approx h(\mu) + \frac{h''(\mu)}{2}\sigma^2, \quad \operatorname{var}(h(X)) \approx (h'(\mu))^2 \sigma^2
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Método Delta: Aproximación de $\mathbb{E}[\sqrt{X}]$</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-delta">
+                        <option value="uniforme">Uniforme(0,1)</option>
+                        <option value="uniforme2">Uniforme(1,2)</option>
+                        <option value="normal">Normal(μ=1, σ=0.3)</option>
+                    </select>
+                    <button id="verificar-delta">Calcular</button>
+                </div>
+                <div id="delta-resultado" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Expansión de Taylor (justificación del Método Delta):</strong>
+                \[
+                h(X) = h(\mu) + h'(\mu)(X-\mu) + \frac{h''(\xi)}{2}(X-\mu)^2
+                \]
+                Tomando esperanza:
+                \[
+                \mathbb{E}[h(X)] = h(\mu) + \frac{h''(\mu)}{2}\sigma^2 + \text{términos de orden superior}
+                \]
+                \[
+                \operatorname{var}(h(X)) \approx (h'(\mu))^2 \sigma^2
+                \]
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (Uniforme(0,1), $h(x)=\sqrt{x}$):</strong>
+                \[
+                \mathbb{E}[\sqrt{X}] = \frac{2}{3} \approx 0.6667, \quad \text{Método Delta: } \sqrt{0.5} \approx 0.7071
+                \]
+                \[
+                \operatorname{var}(\sqrt{X}) = 0.0556, \quad \text{Método Delta: } \left(\frac{1}{2\sqrt{0.5}}\right)^2 \cdot \frac{1}{12} = 0.0589
+                \]
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 6: Estadísticos de Orden                          -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>6. Estadísticos de Orden</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Para una muestra i.i.d. $X_1,\ldots,X_n$ con densidad $f$ y FPA $F$, los estadísticos de orden $X_{(1)} \le \cdots \le X_{(n)}$ tienen:
+                \[
+                f_{X_{(r)}}(x) = n \binom{n-1}{r-1} f(x) F(x)^{r-1} (1-F(x))^{n-r}
+                \]
+                \[
+                f_{X_{(1)},X_{(n)}}(x,y) = n(n-1)f(x)f(y)[F(y)-F(x)]^{n-2}, \quad x<y
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Simulación de estadísticos de orden (Uniforme)</h4>
+                <div class="controles">
+                    <label>n (tamaño de muestra):</label>
+                    <input type="range" id="n-orden" min="5" max="50" step="5" value="20">
+                    <span id="n-orden-val">20</span>
+                    <label>r (estadístico):</label>
+                    <input type="range" id="r-orden" min="1" max="50" step="1" value="10">
+                    <span id="r-orden-val">10</span>
+                    <button id="simular-orden">Simular 2000 muestras</button>
+                </div>
+                <canvas id="ordenCanvas" width="500" height="250"></canvas>
+                <div id="orden-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Casos especiales:</strong>
+                <ul>
+                    <li>Mínimo: $f_{X_{(1)}}(x) = n f(x) (1-F(x))^{n-1}$, $F_{X_{(1)}}(x) = 1 - (1-F(x))^n$</li>
+                    <li>Máximo: $f_{X_{(n)}}(x) = n f(x) F(x)^{n-1}$, $F_{X_{(n)}}(x) = F(x)^n$</li>
+                    <li>Para Uniforme(0,1): $X_{(r)} \sim \text{Beta}(r, n+1-r)$</li>
+                </ul>
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Cuál es la distribución del mínimo de una muestra exponencial?</strong>
+                <button onclick="mostrarRespuesta('respuesta-minimo')">Ver respuesta</button>
+                <div id="respuesta-minimo" class="respuesta">
+                    Si $X_i \sim \text{Exp}(\lambda)$, entonces $X_{(1)} \sim \text{Exp}(n\lambda)$.
+                    Esto tiene sentido porque la tasa de fallo del mínimo es la suma de las tasas individuales
+                    (mecanismo en serie: el sistema falla cuando falla el primer componente).
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // ============================================================
+    // FUNCIONES GLOBALES
+    // ============================================================
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        if(content) content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        if(elem) elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: Probabilidad condicional
+    // ============================================================
+    function verificarCondicional() {
+        const evA = document.getElementById('eventoA').value;
+        const evB = document.getElementById('eventoB').value;
+        
+        const esPar = (x) => x % 2 === 0;
+        const esMayor4 = (x) => x > 4;
+        
+        let funcA = evA === 'par' ? esPar : esMayor4;
+        let funcB = evB === 'par' ? esPar : esMayor4;
+        
+        let casosA = 0, casosB = 0, casosAB = 0;
+        let listaA = [], listaB = [], listaAB = [];
+        
+        for(let x=1; x<=6; x++) {
+            if(funcA(x)) { casosA++; listaA.push(x); }
+            if(funcB(x)) { casosB++; listaB.push(x); }
+            if(funcA(x) && funcB(x)) { casosAB++; listaAB.push(x); }
+        }
+        
+        const pAgB = casosAB / casosB;
+        
+        document.getElementById('condicional-resultado').innerHTML = 
+            `A = {${listaA.join(', ')}} (P=${casosA/6})<br>
+            B = {${listaB.join(', ')}} (P=${casosB/6})<br>
+            A ∩ B = {${listaAB.join(', ')}} (P=${casosAB/6})<br>
+            \(\\mathbb{P}(A|B) = \\frac{\\mathbb{P}(A \\cap B)}{\\mathbb{P}(B)} = \\frac{${casosAB/6}}{${casosB/6}} = ${pAgB.toFixed(4)}\)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 2: Momentos
+    // ============================================================
+    function calcularMomentos() {
+        const dist = document.getElementById('dist-momentos').value;
+        let mu=0, sigma2=1, skew=0, kurt=3;
+        
+        if(dist === 'normal') {
+            mu = 0; sigma2 = 1; skew = 0; kurt = 3;
+        } else if(dist === 'exponencial') {
+            mu = 1; sigma2 = 1; skew = 2; kurt = 9;
+        } else {
+            mu = 0.5; sigma2 = 1/12; skew = 0; kurt = 1.8;
+        }
+        
+        document.getElementById('mom1').innerHTML = mu.toFixed(4);
+        document.getElementById('mom2').innerHTML = (sigma2 + mu*mu).toFixed(4);
+        document.getElementById('mom3').innerHTML = (skew * Math.pow(sigma2, 1.5) + 3*mu*sigma2 + mu*mu*mu).toFixed(4);
+        document.getElementById('mom4').innerHTML = (kurt * sigma2*sigma2 + 4*skew*Math.pow(sigma2,1.5)*mu + 6*sigma2*mu*mu + mu*mu*mu*mu).toFixed(4);
+        
+        document.getElementById('cen1').innerHTML = '0';
+        document.getElementById('cen2').innerHTML = sigma2.toFixed(4);
+        document.getElementById('cen3').innerHTML = (skew * Math.pow(sigma2, 1.5)).toFixed(4);
+        document.getElementById('cen4').innerHTML = (kurt * sigma2*sigma2).toFixed(4);
+        
+        document.getElementById('momentos-resultado').innerHTML = 
+            `Distribución: ${dist}<br>
+            \(\\mathbb{E}[X] = ${mu.toFixed(4)}\), \(\\operatorname{var}(X) = ${sigma2.toFixed(4)}\)<br>
+            Coef. asimetría: ${skew.toFixed(4)} | Coef. curtosis: ${kurt.toFixed(4)}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 3: Chebyshev
+    // ============================================================
+    function verificarCheby() {
+        const dist = document.getElementById('dist-cheby').value;
+        const k = parseFloat(document.getElementById('k-cheby').value);
+        document.getElementById('k-cheby-val').textContent = k.toFixed(1);
+        
+        const nSim = 50000;
+        let muestras = [];
+        let media = 0, sigma = 1;
+        
+        if(dist === 'normal') {
+            for(let i=0; i<nSim; i++) muestras.push(Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random()));
+            media = 0; sigma = 1;
+        } else if(dist === 'uniforme') {
+            const a = -Math.sqrt(3), b = Math.sqrt(3);
+            for(let i=0; i<nSim; i++) muestras.push(a + Math.random() * (b-a));
+            media = 0; sigma = 1;
+        } else {
+            for(let i=0; i<nSim; i++) muestras.push(-Math.log(Math.random()) - 1);
+            media = 0; sigma = 1;
+        }
+        
+        const probReal = muestras.filter(x => Math.abs(x - media) >= k * sigma).length / nSim;
+        const cota = 1 / (k*k);
+        
+        const canvas = document.getElementById('chebyCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const barWidth = w/3;
+            ctx.fillStyle = '#4caf50';
+            ctx.fillRect(w/2 - barWidth - 10, h - probReal * h * 0.8, barWidth, probReal * h * 0.8);
+            ctx.fillStyle = '#f44336';
+            ctx.fillRect(w/2 + 10, h - cota * h * 0.8, barWidth, cota * h * 0.8);
+        }
+        
+        document.getElementById('cheby-resultado').innerHTML = 
+            `\(\mathbb{P}(|X-\\mu| \\ge ${k.toFixed(1)}\\sigma)\) real ≈ ${probReal.toFixed(4)}<br>
+            Cota de Chebyshev: \( \\le ${cota.toFixed(4)} \)<br>
+            ${probReal <= cota ? '✓ Se cumple la desigualdad' : '⚠ Error'}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 4: Correlación
+    // ============================================================
+    function simularCorrelacion() {
+        const rho = parseFloat(document.getElementById('rho').value);
+        document.getElementById('rho-val').textContent = rho.toFixed(2);
+        
+        const nPuntos = 500;
+        const puntos = [];
+        
+        for(let i=0; i<nPuntos; i++) {
+            const z1 = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            const z2 = Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            const x = z1;
+            const y = rho * z1 + Math.sqrt(1 - rho*rho) * z2;
+            puntos.push([x, y]);
+        }
+        
+        const canvas = document.getElementById('correlacionCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            for(let p of puntos) {
+                const x = (p[0] + 3) / 6 * w;
+                const y = h - (p[1] + 3) / 6 * h;
+                if(x>=0 && x<=w && y>=0 && y<=h) {
+                    ctx.fillStyle = 'rgba(33,150,243,0.6)';
+                    ctx.fillRect(x, y, 2, 2);
+                }
+            }
+        }
+        
+        document.getElementById('correlacion-info').innerHTML = 
+            `Correlación ρ = ${rho.toFixed(2)}<br>
+            \(\\operatorname{cov}(X,Y) = \\rho \\sigma_X \\sigma_Y\)<br>
+            Si |ρ| ≈ 1, los puntos se alinean en una recta.<br>
+            Si ρ = 0, no hay correlación lineal (pero puede haber dependencia no lineal).`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 5: Método Delta
+    // ============================================================
+    function verificarDelta() {
+        const dist = document.getElementById('dist-delta').value;
+        
+        let mu, sigma2, exacto, aproxMedia, aproxVar;
+        
+        if(dist === 'uniforme') {
+            mu = 0.5;
+            sigma2 = 1/12;
+            // E[sqrt(X)] exacto
+            exacto = 2/3;
+            // Aprox por delta
+            aproxMedia = Math.sqrt(mu) + ( (-1/4)*Math.pow(mu, -1.5) / 2 ) * sigma2;
+            aproxVar = Math.pow(1/(2*Math.sqrt(mu)), 2) * sigma2;
+        } else if(dist === 'uniforme2') {
+            mu = 1.5;
+            sigma2 = 1/12;
+            exacto = (2/3)*(Math.pow(2, 1.5) - Math.pow(1, 1.5));
+            aproxMedia = Math.sqrt(mu) + ( (-1/4)*Math.pow(mu, -1.5) / 2 ) * sigma2;
+            aproxVar = Math.pow(1/(2*Math.sqrt(mu)), 2) * sigma2;
+        } else {
+            mu = 1;
+            sigma2 = 0.09;
+            // Aproximación numérica de la integral
+            const nSim = 50000;
+            let suma = 0, suma2 = 0;
+            for(let i=0; i<nSim; i++) {
+                const x = mu + Math.sqrt(sigma2) * Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                const y = Math.sqrt(Math.max(0, x));
+                suma += y;
+                suma2 += y*y;
+            }
+            exacto = suma / nSim;
+            const varExacta = suma2/nSim - exacto*exacto;
+            aproxMedia = Math.sqrt(mu) + ( (-1/4)*Math.pow(mu, -1.5) / 2 ) * sigma2;
+            aproxVar = Math.pow(1/(2*Math.sqrt(mu)), 2) * sigma2;
+            
+            document.getElementById('delta-resultado').innerHTML = 
+                `\(X \\sim N(\\mu=${mu}, \\sigma^2=${sigma2})\)<br>
+                \(h(X)=\\sqrt{X}\)<br>
+                \(\\mathbb{E}[h(X)]\) simulado ≈ ${exacto.toFixed(4)} | Método Delta: ${aproxMedia.toFixed(4)}<br>
+                \(\\operatorname{var}(h(X))\) simulado ≈ ${varExacta.toFixed(4)} | Método Delta: ${aproxVar.toFixed(4)}<br>
+                El método Delta aproxima bien para varianzas pequeñas.`;
+            if(window.MathJax) MathJax.typesetPromise();
+            return;
+        }
+        
+        document.getElementById('delta-resultado').innerHTML = 
+            `\(X \\sim ${dist === 'uniforme' ? 'Uniforme(0,1)' : 'Uniforme(1,2)'}\)<br>
+            \(\\mathbb{E}[X] = ${mu.toFixed(4)}\), \(\\operatorname{var}(X) = ${sigma2.toFixed(4)}\)<br>
+            \(h(X) = \\sqrt{X}\)<br>
+            Valor exacto de \(\\mathbb{E}[\\sqrt{X}] = ${exacto.toFixed(4)}\)<br>
+            Método Delta: \(h(\\mu) + \\frac{h''(\\mu)}{2}\\sigma^2 = ${aproxMedia.toFixed(4)}\)<br>
+            \(\\operatorname{var}(\\sqrt{X})\) exacta = ${(exacto*exacto - exacto).toFixed(4)}<br>
+            Método Delta: \((h'(\\mu))^2 \\sigma^2 = ${aproxVar.toFixed(4)}\)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 6: Estadísticos de orden
+    // ============================================================
+    function simularOrden() {
+        let n = parseInt(document.getElementById('n-orden').value);
+        let r = parseInt(document.getElementById('r-orden').value);
+        if(r > n) { r = n; document.getElementById('r-orden').value = n; }
+        document.getElementById('n-orden-val').textContent = n;
+        document.getElementById('r-orden-val').textContent = r;
+        document.getElementById('r-orden').max = n;
+        
+        const nSim = 2000;
+        const estadisticos = [];
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let muestra = [];
+            for(let i=0; i<n; i++) muestra.push(Math.random());
+            muestra.sort((a,b)=>a-b);
+            estadisticos.push(muestra[r-1]);
+        }
+        
+        const canvas = document.getElementById('ordenCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(30).fill(0);
+            for(let val of estadisticos) {
+                const idx = Math.min(29, Math.floor(val * 30));
+                bins[idx]++;
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-1, barHeight);
+            }
+            
+            // Densidad Beta teórica
+            function comb(n,k) { let res=1; for(let i=0;i<k;i++) res*=(n-i)/(i+1); return res; }
+            const coef = n * comb(n-1, r-1);
+            ctx.beginPath();
+            for(let i=0; i<w; i++) {
+                const x = i/w;
+                const dens = coef * Math.pow(x, r-1) * Math.pow(1-x, n-r);
+                const y = h - (dens / (coef * Math.pow(0.5, n-1))) * h * 0.8;
+                if(i===0) ctx.moveTo(i, y);
+                else ctx.lineTo(i, y);
+            }
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        const media = estadisticos.reduce((a,b)=>a+b,0)/nSim;
+        const mediaTeor = r/(n+1);
+        document.getElementById('orden-info').innerHTML = 
+            `Para Uniforme(0,1): \(X_{(${r})} \\sim \\text{Beta}(${r}, ${n+1-r})\)<br>
+            Media muestral: ${media.toFixed(4)} | Media teórica: ${mediaTeor.toFixed(4)}<br>
+            La curva roja es la densidad Beta teórica.`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // INICIALIZACIÓN
+    // ============================================================
+    window.inicializarModuloActual = function() {
+        // Módulo 1
+        document.getElementById('verificar-condicional')?.addEventListener('click', verificarCondicional);
+        verificarCondicional();
+        
+        // Módulo 2
+        document.getElementById('calcular-momentos')?.addEventListener('click', calcularMomentos);
+        calcularMomentos();
+        
+        // Módulo 3
+        document.getElementById('k-cheby')?.addEventListener('input', verificarCheby);
+        document.getElementById('verificar-cheby')?.addEventListener('click', verificarCheby);
+        verificarCheby();
+        
+        // Módulo 4
+        document.getElementById('rho')?.addEventListener('input', simularCorrelacion);
+        document.getElementById('simular-correlacion')?.addEventListener('click', simularCorrelacion);
+        simularCorrelacion();
+        
+        // Módulo 5
+        document.getElementById('verificar-delta')?.addEventListener('click', verificarDelta);
+        verificarDelta();
+        
+        // Módulo 6
+        document.getElementById('n-orden')?.addEventListener('input', simularOrden);
+        document.getElementById('r-orden')?.addEventListener('input', simularOrden);
+        document.getElementById('simular-orden')?.addEventListener('click', simularOrden);
+        simularOrden();
+        
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
+        });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
+</script>
+</body>
+</html>
