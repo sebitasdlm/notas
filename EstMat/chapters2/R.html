@@ -3,185 +3,1558 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>R en el navegador - WebR</title>
+    <title>Taller Completo de R - Estadística Matemática</title>
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 900px; margin: 2rem auto; padding: 1rem; }
-        .r-code { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; font-family: monospace; overflow-x: auto; }
-        button { background: #1976d2; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; margin: 0.5rem 0; }
-        pre { background: #2d2d2d; color: #e0e0e0; padding: 1rem; border-radius: 8px; overflow-x: auto; }
-        .status { padding: 0.5rem; border-radius: 6px; margin: 1rem 0; }
-        .status.loading { background: #fff3e0; color: #ff9800; }
-        .status.ready { background: #e8f5e9; color: #4caf50; }
-        .modulo { border: 1px solid #ddd; border-radius: 12px; margin-bottom: 2rem; padding: 1rem; }
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --border: #dee2e6;
+            --accent: #0d6efd;
+            --accent-light: #e7f1ff;
+            --code-bg: #1e1e1e;
+            --code-text: #d4d4d4;
+            --success: #198754;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        body.dark-theme {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --border: #2d2d4a;
+            --accent: #4d9fff;
+            --accent-light: #1a2a4a;
+            --code-bg: #0d1117;
+            --code-text: #e6e6e6;
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .codigo-r {
+            background: var(--code-bg);
+            border-radius: 8px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+
+        .codigo-r pre {
+            margin: 0;
+            padding: 1rem;
+            color: var(--code-text);
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+
+        .btn-copiar {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            margin: 0.5rem;
+        }
+
+        .grafico {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .grafico svg, .grafico img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--accent-light);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            color: var(--accent);
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .explicacion {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--accent);
+        }
+
+        .tabla-resultados {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            background: var(--bg-primary);
+        }
+
+        .tabla-resultados td, .tabla-resultados th {
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
     </style>
 </head>
 <body>
-    <h1>📊 Taller de R - Ejecuta código aquí mismo</h1>
-    <p>Los botones ejecutan R <strong>directamente en tu navegador</strong> (sin salir de la página).</p>
+<div class="taller-container">
 
-    <div id="status" class="status loading">⏳ Cargando WebR (primera vez toma ~15 segundos)...</div>
-
-    <!-- MÓDULO 1: Distribuciones -->
-    <div class="modulo">
-        <h3>📊 Distribución Normal</h3>
-        <div class="r-code">
-            <pre># Calcular cuantiles de la normal
-qnorm(0.975)  # ≈ 1.96
-qnorm(0.95)   # ≈ 1.645
-qnorm(0.99)   # ≈ 2.326</pre>
-        </div>
-        <button onclick="ejecutarR(`print('Cuantiles de la Normal:'); c(qnorm(0.975), qnorm(0.95), qnorm(0.99))`)">▶ Ejecutar</button>
-
-        <div class="r-code" style="margin-top: 1rem;">
-            <pre># Probabilidades acumuladas
-pnorm(1.96)   # ≈ 0.975
-pnorm(0)      # ≈ 0.5
-pnorm(-1.96)  # ≈ 0.025</pre>
-        </div>
-        <button onclick="ejecutarR(`print('Probabilidades:'); c(pnorm(1.96), pnorm(0), pnorm(-1.96))`)">▶ Ejecutar</button>
+    <!-- ENCABEZADO -->
+    <div style="text-align: center; margin-bottom: 2rem;">
+        <h1 style="color: var(--accent);">📊 Taller de R para Estadística Matemática</h1>
+        <p>Este taller contiene el código R completo de todos los temas del curso.<br>
+        📋 Haz clic en <strong>"Copiar código"</strong> y pégalo en RStudio para ejecutarlo.<br>
+        📈 Las visualizaciones ya están incluidas como referencia.</p>
     </div>
 
-    <!-- MÓDULO 2: Distribución t-Student -->
+    <!-- ========================================================= -->
+    <!-- MÓDULO 1: DISTRIBUCIONES DE PROBABILIDAD                  -->
+    <!-- ========================================================= -->
     <div class="modulo">
-        <h3>📐 Distribución t-Student</h3>
-        <div class="r-code">
-            <pre># Comparar cuantiles t vs normal
-c(qt(0.975, df=5), qt(0.975, df=30), qnorm(0.975))</pre>
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>📊 1. Distribuciones de Probabilidad</h3>
         </div>
-        <button onclick="ejecutarR(`c(qt(0.975, df=5), qt(0.975, df=30), qnorm(0.975))`)">▶ Ejecutar</button>
-    </div>
+        <div class="modulo-content">
+            <div class="badge">Normal</div>
+            <div class="badge">Binomial</div>
+            <div class="badge">Poisson</div>
+            <div class="badge">t-Student</div>
+            <div class="badge">χ²</div>
+            <div class="badge">F</div>
+            <div class="badge">Exponencial</div>
+            <div class="badge">Gamma</div>
+            <div class="badge">Beta</div>
+            <div class="badge">Weibull</div>
+            <div class="badge">Lognormal</div>
+            <div class="badge">Cauchy</div>
 
-    <!-- MÓDULO 3: Simulación LGN -->
-    <div class="modulo">
-        <h3>📈 Ley de Grandes Números</h3>
-        <div class="r-code">
-            <pre># Simular convergencia de la media
+            <div class="explicacion">
+                <strong>📖 Funciones d/p/q/r en R</strong><br>
+                Cada distribución tiene 4 funciones: <code>d*()</code> (densidad), <code>p*()</code> (acumulada), 
+                <code>q*()</code> (cuantil), <code>r*()</code> (aleatorio).
+            </div>
+
+            <div class="codigo-r">
+                <button class="btn-copiar" onclick="copiarTexto(this)">📋 Copiar código</button>
+                <pre>
+# ====================================================
+# 1.1 DISTRIBUCIÓN NORMAL
+# ====================================================
+
+# Densidad de la normal estándar
+curve(dnorm(x), from = -4, to = 4, 
+      main = "Densidad Normal(0,1)",
+      col = "blue", lwd = 2, ylab = "f(x)", xlab = "x")
+abline(h = 0, col = "gray", lty = 2)
+
+# Probabilidades acumuladas
+pnorm(0)        # 0.5 - P(X ≤ 0)
+pnorm(1.96)     # 0.975 - P(X ≤ 1.96)
+pnorm(-1.96)    # 0.025 - P(X ≤ -1.96)
+
+# Cuantiles
+qnorm(0.975)    # 1.960 - valor z tal que P(Z ≤ z) = 0.975
+qnorm(0.95)     # 1.645
+qnorm(0.99)     # 2.326
+
+# Generar muestra aleatoria
 set.seed(123)
-n <- 1:500
-medias <- sapply(n, function(i) mean(rnorm(i, mean=10, sd=2)))
-cat("Media final:", tail(medias, 1), "\n")
-cat("Diferencia con μ=10:", abs(tail(medias, 1) - 10))</pre>
+muestra_norm <- rnorm(100, mean = 10, sd = 2)
+head(muestra_norm)
+
+# Histograma de la muestra
+hist(muestra_norm, probability = TRUE, 
+     main = "Muestra N(10,4)", col = "lightblue",
+     xlab = "Valores")
+curve(dnorm(x, mean = 10, sd = 2), add = TRUE, col = "red", lwd = 2)
+
+# ====================================================
+# 1.2 DISTRIBUCIÓN BINOMIAL
+# ====================================================
+
+# P(X = 5) con n=10, p=0.3
+dbinom(5, size = 10, prob = 0.3)
+
+# P(X ≤ 3) con n=10, p=0.3
+pbinom(3, size = 10, prob = 0.3)
+
+# Cuantil: valor x tal que P(X ≤ x) = 0.9
+qbinom(0.9, size = 10, prob = 0.3)
+
+# Generar muestra Binomial(10, 0.3)
+muestra_bin <- rbinom(50, size = 10, prob = 0.3)
+table(muestra_bin)
+
+# Gráfico de la distribución Binomial
+x <- 0:10
+prob_bin <- dbinom(x, size = 10, prob = 0.3)
+plot(x, prob_bin, type = "h", lwd = 3, col = "blue",
+     main = "Distribución Binomial(n=10, p=0.3)",
+     xlab = "Número de éxitos", ylab = "Probabilidad")
+
+# ====================================================
+# 1.3 DISTRIBUCIÓN POISSON
+# ====================================================
+
+# P(X = 2) con λ = 3
+dpois(2, lambda = 3)
+
+# P(X ≤ 4) con λ = 3
+ppois(4, lambda = 3)
+
+# Generar muestra Poisson(λ=4)
+muestra_pois <- rpois(100, lambda = 4)
+mean(muestra_pois)  # ≈ 4
+var(muestra_pois)   # ≈ 4 (media = varianza en Poisson)
+
+# Gráfico comparativo Poisson vs Binomial
+x <- 0:15
+pois3 <- dpois(x, lambda = 3)
+pois6 <- dpois(x, lambda = 6)
+plot(x, pois3, type = "b", col = "blue", pch = 16,
+     main = "Distribuciones Poisson", ylab = "Probabilidad")
+lines(x, pois6, type = "b", col = "red", pch = 16)
+legend("topright", legend = c("λ=3", "λ=6"), col = c("blue", "red"), lwd = 2)
+
+# ====================================================
+# 1.4 DISTRIBUCIÓN t-STUDENT
+# ====================================================
+
+# Comparación t-Student vs Normal
+curve(dnorm(x), from = -4, to = 4, 
+      col = "black", lwd = 2, ylab = "Densidad",
+      main = "Normal vs t-Student")
+curve(dt(x, df = 3), add = TRUE, col = "red", lwd = 2)
+curve(dt(x, df = 10), add = TRUE, col = "blue", lwd = 2)
+curve(dt(x, df = 30), add = TRUE, col = "green", lwd = 2)
+legend("topright", 
+       legend = c("N(0,1)", "t₃", "t₁₀", "t₃₀"),
+       col = c("black", "red", "blue", "green"), lwd = 2)
+
+# Cuantiles de la t
+qt(0.975, df = 5)   # 2.571
+qt(0.975, df = 30)  # 2.042
+qt(0.975, df = 100) # 1.984
+
+# ====================================================
+# 1.5 DISTRIBUCIÓN χ² (JI-CUADRADA)
+# ====================================================
+
+curve(dchisq(x, df = 3), from = 0, to = 20,
+      col = "red", lwd = 2, ylab = "Densidad",
+      main = "Distribuciones χ²")
+curve(dchisq(x, df = 5), add = TRUE, col = "blue", lwd = 2)
+curve(dchisq(x, df = 10), add = TRUE, col = "green", lwd = 2)
+legend("topright", legend = c("χ²₃", "χ²₅", "χ²₁₀"),
+       col = c("red", "blue", "green"), lwd = 2)
+
+# Cuantiles χ²
+qchisq(0.95, df = 5)   # 11.07
+qchisq(0.95, df = 10)  # 18.31
+qchisq(0.99, df = 10)  # 23.21
+
+# ====================================================
+# 1.6 DISTRIBUCIÓN F
+# ====================================================
+
+curve(df(x, df1 = 3, df2 = 10), from = 0, to = 6,
+      col = "blue", lwd = 2, ylab = "Densidad",
+      main = "Distribuciones F")
+curve(df(x, df1 = 5, df2 = 20), add = TRUE, col = "red", lwd = 2)
+curve(df(x, df1 = 10, df2 = 30), add = TRUE, col = "green", lwd = 2)
+legend("topright", legend = c("F₃,₁₀", "F₅,₂₀", "F₁₀,₃₀"),
+       col = c("blue", "red", "green"), lwd = 2)
+
+# Cuantiles F
+qf(0.95, df1 = 3, df2 = 10)   # 3.71
+qf(0.95, df1 = 5, df2 = 20)   # 2.71
+
+# ====================================================
+# 1.7 DISTRIBUCIÓN EXPONENCIAL
+# ====================================================
+
+# Densidad exponencial
+curve(dexp(x, rate = 1), from = 0, to = 5,
+      col = "blue", lwd = 2, ylab = "f(x)",
+      main = "Distribución Exponencial")
+curve(dexp(x, rate = 0.5), add = TRUE, col = "red", lwd = 2)
+curve(dexp(x, rate = 2), add = TRUE, col = "green", lwd = 2)
+legend("topright", legend = c("λ=1", "λ=0.5", "λ=2"),
+       col = c("blue", "red", "green"), lwd = 2)
+
+# Pérdida de memoria de la Exponencial
+t1 <- 1; t2 <- 2
+prob_cond <- pexp(t1 + t2, rate = 1, lower.tail = FALSE) / 
+             pexp(t1, rate = 1, lower.tail = FALSE)
+prob_simple <- pexp(t2, rate = 1, lower.tail = FALSE)
+cat("P(T > 3 | T > 1) =", prob_cond, "\n")
+cat("P(T > 2) =", prob_simple, "\n")
+
+# ====================================================
+# 1.8 DISTRIBUCIÓN GAMMA
+# ====================================================
+
+# Forma(α) y escala(β)
+curve(dgamma(x, shape = 1, scale = 1), from = 0, to = 10,
+      col = "blue", lwd = 2, ylab = "f(x)",
+      main = "Distribución Gamma")
+curve(dgamma(x, shape = 2, scale = 1), add = TRUE, col = "red", lwd = 2)
+curve(dgamma(x, shape = 3, scale = 1), add = TRUE, col = "green", lwd = 2)
+curve(dgamma(x, shape = 5, scale = 1), add = TRUE, col = "purple", lwd = 2)
+legend("topright", legend = c("α=1", "α=2", "α=3", "α=5"),
+       col = c("blue", "red", "green", "purple"), lwd = 2)
+
+# Momentos de la Gamma
+alpha <- 2; beta <- 2
+cat("Media =", alpha * beta, "\n")
+cat("Varianza =", alpha * beta^2, "\n")
+
+# ====================================================
+# 1.9 DISTRIBUCIÓN BETA
+# ====================================================
+
+curve(dbeta(x, shape1 = 0.5, shape2 = 0.5), from = 0, to = 1,
+      col = "blue", lwd = 2, ylab = "f(x)",
+      main = "Distribución Beta")
+curve(dbeta(x, shape1 = 1, shape2 = 1), add = TRUE, col = "red", lwd = 2)
+curve(dbeta(x, shape1 = 2, shape2 = 2), add = TRUE, col = "green", lwd = 2)
+curve(dbeta(x, shape1 = 2, shape2 = 5), add = TRUE, col = "purple", lwd = 2)
+legend("topright", 
+       legend = c("α=0.5,β=0.5", "α=1,β=1", "α=2,β=2", "α=2,β=5"),
+       col = c("blue", "red", "green", "purple"), lwd = 2)
+
+# ====================================================
+# 1.10 DISTRIBUCIÓN WEIBULL
+# ====================================================
+
+curve(dweibull(x, shape = 1, scale = 1), from = 0, to = 3,
+      col = "blue", lwd = 2, ylab = "f(x)",
+      main = "Distribución Weibull")
+curve(dweibull(x, shape = 2, scale = 1), add = TRUE, col = "red", lwd = 2)
+curve(dweibull(x, shape = 3, scale = 1), add = TRUE, col = "green", lwd = 2)
+legend("topright", legend = c("α=1", "α=2", "α=3"),
+       col = c("blue", "red", "green"), lwd = 2)
+
+# ====================================================
+# 1.11 DISTRIBUCIÓN LOGNORMAL
+# ====================================================
+
+curve(dlnorm(x, meanlog = 0, sdlog = 0.5), from = 0, to = 5,
+      col = "blue", lwd = 2, ylab = "f(x)",
+      main = "Distribución Lognormal")
+curve(dlnorm(x, meanlog = 0, sdlog = 1), add = TRUE, col = "red", lwd = 2)
+curve(dlnorm(x, meanlog = 1, sdlog = 0.5), add = TRUE, col = "green", lwd = 2)
+legend("topright", 
+       legend = c("μ=0,σ=0.5", "μ=0,σ=1", "μ=1,σ=0.5"),
+       col = c("blue", "red", "green"), lwd = 2)
+
+# ====================================================
+# 1.12 DISTRIBUCIÓN CAUCHY
+# ====================================================
+
+curve(dcauchy(x, location = 0, scale = 1), from = -5, to = 5,
+      col = "blue", lwd = 2, ylab = "f(x)",
+      main = "Distribución Cauchy (colas pesadas)")
+curve(dnorm(x), add = TRUE, col = "red", lwd = 2)
+legend("topright", legend = c("Cauchy(0,1)", "N(0,1)"),
+       col = c("blue", "red"), lwd = 2)
+</pre>
+            </div>
         </div>
-        <button onclick="ejecutarR(`set.seed(123); n <- 1:500; medias <- sapply(n, function(i) mean(rnorm(i, mean=10, sd=2))); cat('Media final:', tail(medias,1), '\\nDiferencia:', abs(tail(medias,1)-10))`)">▶ Ejecutar</button>
     </div>
 
-    <!-- MÓDULO 4: TCL -->
+    <!-- ========================================================= -->
+    <!-- MÓDULO 2: LEY DE LOS GRANDES NÚMEROS                     -->
+    <!-- ========================================================= -->
     <div class="modulo">
-        <h3>📐 Teorema Central del Límite</h3>
-        <div class="r-code">
-            <pre># Simular medias de exponenciales
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>📈 2. Ley de los Grandes Números (LGN)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="badge">Convergencia en probabilidad</div>
+            <div class="badge">Bernoulli</div>
+            <div class="badge">Normal</div>
+            <div class="badge">Cauchy (contraejemplo)</div>
+
+            <div class="explicacion">
+                <strong>📖 Ley de los Grandes Números:</strong> La media muestral converge en probabilidad (y casi seguramente) a la media poblacional cuando n → ∞.
+            </div>
+
+            <div class="codigo-r">
+                <button class="btn-copiar" onclick="copiarTexto(this)">📋 Copiar código</button>
+                <pre>
+# ====================================================
+# 2.1 LGN PARA NORMAL(μ=10, σ=2)
+# ====================================================
+
 set.seed(123)
-medias <- replicate(1000, mean(rexp(30, rate=1)))
-cat("Media de las medias:", mean(medias), "\n")
-cat("Varianza de las medias:", var(medias), "\n")
-cat("Varianza teórica (1/30):", 1/30)</pre>
-        </div>
-        <button onclick="ejecutarR(`set.seed(123); medias <- replicate(1000, mean(rexp(30, rate=1))); cat('Media de medias:', mean(medias), '\\nVarianza muestral:', var(medias), '\\nVarianza teórica (1/30):', 1/30)`)">▶ Ejecutar</button>
-    </div>
+n_max <- 1000
+medias <- numeric(n_max)
 
-    <!-- MÓDULO 5: Intervalos de confianza -->
-    <div class="modulo">
-        <h3>📏 Intervalo de Confianza</h3>
-        <div class="r-code">
-            <pre># IC para la media con t.test
+for(i in 1:n_max) {
+  medias[i] <- mean(rnorm(i, mean = 10, sd = 2))
+}
+
+plot(1:n_max, medias, type = "l", col = "blue",
+     xlab = "Tamaño de muestra (n)",
+     ylab = "Media muestral",
+     main = "LGN: Convergencia a μ = 10",
+     lwd = 2)
+abline(h = 10, col = "red", lwd = 3, lty = 2)
+
+# ====================================================
+# 2.2 LGN PARA BERNOULLI(PROCESO DE LA PROPORCIÓN)
+# ====================================================
+
 set.seed(123)
-muestra <- rnorm(30, mean=50, sd=10)
-t.test(muestra, conf.level=0.95)$conf.int</pre>
-        </div>
-        <button onclick="ejecutarR(`set.seed(123); muestra <- rnorm(30, mean=50, sd=10); t.test(muestra, conf.level=0.95)$conf.int`)">▶ Ejecutar</button>
-    </div>
+p <- 0.3
+n_max <- 1000
+proporciones <- numeric(n_max)
 
-    <!-- MÓDULO 6: Prueba de hipótesis -->
-    <div class="modulo">
-        <h3>⚖️ Prueba t de Student</h3>
-        <div class="r-code">
-            <pre># Comparar dos grupos
-grupo1 <- rnorm(30, mean=50, sd=10)
-grupo2 <- rnorm(30, mean=55, sd=10)
-t.test(grupo1, grupo2)</pre>
-        </div>
-        <button onclick="ejecutarR(`set.seed(123); grupo1 <- rnorm(30, mean=50, sd=10); grupo2 <- rnorm(30, mean=55, sd=10); t.test(grupo1, grupo2)$p.value`)">▶ Ejecutar (valor-p)</button>
-    </div>
+for(i in 1:n_max) {
+  proporciones[i] <- mean(rbinom(i, 1, p))
+}
 
-    <!-- MÓDULO 7: Bondad de ajuste -->
-    <div class="modulo">
-        <h3>📐 Prueba de Kolmogorov-Smirnov</h3>
-        <div class="r-code">
-            <pre># Verificar normalidad
+plot(1:n_max, proporciones, type = "l", col = "blue",
+     xlab = "n", ylab = "Proporción muestral",
+     main = "LGN: Convergencia a p = 0.3",
+     lwd = 2)
+abline(h = p, col = "red", lwd = 3, lty = 2)
+
+# ====================================================
+# 2.3 LEY DÉBIL - PROBABILIDAD DE ERROR
+# ====================================================
+
+epsilon <- 0.05
+n_values <- seq(50, 1000, by = 50)
+prob_error <- sapply(n_values, function(n) {
+  mean(abs(rbinom(1000, n, p)/n - p) > epsilon)
+})
+
+plot(n_values, prob_error, type = "b", 
+     xlab = "n", ylab = expression(P(|hat(p)-p| > epsilon)),
+     main = "Ley Débil: La probabilidad de error tiende a 0",
+     col = "blue", pch = 16, lwd = 2)
+abline(h = 0, col = "red", lty = 2)
+
+# ====================================================
+# 2.4 CONTRAEJEMPLO: DISTRIBUCIÓN CAUCHY
+# ====================================================
+
+# La Cauchy no tiene media, por lo que la LGN NO APLICA
+
 set.seed(123)
-muestra <- rnorm(50)
-ks.test(muestra, "pnorm")</pre>
+cauchy_medias <- sapply(1:500, function(n) mean(rcauchy(n)))
+
+plot(1:500, cauchy_medias, type = "l",
+     xlab = "n", ylab = "Media muestral",
+     main = "Cauchy: ¡No converge! (no tiene media)",
+     col = "blue", lwd = 2)
+abline(h = 0, col = "red", lty = 2)
+
+# Observa cómo la media muestral NO se estabiliza
+
+# ====================================================
+# 2.5 TAMAÑO DE MUESTRA NECESARIO
+# ====================================================
+
+# Para estimar una proporción con error ε y confianza δ
+
+epsilon <- 0.05
+delta <- 0.10
+n_necesario <- ceiling(1 / (4 * delta * epsilon^2))
+cat("Tamaño de muestra necesario (peor caso):", n_necesario, "\n")
+
+# Para p ≈ 0.3
+p <- 0.3
+n_necesario_p <- ceiling(p*(1-p) / (delta * epsilon^2))
+cat("Tamaño de muestra necesario (p=0.3):", n_necesario_p, "\n")
+</pre>
+            </div>
         </div>
-        <button onclick="ejecutarR(`set.seed(123); muestra <- rnorm(50); ks.test(muestra, 'pnorm')$p.value`)">▶ Ejecutar (valor-p)</button>
     </div>
 
-    <!-- MÓDULO 8: Bootstrap -->
+    <!-- ========================================================= -->
+    <!-- MÓDULO 3: TEOREMA CENTRAL DEL LÍMITE                     -->
+    <!-- ========================================================= -->
     <div class="modulo">
-        <h3>🔄 Bootstrap</h3>
-        <div class="r-code">
-            <pre># Estimar error estándar de la media
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>📐 3. Teorema Central del Límite (TCL)</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="badge">Uniforme(0,1)</div>
+            <div class="badge">Exponencial(1)</div>
+            <div class="badge">Bernoulli(p)</div>
+            <div class="badge">Q-Q plots</div>
+            <div class="badge">Aprox Normal a Binomial</div>
+
+            <div class="explicacion">
+                <strong>📖 Teorema Central del Límite:</strong> La suma (o media) de variables i.i.d. con varianza finita converge en distribución a una normal.
+            </div>
+
+            <div class="codigo-r">
+                <button class="btn-copiar" onclick="copiarTexto(this)">📋 Copiar código</button>
+                <pre>
+# ====================================================
+# 3.1 TCL PARA UNIFORMES(0,1)
+# ====================================================
+
 set.seed(123)
-datos <- rnorm(100, mean=50, sd=10)
-B <- 200
-boot_means <- replicate(B, mean(sample(datos, replace=TRUE)))
-cat("Error estándar bootstrap:", sd(boot_means), "\n")
-cat("Error estándar teórico:", sd(datos)/sqrt(100))</pre>
+n_sim <- 5000
+n_muestra <- 30
+
+medias_unif <- replicate(n_sim, mean(runif(n_muestra)))
+
+par(mfrow = c(1, 2))
+
+# Histograma
+hist(medias_unif, breaks = 30, probability = TRUE,
+     main = "Medias de Uniformes(0,1)",
+     xlab = expression(bar(X)[n]),
+     col = "lightblue", border = "white")
+curve(dnorm(x, mean = 0.5, sd = sqrt(1/12/n_muestra)),
+      add = TRUE, col = "red", lwd = 2)
+
+# Q-Q plot
+qqnorm(medias_unif, main = "Q-Q Plot")
+qqline(medias_unif, col = "red", lwd = 2)
+
+par(mfrow = c(1, 1))
+
+# ====================================================
+# 3.2 TCL PARA EXPONENCIALES(λ=1)
+# ====================================================
+
+medias_exp <- replicate(n_sim, mean(rexp(n_muestra, rate = 1)))
+
+hist(medias_exp, breaks = 30, probability = TRUE,
+     main = "Medias de Exponenciales(λ=1)",
+     xlab = expression(bar(X)[n]),
+     col = "lightblue", border = "white")
+curve(dnorm(x, mean = 1, sd = 1/sqrt(n_muestra)),
+      add = TRUE, col = "red", lwd = 2)
+
+qqnorm(medias_exp, main = "Q-Q Plot (Exponencial)")
+qqline(medias_exp, col = "red", lwd = 2)
+
+# ====================================================
+# 3.3 APROXIMACIÓN NORMAL A BINOMIAL
+# ====================================================
+
+n <- 100
+p <- 0.3
+x <- 0:n
+
+teorico <- dbinom(x, n, p)
+aprox <- dnorm(x, mean = n*p, sd = sqrt(n*p*(1-p)))
+
+plot(x, teorico, type = "h", col = "blue", lwd = 2,
+     ylab = "Probabilidad",
+     main = "Aproximación Normal a Binomial(n=100, p=0.3)")
+lines(x, aprox, col = "red", lwd = 2)
+legend("topright", legend = c("Binomial", "Normal aproximada"),
+       col = c("blue", "red"), lwd = 2)
+
+# ====================================================
+# 3.4 CUANDO EL TCL NO APLICA: CAUCHY
+# ====================================================
+
+medias_cauchy <- replicate(n_sim, mean(rcauchy(n_muestra)))
+
+hist(medias_cauchy, breaks = 50, probability = TRUE,
+     main = "Medias de Cauchy - ¡El TCL NO aplica!",
+     xlab = expression(bar(X)[n]),
+     col = "lightblue", xlim = c(-10, 10))
+
+# ====================================================
+# 3.5 VERIFICACIÓN DEL TCL CON DIFERENTES n
+# ====================================================
+
+n_sim <- 5000
+n_values <- c(5, 10, 30, 50)
+
+par(mfrow = c(2, 2))
+for(n in n_values) {
+  medias <- replicate(n_sim, mean(rexp(n, rate = 1)))
+  hist(medias, breaks = 30, probability = TRUE,
+       main = paste("n =", n),
+       xlab = expression(bar(X)[n]), col = "lightblue")
+  curve(dnorm(x, mean = 1, sd = 1/sqrt(n)),
+        add = TRUE, col = "red", lwd = 2)
+}
+par(mfrow = c(1, 1))
+</pre>
+            </div>
         </div>
-        <button onclick="ejecutarR(`set.seed(123); datos <- rnorm(100, mean=50, sd=10); B <- 200; boot_means <- replicate(B, mean(sample(datos, replace=TRUE))); cat('Error estándar bootstrap:', sd(boot_means), '\\nError teórico:', sd(datos)/sqrt(100))`)">▶ Ejecutar</button>
     </div>
 
-    <!-- Resultados -->
+    <!-- ========================================================= -->
+    <!-- MÓDULO 4: ESTIMACIÓN PUNTUAL                             -->
+    <!-- ========================================================= -->
     <div class="modulo">
-        <h3>📤 Resultados</h3>
-        <pre id="output">--- Los resultados aparecerán aquí ---</pre>
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>🔢 4. Estimación Puntual</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="badge">Máxima Verosimilitud (MLE)</div>
+            <div class="badge">Método de Momentos</div>
+            <div class="badge">Sesgo y varianza</div>
+            <div class="badge">ECM (Error Cuadrático Medio)</div>
+            <div class="badge">Bootstrap</div>
+
+            <div class="explicacion">
+                <strong>📖 Estimación puntual:</strong> Un estimador es una función de la muestra que aproxima un parámetro desconocido.
+            </div>
+
+            <div class="codigo-r">
+                <button class="btn-copiar" onclick="copiarTexto(this)">📋 Copiar código</button>
+                <pre>
+# ====================================================
+# 4.1 MLE PARA POISSON
+# ====================================================
+
+set.seed(123)
+n <- 100
+lambda_true <- 3
+muestra <- rpois(n, lambda_true)
+
+# MLE = media muestral
+lambda_mle <- mean(muestra)
+cat("MLE de λ:", lambda_mle, "\n")
+
+# Función de log-verosimilitud
+loglik_poisson <- function(lambda, x) {
+  sum(dpois(x, lambda, log = TRUE))
+}
+
+# Optimización numérica
+resultado <- optim(par = 1, fn = loglik_poisson, x = muestra,
+                   control = list(fnscale = -1), method = "Brent",
+                   lower = 0.1, upper = 10)
+cat("Optimización numérica:", resultado$par, "\n")
+
+# ====================================================
+# 4.2 MLE PARA EXPONENCIAL
+# ====================================================
+
+muestra_exp <- rexp(n, rate = 2)
+lambda_mle_exp <- 1 / mean(muestra_exp)
+cat("MLE de λ (Exponencial):", lambda_mle_exp, "\n")
+
+# ====================================================
+# 4.3 MLE PARA NORMAL
+# ====================================================
+
+muestra_norm <- rnorm(n, mean = 5, sd = 2)
+mu_mle <- mean(muestra_norm)
+sigma_mle <- sqrt(mean((muestra_norm - mu_mle)^2))
+cat("MLE de μ:", mu_mle, "\n")
+cat("MLE de σ:", sigma_mle, "\n")
+
+# ====================================================
+# 4.4 SESGO, VARIANZA Y ECM
+# ====================================================
+
+# Simular sesgo del MLE
+n_sim <- 1000
+n_muestra <- 50
+estimaciones <- replicate(n_sim, mean(rpois(n_muestra, lambda_true)))
+
+sesgo <- mean(estimaciones) - lambda_true
+var_est <- var(estimaciones)
+ecm <- var_est + sesgo^2
+
+cat("Sesgo:", sesgo, "\n")
+cat("Varianza:", var_est, "\n")
+cat("ECM:", ecm, "\n")
+
+# ====================================================
+# 4.5 INTERVALOS DE CONFIANZA POR BOOTSTRAP
+# ====================================================
+
+B <- 1000
+lambda_boot <- replicate(B, {
+  muestra_boot <- sample(muestra, replace = TRUE)
+  mean(muestra_boot)
+})
+
+ic_bootstrap <- quantile(lambda_boot, c(0.025, 0.975))
+cat("IC Bootstrap 95%:", ic_bootstrap, "\n")
+
+hist(lambda_boot, breaks = 30, probability = TRUE,
+     main = "Distribución Bootstrap de λ̂",
+     xlab = expression(hat(lambda)), col = "lightblue")
+abline(v = lambda_true, col = "red", lwd = 2)
+abline(v = ic_bootstrap, col = "blue", lty = 2, lwd = 2)
+
+# ====================================================
+# 4.6 COMPARACIÓN DE ESTIMADORES
+# ====================================================
+
+# Comparar media muestral vs mediana
+n_sim <- 1000
+n_muestra <- 30
+
+medias <- replicate(n_sim, mean(rnorm(n_muestra, mean = 0, sd = 1)))
+medianas <- replicate(n_sim, median(rnorm(n_muestra, mean = 0, sd = 1)))
+
+var_media <- var(medias)
+var_mediana <- var(medianas)
+
+cat("Varianza de la media:", var_media, "\n")
+cat("Varianza de la mediana:", var_mediana, "\n")
+cat("Eficiencia relativa:", var_media/var_mediana, "\n")
+
+# ====================================================
+# 4.7 MÉTODO DE MOMENTOS PARA GAMMA
+# ====================================================
+
+muestra_gamma <- rgamma(100, shape = 2, scale = 1)
+
+# Momentos muestrales
+m1 <- mean(muestra_gamma)
+m2 <- mean(muestra_gamma^2)
+
+# Estimadores por momentos
+alpha_mom <- m1^2 / (m2 - m1^2)
+beta_mom <- (m2 - m1^2) / m1
+
+cat("α estimado (momentos):", alpha_mom, "\n")
+cat("β estimado (momentos):", beta_mom, "\n")
+</pre>
+            </div>
+        </div>
     </div>
 
-    <script type="module">
-        const outputElem = document.getElementById('output');
-        const statusElem = document.getElementById('status');
-        let webR = null;
+    <!-- ========================================================= -->
+    <!-- MÓDULO 5: INTERVALOS DE CONFIANZA                         -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>📏 5. Intervalos de Confianza</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="badge">Media (σ conocida)</div>
+            <div class="badge">Media (σ desconocida)</div>
+            <div class="badge">Varianza (χ²)</div>
+            <div class="badge">Proporción</div>
+            <div class="badge">Diferencia de medias</div>
+            <div class="badge">Razón de varianzas</div>
 
-        async function initWebR() {
-            try {
-                statusElem.textContent = "⏳ Cargando WebR... (primera vez 10-20 segundos)";
-                statusElem.className = "status loading";
-                
-                const { WebR } = await import('https://webr.r-wasm.org/v0.1.0/webr.mjs');
-                webR = new WebR();
-                await webR.init();
-                
-                statusElem.textContent = "✅ WebR listo! Puedes ejecutar código R.";
-                statusElem.className = "status ready";
-            } catch (err) {
-                statusElem.textContent = "❌ Error: " + err.message;
-                statusElem.className = "status error";
-                console.error(err);
-            }
-        }
+            <div class="codigo-r">
+                <button class="btn-copiar" onclick="copiarTexto(this)">📋 Copiar código</button>
+                <pre>
+# ====================================================
+# 5.1 IC PARA LA MEDIA (σ CONOCIDA)
+# ====================================================
 
-        window.ejecutarR = async function(codigo) {
-            if (!webR) {
-                outputElem.textContent = "⏳ WebR no está listo. Espera a que termine la carga...";
-                return;
-            }
-            
-            outputElem.textContent = "⏳ Ejecutando...";
-            
-            try {
-                const resultado = await webR.evalR(codigo);
-                const salida = await resultado.toJs();
-                
-                if (typeof salida === 'object' && salida !== null) {
-                    outputElem.textContent = JSON.stringify(salida, null, 2);
-                } else {
-                    outputElem.textContent = String(salida);
-                }
-            } catch (err) {
-                outputElem.textContent = "❌ Error: " + err.message;
-            }
-        };
+set.seed(123)
+n <- 30
+sigma <- 2
+muestra <- rnorm(n, mean = 10, sd = sigma)
+xbar <- mean(muestra)
+z <- qnorm(0.975)
 
-        initWebR();
-    </script>
+LI <- xbar - z * sigma / sqrt(n)
+LS <- xbar + z * sigma / sqrt(n)
+
+cat("IC 95% para μ (σ conocida): (", round(LI, 4), ",", round(LS, 4), ")\n")
+
+# ====================================================
+# 5.2 IC PARA LA MEDIA (t-STUDENT)
+# ====================================================
+
+intervalo_t <- t.test(muestra, conf.level = 0.95)
+intervalo_t$conf.int
+
+# ====================================================
+# 5.3 SIMULACIÓN DE COBERTURA DEL IC
+# ====================================================
+
+n_sim <- 1000
+n_muestra <- 30
+cobertura <- replicate(n_sim, {
+  x <- rnorm(n_muestra, mean = 0, sd = 1)
+  ic <- t.test(x)$conf.int
+  ic[1] <= 0 & ic[2] >= 0
+})
+cat("Cobertura observada:", mean(cobertura), "\n")
+
+# ====================================================
+# 5.4 IC PARA LA VARIANZA (χ²)
+# ====================================================
+
+n <- length(muestra)
+s2 <- var(muestra)
+q1 <- qchisq(0.025, n-1)
+q2 <- qchisq(0.975, n-1)
+
+ic_var <- c((n-1)*s2/q2, (n-1)*s2/q1)
+cat("IC 95% para σ²:", round(ic_var, 4), "\n")
+
+# ====================================================
+# 5.5 IC PARA PROPORCIÓN
+# ====================================================
+
+n_encuesta <- 500
+exitos <- 230
+prop.test(exitos, n_encuesta, conf.level = 0.95)
+
+# IC sin continuidad (aproximación normal)
+p_hat <- exitos / n_encuesta
+se <- sqrt(p_hat * (1 - p_hat) / n_encuesta)
+ic_normal <- p_hat + c(-1, 1) * qnorm(0.975) * se
+cat("IC aproximado (normal):", round(ic_normal, 4), "\n")
+
+# ====================================================
+# 5.6 IC PARA DIFERENCIA DE MEDIAS (VARIANZAS IGUALES)
+# ====================================================
+
+grupo1 <- rnorm(30, mean = 50, sd = 10)
+grupo2 <- rnorm(30, mean = 55, sd = 10)
+
+t.test(grupo1, grupo2, var.equal = TRUE, conf.level = 0.95)
+
+# ====================================================
+# 5.7 IC PARA DIFERENCIA DE MEDIAS (VARIANZAS DESIGUALES - WELCH)
+# ====================================================
+
+t.test(grupo1, grupo2, var.equal = FALSE, conf.level = 0.95)
+
+# ====================================================
+# 5.8 IC PARA OBSERVACIONES PAREADAS
+# ====================================================
+
+antes <- c(85, 90, 78, 92, 88, 76, 84, 91, 79, 87)
+despues <- c(88, 92, 82, 94, 90, 80, 86, 93, 83, 89)
+diferencias <- despues - antes
+t.test(diferencias, conf.level = 0.95)
+
+# Alternativa con paired = TRUE
+t.test(despues, antes, paired = TRUE, conf.level = 0.95)
+
+# ====================================================
+# 5.9 IC PARA RAZÓN DE VARIANZAS
+# ====================================================
+
+var.test(grupo1, grupo2, conf.level = 0.95)
+
+# ====================================================
+# 5.10 IC BASADO EN LIKELIHOOD (PERFIL)
+# ====================================================
+
+# Para Poisson
+loglik_poisson_perfil <- function(lambda, x) {
+  sum(dpois(x, lambda, log = TRUE))
+}
+
+lambda_vals <- seq(2, 4, length.out = 100)
+loglik_vals <- sapply(lambda_vals, loglik_poisson_perfil, x = muestra)
+loglik_max <- max(loglik_vals)
+
+# IC de perfil (χ²₁)
+ic_likelihood <- lambda_vals[loglik_vals > loglik_max - qchisq(0.95, 1)/2]
+cat("IC de perfil 95% para λ:", range(ic_likelihood), "\n")
+</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MÓDULO 6: PRUEBAS DE HIPÓTESIS                           -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>⚖️ 6. Pruebas de Hipótesis</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="badge">t-test (unilateral/bilateral)</div>
+            <div class="badge">Prueba de proporciones</div>
+            <div class="badge">F-test para varianzas</div>
+            <div class="badge">χ² de independencia</div>
+            <div class="badge">Potencia de la prueba</div>
+
+            <div class="codigo-r">
+                <button class="btn-copiar" onclick="copiarTexto(this)">📋 Copiar código</button>
+                <pre>
+# ====================================================
+# 6.1 PRUEBA t DE UNA MUESTRA
+# ====================================================
+
+set.seed(123)
+muestra <- rnorm(30, mean = 52, sd = 10)
+
+# Bilateral: H₀: μ = 50 vs H₁: μ ≠ 50
+test_bilateral <- t.test(muestra, mu = 50)
+print(test_bilateral)
+
+# Unilateral derecha: H₀: μ ≤ 50 vs H₁: μ > 50
+test_unilateral <- t.test(muestra, mu = 50, alternative = "greater")
+print(test_unilateral)
+
+# ====================================================
+# 6.2 PRUEBA t DE DOS MUESTRAS INDEPENDIENTES
+# ====================================================
+
+grupo1 <- rnorm(30, mean = 50, sd = 10)
+grupo2 <- rnorm(30, mean = 55, sd = 10)
+
+# Varianzas iguales
+t.test(grupo1, grupo2, var.equal = TRUE)
+
+# Varianzas desiguales (Welch) - es el default
+t.test(grupo1, grupo2)
+
+# ====================================================
+# 6.3 PRUEBA DE PROPORCIONES
+# ====================================================
+
+# Una proporción: H₀: p = 0.5 vs H₁: p > 0.5
+exitos <- 60
+n <- 100
+prop.test(exitos, n, p = 0.5, alternative = "greater")
+
+# Dos proporciones: H₀: p₁ = p₂ vs H₁: p₁ ≠ p₂
+exitos1 <- 45; n1 <- 100
+exitos2 <- 55; n2 <- 100
+prop.test(c(exitos1, exitos2), c(n1, n2))
+
+# ====================================================
+# 6.4 PRUEBA F PARA IGUALDAD DE VARIANZAS
+# ====================================================
+
+var.test(grupo1, grupo2)
+
+# ====================================================
+# 6.5 PRUEBA χ² DE INDEPENDENCIA
+# ====================================================
+
+# Tabla de contingencia
+tabla <- matrix(c(30, 10, 15, 25), nrow = 2,
+                dimnames = list(Tratamiento = c("A", "B"),
+                                Resultado = c("Éxito", "Fracaso")))
+print(tabla)
+
+chisq.test(tabla)
+
+# ====================================================
+# 6.6 PRUEBA DE BONFERRONI (CORRECCIÓN POR MÚLTIPLES)
+# ====================================================
+
+# Para 3 pruebas, α = 0.05/3 = 0.0167
+alpha_corregido <- 0.05 / 3
+cat("Nivel de significancia corregido:", alpha_corregido, "\n")
+
+# ====================================================
+# 6.7 POTENCIA DE UNA PRUEBA (SIMULACIÓN)
+# ====================================================
+
+n_sim <- 1000
+n_muestra <- 30
+potencia <- replicate(n_sim, {
+  grupo1 <- rnorm(n_muestra, mean = 50, sd = 10)
+  grupo2 <- rnorm(n_muestra, mean = 53, sd = 10)
+  t.test(grupo1, grupo2)$p.value < 0.05
+})
+cat("Potencia estimada (diferencia 3):", mean(potencia), "\n")
+
+# ====================================================
+# 6.8 VALOR-p Y TAMAÑO DEL EFECTO
+# ====================================================
+
+library(ggplot2)
+# Crear datos con efecto pequeño, medio y grande
+efectos <- data.frame(
+  efecto = c("Pequeño (d=0.2)", "Medio (d=0.5)", "Grande (d=0.8)"),
+  d = c(0.2, 0.5, 0.8),
+  potencia = c(0.15, 0.45, 0.75)
+)
+print(efectos)
+
+# ====================================================
+# 6.9 PRUEBA DE WILCOXON (NO PARAMÉTRICA)
+# ====================================================
+
+# Alternativa no paramétrica a t-test
+wilcox.test(grupo1, grupo2)
+
+# ====================================================
+# 6.10 VALOR-p COMO EVIDENCIA (SIMULACIÓN)
+# ====================================================
+
+# Simular distribución del valor-p bajo H₀ y H₁
+n_sim <- 5000
+n_muestra <- 30
+
+p_valores_H0 <- replicate(n_sim, {
+  x <- rnorm(n_muestra, mean = 50, sd = 10)
+  y <- rnorm(n_muestra, mean = 50, sd = 10)
+  t.test(x, y)$p.value
+})
+
+p_valores_H1 <- replicate(n_sim, {
+  x <- rnorm(n_muestra, mean = 50, sd = 10)
+  y <- rnorm(n_muestra, mean = 53, sd = 10)
+  t.test(x, y)$p.value
+})
+
+par(mfrow = c(1, 2))
+hist(p_valores_H0, breaks = 30, probability = TRUE,
+     main = "Bajo H₀", xlab = "Valor-p", col = "lightblue")
+abline(h = 1, col = "red", lty = 2)
+
+hist(p_valores_H1, breaks = 30, probability = TRUE,
+     main = "Bajo H₁ (μ₂=53)", xlab = "Valor-p", col = "lightgreen")
+par(mfrow = c(1, 1))
+</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MÓDULO 7: BONDAD DE AJUSTE                               -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>📐 7. Bondad de Ajuste</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="badge">Prueba χ² de bondad</div>
+            <div class="badge">Prueba KS (Kolmogorov-Smirnov)</div>
+            <div class="badge">Q-Q plots</div>
+            <div class="badge">ECDF</div>
+            <div class="badge">Prueba de Shapiro-Wilk</div>
+
+            <div class="codigo-r">
+                <button class="btn-copiar" onclick="copiarTexto(this)">📋 Copiar código</button>
+                <pre>
+# ====================================================
+# 7.1 PRUEBA χ² DE BONDAD DE AJUSTE
+# ====================================================
+
+# Verificar si los datos siguen una distribución uniforme
+set.seed(123)
+datos_unif <- runif(100)
+
+# Dividir en 10 intervalos
+observados <- hist(datos_unif, breaks = seq(0, 1, 0.1), plot = FALSE)$counts
+esperados <- rep(10, 10)
+chi2 <- sum((observados - esperados)^2 / esperados)
+p_valor_chisq <- pchisq(chi2, df = 9, lower.tail = FALSE)
+
+cat("Estadístico χ² =", chi2, "\n")
+cat("Valor-p =", p_valor_chisq, "\n")
+
+# ====================================================
+# 7.2 PRUEBA DE KOLMOGOROV-SMIRNOV (KS)
+# ====================================================
+
+# Verificar normalidad
+datos_norm <- rnorm(50)
+ks.test(datos_norm, "pnorm")
+
+# Para exponencial
+datos_exp <- rexp(50, rate = 1)
+ks.test(datos_exp, "pexp", rate = 1)
+
+# ====================================================
+# 7.3 Q-Q PLOT (Cuantil-Cuantil)
+# ====================================================
+
+par(mfrow = c(1, 2))
+
+# Q-Q plot para datos normales
+qqnorm(datos_norm, main = "Q-Q Plot (Datos Normales)")
+qqline(datos_norm, col = "red", lwd = 2)
+
+# Q-Q plot para datos exponenciales
+qqnorm(datos_exp, main = "Q-Q Plot (Datos Exponenciales)")
+qqline(datos_exp, col = "red", lwd = 2)
+
+par(mfrow = c(1, 1))
+
+# ====================================================
+# 7.4 FUNCIÓN DE DISTRIBUCIÓN EMPÍRICA (ECDF)
+# ====================================================
+
+plot(ecdf(datos_norm), main = "ECDF vs Normal Teórica",
+     xlab = "x", ylab = "F(x)", col = "blue", lwd = 2)
+curve(pnorm(x), add = TRUE, col = "red", lwd = 2, lty = 2)
+legend("topleft", legend = c("ECDF", "Normal(0,1)"),
+       col = c("blue", "red"), lwd = 2, lty = c(1, 2))
+
+# ====================================================
+# 7.5 PRUEBA DE SHAPIRO-WILK (NORMALIDAD)
+# ====================================================
+
+shapiro.test(datos_norm)   # p-valor alto → no rechaza normalidad
+shapiro.test(datos_exp)    # p-valor bajo → rechaza normalidad
+
+# ====================================================
+# 7.6 BONDAD DE AJUSTE PARA POISSON (CON ESTIMACIÓN DE PARÁMETRO)
+# ====================================================
+
+datos_pois <- rpois(100, lambda = 3)
+lambda_hat <- mean(datos_pois)
+
+# Calcular frecuencias esperadas
+k_max <- max(datos_pois)
+esperados <- dpois(0:k_max, lambda_hat) * 100
+observados <- table(factor(datos_pois, levels = 0:k_max))
+observados <- as.vector(observados)
+
+# Agrupar frecuencias pequeñas
+esperados_acum <- esperados
+observados_acum <- observados
+while(min(esperados_acum) < 5) {
+  # Combinar última categoría
+}
+
+chi2_pois <- sum((observados - esperados)^2 / esperados, na.rm = TRUE)
+gl_pois <- length(observados) - 2  # -1 por suma, -1 por parámetro estimado
+p_valor_pois <- pchisq(chi2_pois, df = gl_pois, lower.tail = FALSE)
+
+cat("χ² Poisson:", chi2_pois, "gl:", gl_pois, "p-valor:", p_valor_pois, "\n")
+
+# ====================================================
+# 7.7 VISUALIZACIÓN DE DENSIDAD VS HISTOGRAMA
+# ====================================================
+
+hist(datos_norm, probability = TRUE, breaks = 15,
+     main = "Densidad vs Histograma", col = "lightblue")
+curve(dnorm(x, mean = mean(datos_norm), sd = sd(datos_norm)),
+      add = TRUE, col = "red", lwd = 2)
+lines(density(datos_norm), col = "blue", lwd = 2)
+legend("topright", legend = c("Normal teórica", "Densidad estimada"),
+       col = c("red", "blue"), lwd = 2)
+</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MÓDULO 8: REGRESIÓN LINEAL                               -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>📈 8. Regresión Lineal</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="badge">Modelo lineal simple</div>
+            <div class="badge">Modelo múltiple</div>
+            <div class="badge">Diagnóstico de residuos</div>
+            <div class="badge">Predicción</div>
+            <div class="badge">Intervalos de confianza</div>
+
+            <div class="codigo-r">
+                <button class="btn-copiar" onclick="copiarTexto(this)">📋 Copiar código</button>
+                <pre>
+# ====================================================
+# 8.1 REGRESIÓN LINEAL SIMPLE
+# ====================================================
+
+set.seed(123)
+n <- 100
+x <- rnorm(n, mean = 10, sd = 2)
+y <- 5 + 2.5 * x + rnorm(n, sd = 3)
+
+modelo <- lm(y ~ x)
+summary(modelo)
+
+# Coeficientes
+coef(modelo)
+# Intervalos de confianza para los coeficientes
+confint(modelo, level = 0.95)
+
+# Gráfico de regresión
+plot(x, y, main = "Regresión Lineal Simple",
+     pch = 16, col = "blue", xlab = "x", ylab = "y")
+abline(modelo, col = "red", lwd = 2)
+
+# ====================================================
+# 8.2 ANÁLISIS DE RESIDUOS
+# ====================================================
+
+par(mfrow = c(2, 2))
+plot(modelo)
+par(mfrow = c(1, 1))
+
+# Residuos vs valores ajustados
+plot(fitted(modelo), residuals(modelo),
+     main = "Residuos vs Valores Ajustados",
+     xlab = "Valores ajustados", ylab = "Residuos",
+     pch = 16, col = "blue")
+abline(h = 0, col = "red", lty = 2)
+
+# ====================================================
+# 8.3 REGRESIÓN LINEAL MÚLTIPLE
+# ====================================================
+
+# Crear datos con dos predictores
+x1 <- rnorm(n, mean = 10, sd = 2)
+x2 <- rnorm(n, mean = 5, sd = 1)
+y <- 3 + 2 * x1 - 1.5 * x2 + rnorm(n, sd = 2)
+
+modelo_multiple <- lm(y ~ x1 + x2)
+summary(modelo_multiple)
+
+# ====================================================
+# 8.4 PREDICCIÓN E INTERVALOS DE CONFIANZA
+# ====================================================
+
+# Nuevos datos para predecir
+nuevos_datos <- data.frame(x = c(8, 10, 12, 14))
+
+# Intervalo de confianza para la media
+predict(modelo, nuevos_datos, interval = "confidence", level = 0.95)
+
+# Intervalo de predicción para observaciones individuales
+predict(modelo, nuevos_datos, interval = "prediction", level = 0.95)
+
+# ====================================================
+# 8.5 ANOVA (ANÁLISIS DE VARIANZA)
+# ====================================================
+
+anova(modelo)
+
+# ====================================================
+# 8.6 COMPARACIÓN DE MODELOS
+# ====================================================
+
+modelo_reducido <- lm(y ~ x1)
+modelo_completo <- lm(y ~ x1 + x2)
+
+anova(modelo_reducido, modelo_completo)
+
+# ====================================================
+# 8.7 SELECCIÓN DE MODELOS (AIC, BIC)
+# ====================================================
+
+AIC(modelo_reducido, modelo_completo)
+BIC(modelo_reducido, modelo_completo)
+
+# ====================================================
+# 8.8 DIAGNÓSTICO ADICIONAL
+# ====================================================
+
+# Q-Q plot de residuos
+qqnorm(residuals(modelo), main = "Q-Q Plot de Residuos")
+qqline(residuals(modelo), col = "red", lwd = 2)
+
+# Prueba de normalidad de los residuos
+shapiro.test(residuals(modelo))
+
+# Prueba de homocedasticidad (Breusch-Pagan)
+library(lmtest)
+bptest(modelo)
+</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MÓDULO 9: COCIENTE DE VEROSIMILITUD Y PRUEBAS AVANZADAS  -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>⚙️ 9. Cociente de Verosimilitud y Pruebas Avanzadas</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="badge">Likelihood Ratio Test (LRT)</div>
+            <div class="badge">Criterio de Akaike (AIC)</div>
+            <div class="badge">Bootstrap</div>
+            <div class="badge">Pruebas no paramétricas</div>
+
+            <div class="codigo-r">
+                <button class="btn-copiar" onclick="copiarTexto(this)">📋 Copiar código</button>
+                <pre>
+# ====================================================
+# 9.1 PRUEBA DE RAZÓN DE VEROSIMILITUD (LRT)
+# ====================================================
+
+# Comparar modelos anidados en Poisson
+set.seed(123)
+x <- rnorm(100)
+y <- rpois(100, lambda = exp(1 + 0.5*x))
+
+modelo_completo <- glm(y ~ x, family = poisson)
+modelo_nulo <- glm(y ~ 1, family = poisson)
+
+# Estadístico LRT
+lrt_stat <- 2 * (logLik(modelo_completo) - logLik(modelo_nulo))
+p_valor_lrt <- pchisq(lrt_stat, df = 1, lower.tail = FALSE)
+cat("LRT estadístico:", lrt_stat, "\n")
+cat("p-valor:", p_valor_lrt, "\n")
+
+# ====================================================
+# 9.2 BOOTSTRAP PARA ESTIMAR ERROR ESTÁNDAR
+# ====================================================
+
+boot_error <- function(data, indices) {
+  muestra_boot <- data[indices]
+  return(mean(muestra_boot))
+}
+
+datos_boot <- rnorm(100, mean = 50, sd = 10)
+library(boot)
+resultado_boot <- boot(datos_boot, boot_error, R = 1000)
+print(resultado_boot)
+
+# ====================================================
+# 9.3 INTERVALOS DE CONFIANZA BOOTSTRAP (PERCENTIL)
+# ====================================================
+
+boot.ci(resultado_boot, type = "perc")
+
+# ====================================================
+# 9.4 PRUEBA DE MANTEL-HAENSZEL (ESTRATIFICADA)
+# ====================================================
+
+# Tablas 2x2 estratificadas
+tabla1 <- matrix(c(20, 10, 15, 25), nrow = 2)
+tabla2 <- matrix(c(15, 15, 10, 20), nrow = 2)
+
+# Mantel-Haenszel (usando vcd)
+# library(vcd)
+# mantelhaen.test(array(c(tabla1, tabla2), dim = c(2,2,2)))
+
+# ====================================================
+# 9.5 PRUEBA DE McNEEMAR (DATOS PAREADOS)
+# ====================================================
+
+# Datos pareados antes/después
+antes <- c(rep(1, 20), rep(0, 30))
+despues <- c(rep(1, 25), rep(0, 25))
+
+tabla_mcnemar <- table(antes, despues)
+mcnemar.test(tabla_mcnemar)
+
+# ====================================================
+# 9.6 CORRELACIÓN Y REGRESIÓN
+# ====================================================
+
+# Coeficiente de correlación de Pearson
+cor(x, y)
+
+# Prueba de significancia de la correlación
+cor.test(x, y)
+
+# Correlación de Spearman (no paramétrica)
+cor.test(x, y, method = "spearman")
+
+# ====================================================
+# 9.7 PRUEBA DE JI-CUADRADA DE BONDAD CON PARÁMETROS ESTIMADOS
+# ====================================================
+
+# Ejemplo de Hardy-Weinberg
+obs <- c(342, 500, 187)
+n <- sum(obs)
+theta_hat <- (obs[2] + 2*obs[3]) / (2*n)
+
+# Probabilidades esperadas
+p_esperadas <- c((1-theta_hat)^2, 2*theta_hat*(1-theta_hat), theta_hat^2)
+esperados <- p_esperadas * n
+
+chi2_hw <- sum((obs - esperados)^2 / esperados)
+p_hw <- pchisq(chi2_hw, df = 1, lower.tail = FALSE)
+cat("χ² Hardy-Weinberg:", chi2_hw, "p-valor:", p_hw, "\n")
+</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MÓDULO 10: GUÍA RÁPIDA DE REFERENCIA                     -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>📚 10. Guía Rápida de Referencia</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion">
+                <strong>📖 Resumen de las funciones más utilizadas en Estadística Matemática</strong>
+            </div>
+
+            <table class="tabla-resultados">
+                <thead>
+                    <tr><th>Categoría</th><th>Función</th><th>Descripción</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td rowspan="4">Distribuciones</td><td>dnorm(), pnorm(), qnorm(), rnorm()</td><td>Normal</td></tr>
+                    <tr><td>dbinom(), pbinom(), qbinom(), rbinom()</td><td>Binomial</td></tr>
+                    <tr><td>dpois(), ppois(), qpois(), rpois()</td><td>Poisson</td></tr>
+                    <tr><td>dexp(), pexp(), qexp(), rexp()</td><td>Exponencial</td></tr>
+                    <tr><td rowspan="3">Estadísticos</td><td>mean(), var(), sd()</td><td>Media, varianza, desviación</td></tr>
+                    <tr><td>median(), quantile(), IQR()</td><td>Mediana, cuantiles, rango IQR</td></tr>
+                    <tr><td>summary()</td><td>Resumen de 5 números</td></tr>
+                    <tr><td rowspan="3">Inferencia</td><td>t.test()</td><td>Prueba t e IC para media</td></tr>
+                    <tr><td>prop.test()</td><td>Prueba de proporciones</td></tr>
+                    <tr><td>var.test()</td><td>Prueba F para varianzas</td></tr>
+                    <tr><td rowspan="3">Bondad</td><td>ks.test()</td><td>Prueba de Kolmogorov-Smirnov</td></tr>
+                    <tr><td>chisq.test()</td><td>Prueba χ² de independencia/bondad</td></tr>
+                    <tr><td>shapiro.test()</td><td>Prueba de normalidad</td></tr>
+                    <tr><td rowspan="2">Regresión</td><td>lm()</td><td>Regresión lineal</td></tr>
+                    <tr><td>glm()</td><td>Modelos lineales generalizados</td></tr>
+                    <tr><td rowspan="2">Gráficos</td><td>plot(), hist(), boxplot()</td><td>Gráficos base</td></tr>
+                    <tr><td>ggplot2</td><td>Gramática de gráficos</td></tr>
+                </tbody>
+            </table>
+
+            <div class="explicacion">
+                <strong>🎯 Recomendaciones finales:</strong>
+                <ol>
+                    <li>Siempre establece una semilla: <code>set.seed(123)</code> para reproducibilidad</li>
+                    <li>Explora tus datos con <code>str()</code>, <code>head()</code>, <code>summary()</code></li>
+                    <li>Visualiza antes de modelar: histogramas, boxplots, qq-plots</li>
+                    <li>Interpreta el valor-p en contexto del tamaño del efecto</li>
+                    <li>Usa bootstrapping cuando la teoría asintótica sea dudosa</li>
+                </ol>
+            </div>
+
+            <div class="codigo-r">
+                <button class="btn-copiar" onclick="copiarTexto(this)">📋 Copiar código</button>
+                <pre>
+# ====================================================
+# COMANDOS ÚTILES DE R PARA EL CURSO
+# ====================================================
+
+# Ver paquetes instalados
+installed.packages()
+
+# Cargar múltiples paquetes
+library(ggplot2)
+library(dplyr)
+library(MASS)
+
+# Ayuda sobre una función
+?t.test
+
+# Establecer directorio de trabajo
+getwd()
+# setwd("ruta/a/tu/carpeta")
+
+# Guardar gráficos
+png("mi_grafico.png")
+plot(1:10)
+dev.off()
+
+# Exportar resultados a CSV
+write.csv(mis_datos, "datos.csv", row.names = FALSE)
+
+# Sesión de R
+sessionInfo()
+
+# Limpiar el entorno
+rm(list = ls())
+
+# Crear secuencias
+seq(0, 10, by = 0.5)
+rep(1:3, times = 4)
+rep(1:3, each = 4)
+
+# Operaciones con vectores
+x <- 1:10
+x^2
+sqrt(x)
+log(x)
+exp(x)
+</pre>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Función para copiar texto
+    function copiarTexto(btn) {
+        const pre = btn.parentElement.querySelector('pre');
+        const texto = pre.innerText;
+        
+        navigator.clipboard.writeText(texto).then(() => {
+            const originalTexto = btn.innerText;
+            btn.innerText = '✓ Copiado!';
+            setTimeout(() => {
+                btn.innerText = originalTexto;
+            }, 1500);
+        }).catch(err => {
+            console.error('Error al copiar:', err);
+            alert('No se pudo copiar el código. Selecciona manualmente y copia (Ctrl+C).');
+        });
+    }
+
+    // Función para toggle de módulos
+    function toggleModulo(header) {
+        const content = header.nextElementSibling;
+        content.classList.toggle('collapsed');
+    }
+
+    // Inicializar MathJax
+    if (window.MathJax) {
+        MathJax.texReset();
+        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+    }
+</script>
+
 </body>
 </html>
