@@ -1042,6 +1042,10 @@ par(mfrow = c(1, 1))</pre>
     // Abrir el primer módulo por defecto
     document.querySelectorAll('.modulo-content').forEach(el => el.classList.add('active'));
     document.querySelectorAll('.modulo-header span').forEach(el => el.textContent = '▲');
+
+    window.inicializarModuloActual = function() {
+    console.log("Taller de R cargado");
+};
 </script>
 </body>
 </html>
