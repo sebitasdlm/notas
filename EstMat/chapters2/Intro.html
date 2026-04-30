@@ -1,1 +1,888 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taller: Introducción a la Estadística Matemática - Capítulo 1</title>
+    
+    <!-- MathJax para notación matemática -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" id="MathJax-script" async></script>
+    
+    <style>
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #616161;
+            --border: #e0e0e0;
+            --accent: #1976d2;
+            --accent-light: #e3f2fd;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
 
+        body.dark-theme {
+            --bg-primary: #1e1e1e;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border: #404040;
+            --accent: #42a5f5;
+            --accent-light: #1a2a3a;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .taller-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .modulo {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .modulo-header {
+            background: var(--accent-light);
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .modulo-header h3 {
+            margin: 0;
+            color: var(--accent);
+        }
+
+        .modulo-content {
+            padding: 1.5rem;
+            display: block;
+        }
+
+        .modulo-content.collapsed {
+            display: none;
+        }
+
+        .explicacion-intro {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--accent);
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .explicacion-formal {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--success);
+        }
+
+        .demostracion {
+            background: var(--bg-secondary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+            font-size: 0.9rem;
+        }
+
+        .simulador {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .controles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+
+        .controles label {
+            font-weight: bold;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        canvas {
+            display: block;
+            margin: 1rem auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .pregunta-exploratoria {
+            background: var(--accent-light);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid var(--warning);
+        }
+
+        .pregunta-exploratoria button {
+            background: var(--warning);
+            margin-top: 0.5rem;
+        }
+
+        .respuesta {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .respuesta.mostrar {
+            display: block;
+        }
+
+        .formula-destacada {
+            background: var(--bg-primary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 1rem;
+            margin: 0.5rem 0;
+            overflow-x: auto;
+        }
+
+        .ejercicio-numerico {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+        }
+
+        hr {
+            margin: 2rem 0;
+            border-color: var(--border);
+        }
+
+        @media (max-width: 768px) {
+            .modulo-content {
+                padding: 1rem;
+            }
+            .controles {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+<main>
+<div class="taller-container">
+
+    <!-- ========================================================= -->
+    <!-- MODULO 1: Deducción vs Inferencia                         -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>1. Deducción e Inferencia Estadística</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>estadística matemática</strong> se ocupa de la <strong>inferencia</strong>: pasar de lo particular (una muestra) a lo general (la población). 
+                Esto contrasta con la <strong>deducción</strong>, que va de lo general a lo particular (ej. axiomas de probabilidad → propiedades).
+                \[
+                \text{Deducción: } \text{Población} \xrightarrow{\text{modelo}} \text{Muestra}
+                \qquad
+                \text{Inferencia: } \text{Muestra} \xrightarrow{\text{inducción}} \text{Población}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Deducción vs Inferencia</h4>
+                <div class="controles">
+                    <label>p verdadero (desconocido):</label>
+                    <input type="range" id="p-verdadero" min="0" max="1" step="0.01" value="0.6">
+                    <span id="p-verdadero-val">0.60</span>
+                    <label>n (tamaño de muestra):</label>
+                    <input type="range" id="n-inferencia" min="5" max="500" step="5" value="100">
+                    <span id="n-inferencia-val">100</span>
+                    <button id="simular-inferencia">Simular muestra y estimar</button>
+                </div>
+                <canvas id="inferenciaCanvas" width="500" height="200"></canvas>
+                <div id="inferencia-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Definición formal (del PDF):</strong>
+                <br>
+                Sea \((\Omega, \mathcal{F}, \mathbb{P})\) un espacio de probabilidad. Una <strong>variable aleatoria</strong> \(X: \Omega \to \mathbb{R}\) modela una característica de la población.
+                Una <strong>muestra aleatoria</strong> de tamaño \(n\) es un vector \(\mathbf{X}_n = (X_1, \ldots, X_n)\) de variables i.i.d. con la misma distribución que \(X\).
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Cuál es la diferencia fundamental entre deducción e inferencia?</strong>
+                <button onclick="mostrarRespuesta('respuesta-deduccion')">Ver respuesta</button>
+                <div id="respuesta-deduccion" class="respuesta">
+                    La <strong>deducción</strong> parte de principios generales (como los axiomas de probabilidad) para derivar propiedades específicas.
+                    La <strong>inferencia</strong> parte de observaciones particulares (una muestra) para hacer afirmaciones sobre la población,
+                    cuantificando la incertidumbre mediante la teoría de probabilidad.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 2: Estimación Puntual - Media y Proporción        -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>2. Estimación Puntual: Media y Proporción</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Un <strong>estimador</strong> es un estadístico (función de la muestra) que aproxima un parámetro poblacional desconocido.
+                \[
+                \hat{\theta} = T(X_1, \ldots, X_n)
+                \]
+                donde \(T\) no depende de parámetros desconocidos.
+            </div>
+
+            <div class="simulador">
+                <h4>Comparación: Media Muestral vs Mediana</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-estimador">
+                        <option value="normal">Normal(μ=10, σ=2)</option>
+                        <option value="exp">Exponencial(λ=0.1)</option>
+                        <option value="normal-outlier">Normal + Outlier (10% contaminación)</option>
+                    </select>
+                    <label>n:</label>
+                    <input type="range" id="n-estimador" min="10" max="200" step="10" value="50">
+                    <span id="n-estimador-val">50</span>
+                    <button id="simular-estimadores">Simular 1000 muestras</button>
+                </div>
+                <canvas id="estimadorCanvas" width="500" height="250"></canvas>
+                <div id="estimador-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Propiedades deseables de un estimador:</strong>
+                <ul>
+                    <li><strong>Insesgadez:</strong> \(\mathbb{E}[\hat{\theta}] = \theta\)</li>
+                    <li><strong>Consistencia:</strong> \(\hat{\theta}_n \xrightarrow{\mathbb{P}} \theta\) cuando \(n \to \infty\)</li>
+                    <li><strong>Eficiencia:</strong> Mínima varianza entre estimadores insesgados</li>
+                    <li><strong>Robustez:</strong> Poco sensible a outliers o desviaciones del modelo</li>
+                </ul>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (moneda Bernoulli):</strong>
+                \[
+                X_1, \ldots, X_n \sim \text{Ber}(p), \quad \hat{p} = \bar{X}_n = \frac{1}{n}\sum_{i=1}^n X_i
+                \]
+                \[
+                \mathbb{E}[\hat{p}] = p, \quad \operatorname{var}(\hat{p}) = \frac{p(1-p)}{n}, \quad \hat{p} \xrightarrow{\mathbb{P}} p \text{ (LGN)}
+                \]
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 3: Distribuciones Muestrales y Ley de Grandes Números -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>3. Distribuciones Muestrales y Ley de Grandes Números</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                La <strong>distribución muestral</strong> de un estadístico es su distribución de probabilidad como función de la muestra aleatoria.
+                <br>
+                <strong>Ley de Grandes Números (LGN):</strong> Si \(X_1, \ldots, X_n\) son i.i.d. con \(\mathbb{E}[X_i] = \mu\), entonces
+                \[
+                \bar{X}_n \xrightarrow{\mathbb{P}} \mu \quad \text{(Ley Débil)}, \qquad \bar{X}_n \xrightarrow{c.s.} \mu \quad \text{(Ley Fuerte)}
+                \]
+            </div>
+
+            <div class="simulador">
+                <h4>Visualización: Convergencia de la media muestral</h4>
+                <div class="controles">
+                    <label>Distribución:</label>
+                    <select id="dist-lgn">
+                        <option value="bernoulli">Bernoulli(p=0.3)</option>
+                        <option value="normal">Normal(μ=5, σ=2)</option>
+                        <option value="exponencial">Exponencial(λ=0.5)</option>
+                    </select>
+                    <label>n máximo:</label>
+                    <input type="range" id="n-lgn" min="10" max="500" step="10" value="200">
+                    <span id="n-lgn-val">200</span>
+                    <button id="simular-lgn">Simular trayectoria</button>
+                </div>
+                <canvas id="lgnCanvas" width="500" height="250"></canvas>
+                <div id="lgn-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="demostracion">
+                <strong>Demostración de la Ley Débil (Chebyshev):</strong>
+                \[
+                \mathbb{P}(|\bar{X}_n - \mu| \ge \epsilon) \le \frac{\operatorname{var}(\bar{X}_n)}{\epsilon^2} = \frac{\sigma^2}{n\epsilon^2} \to 0 \quad \text{cuando } n \to \infty
+                \]
+                Por lo tanto, \(\bar{X}_n \xrightarrow{\mathbb{P}} \mu\).
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 4: Robustez - Media vs Mediana                   -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>4. Robustez: Media Muestral vs Mediana</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Un estimador es <strong>robusto</strong> si no es sensiblemente afectado por observaciones atípicas (outliers).
+                <br>
+                La <strong>mediana muestral</strong> es un estimador robusto de la media poblacional, mientras que la <strong>media muestral</strong> es muy sensible a outliers.
+            </div>
+
+            <div class="simulador">
+                <h4>Simulación: Efecto de un outlier</h4>
+                <div class="controles">
+                    <label>Distribución base:</label>
+                    <select id="dist-robustez">
+                        <option value="normal">Normal(10,2)</option>
+                        <option value="exponencial">Exponencial(λ=0.1)</option>
+                    </select>
+                    <label>Valor atípico (outlier):</label>
+                    <input type="range" id="outlier-val" min="0" max="50" step="1" value="30">
+                    <span id="outlier-val-val">30</span>
+                    <button id="simular-robustez">Comparar estimadores</button>
+                </div>
+                <canvas id="robustezCanvas" width="500" height="250"></canvas>
+                <div id="robustez-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="ejercicio-numerico">
+                <strong>Ejemplo del PDF (peso de estudiantes):</strong>
+                <br>
+                Si \(W \sim N(70, 5^2)\) (peso en kg), la media y mediana coinciden en 70.
+                <br>
+                Si aparece un outlier de 100 kg en una muestra pequeña, la media se desplaza hacia arriba,
+                mientras que la mediana permanece prácticamente igual.
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué significa que un estimador sea "robusto"?</strong>
+                <button onclick="mostrarRespuesta('respuesta-robustez')">Ver respuesta</button>
+                <div id="respuesta-robustez" class="respuesta">
+                    Robustez significa que el estimador no es excesivamente sensible a pequeñas desviaciones del modelo
+                    (como outliers o errores en los datos). La mediana es robusta porque su <strong>punto de ruptura</strong>
+                    es 0.5 (puede tolerar hasta 50% de datos contaminados), mientras que la media tiene punto de ruptura 0.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODULO 5: Planteamiento de Hipótesis y Modelos de Regresión -->
+    <!-- ========================================================= -->
+    <div class="modulo">
+        <div class="modulo-header" onclick="toggleModulo(this)">
+            <h3>5. Planteamiento de Hipótesis y Modelos de Regresión</h3>
+        </div>
+        <div class="modulo-content">
+            <div class="explicacion-intro">
+                Un <strong>contraste de hipótesis</strong> es un procedimiento para decidir entre dos afirmaciones sobre la población:
+                \[
+                H_0: \text{hipótesis nula} \quad \text{vs} \quad H_1: \text{hipótesis alternativa}
+                \]
+                <strong>Ejemplo (del PDF):</strong> \(H_0: \mu_X = \mu_Y\) vs \(H_1: \mu_X > \mu_Y\) (comparación de calificaciones por género).
+            </div>
+
+            <div class="simulador">
+                <h4>Simulador: Comparación de dos grupos</h4>
+                <div class="controles">
+                    <label>μ₁ (Grupo 1):</label>
+                    <input type="range" id="mu1-comp" min="0" max="10" step="0.5" value="7">
+                    <span id="mu1-comp-val">7.0</span>
+                    <label>μ₂ (Grupo 2):</label>
+                    <input type="range" id="mu2-comp" min="0" max="10" step="0.5" value="6.5">
+                    <span id="mu2-comp-val">6.5</span>
+                    <label>σ (desviación común):</label>
+                    <input type="range" id="sigma-comp" min="0.5" max="3" step="0.1" value="1.5">
+                    <span id="sigma-comp-val">1.5</span>
+                    <label>n (tamaño de muestra por grupo):</label>
+                    <input type="range" id="n-comp" min="10" max="100" step="5" value="30">
+                    <span id="n-comp-val">30</span>
+                    <button id="simular-comp">Simular contraste</button>
+                </div>
+                <canvas id="compCanvas" width="500" height="200"></canvas>
+                <div id="comp-info" class="formula-destacada"></div>
+            </div>
+
+            <div class="explicacion-formal">
+                <strong>Modelo de regresión lineal (del PDF):</strong>
+                \[
+                Y = \beta_0 + \beta_1 \cdot \text{años} + \varepsilon, \quad \varepsilon \sim N(0, \sigma^2)
+                \]
+                Permite comparar grupos controlando por covariables (como la antigüedad).
+            </div>
+
+            <div class="pregunta-exploratoria">
+                <strong>¿Qué riesgo se corre al rechazar \(H_0\) cuando es verdadera?</strong>
+                <button onclick="mostrarRespuesta('respuesta-hipotesis')">Ver respuesta</button>
+                <div id="respuesta-hipotesis" class="respuesta">
+                    Se llama <strong>error tipo I</strong> (falso positivo). Su probabilidad máxima se denota por \(\alpha\),
+                    el <strong>nivel de significancia</strong>. En la práctica, se suele fijar \(\alpha = 0.05\).
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</main>
+
+<script>
+    // ============================================================
+    // FUNCIONES GLOBALES
+    // ============================================================
+    window.toggleModulo = function(header) {
+        const content = header.nextElementSibling;
+        if(content) content.classList.toggle('collapsed');
+    }
+
+    window.mostrarRespuesta = function(id) {
+        const elem = document.getElementById(id);
+        if(elem) elem.classList.toggle('mostrar');
+    }
+
+    // ============================================================
+    // MODULO 1: Inferencia
+    // ============================================================
+    function simularInferencia() {
+        const p = parseFloat(document.getElementById('p-verdadero').value);
+        const n = parseInt(document.getElementById('n-inferencia').value);
+        document.getElementById('p-verdadero-val').textContent = p.toFixed(2);
+        document.getElementById('n-inferencia-val').textContent = n;
+        
+        let estimaciones = [];
+        for(let sim=0; sim<500; sim++) {
+            let suma = 0;
+            for(let i=0; i<n; i++) if(Math.random() < p) suma++;
+            estimaciones.push(suma/n);
+        }
+        
+        const mediaEst = estimaciones.reduce((a,b)=>a+b,0)/500;
+        const sesgo = mediaEst - p;
+        
+        const canvas = document.getElementById('inferenciaCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(30).fill(0);
+            for(let est of estimaciones) {
+                const idx = Math.min(29, Math.floor(est * 30));
+                bins[idx]++;
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-1, barHeight);
+            }
+            
+            const xp = p * w;
+            ctx.beginPath();
+            ctx.moveTo(xp, 0);
+            ctx.lineTo(xp, h);
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        document.getElementById('inferencia-info').innerHTML = 
+            `\(p = ${p.toFixed(2)}\) (verdadero, desconocido) | \(\\hat{p} = \\bar{X}_n\)<br>
+            Media de \(\\hat{p}\) en 500 simulaciones: ${mediaEst.toFixed(4)}<br>
+            Sesgo: ${sesgo.toFixed(4)} | Teóricamente insesgado: \(\\mathbb{E}[\\hat{p}] = p\)`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 2: Estimadores
+    // ============================================================
+    function simularEstimadores() {
+        const dist = document.getElementById('dist-estimador').value;
+        const n = parseInt(document.getElementById('n-estimador').value);
+        document.getElementById('n-estimador-val').textContent = n;
+        
+        const nSim = 1000;
+        let medias = [], medianas = [];
+        let mediaPob = 0;
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let muestra = [];
+            for(let i=0; i<n; i++) {
+                let val;
+                if(dist === 'normal') {
+                    val = 10 + 2 * Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                    mediaPob = 10;
+                } else if(dist === 'exp') {
+                    val = -Math.log(Math.random()) / 0.1;
+                    mediaPob = 10;
+                } else {
+                    // Normal con 10% de outliers
+                    if(Math.random() < 0.9) {
+                        val = 10 + 2 * Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                    } else {
+                        val = 30 + 5 * Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                    }
+                    mediaPob = 10;
+                }
+                muestra.push(val);
+            }
+            muestra.sort((a,b)=>a-b);
+            const media = muestra.reduce((a,b)=>a+b,0)/n;
+            const mediana = n%2===0 ? (muestra[n/2-1]+muestra[n/2])/2 : muestra[Math.floor(n/2)];
+            medias.push(media);
+            medianas.push(mediana);
+        }
+        
+        const canvas = document.getElementById('estimadorCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const binsM = new Array(30).fill(0);
+            for(let m of medias) {
+                const idx = Math.min(29, Math.max(0, Math.floor((m-5)/15 * 30)));
+                binsM[idx]++;
+            }
+            const maxBin = Math.max(...binsM);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (binsM[i]/maxBin) * h * 0.4;
+                ctx.fillStyle = 'rgba(33,150,243,0.6)';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-2, barHeight);
+            }
+            
+            const binsMed = new Array(30).fill(0);
+            for(let med of medianas) {
+                const idx = Math.min(29, Math.max(0, Math.floor((med-5)/15 * 30)));
+                binsMed[idx]++;
+            }
+            for(let i=0; i<30; i++) {
+                const barHeight = (binsMed[i]/maxBin) * h * 0.4;
+                ctx.fillStyle = 'rgba(76,175,80,0.6)';
+                ctx.fillRect(i*binWidth + binWidth/2, h-barHeight, binWidth-2, barHeight);
+            }
+        }
+        
+        const varMedia = medias.reduce((a,b)=>a+Math.pow(b-mediaPob,2),0)/nSim;
+        const varMediana = medianas.reduce((a,b)=>a+Math.pow(b-mediaPob,2),0)/nSim;
+        
+        document.getElementById('estimador-info').innerHTML = 
+            `Media muestral (azul): varianza = ${varMedia.toFixed(4)}<br>
+            Mediana muestral (verde): varianza = ${varMediana.toFixed(4)}<br>
+            ${dist === 'normal-outlier' ? '⚠ Con outliers, la mediana es más estable (robusta)' : 'En distribuciones normales, la media es más eficiente'}`;
+    }
+    
+    // ============================================================
+    // MODULO 3: LGN
+    // ============================================================
+    let lgnTrayectoria = [];
+    let lgnN = [];
+    
+    function simularLGN() {
+        const dist = document.getElementById('dist-lgn').value;
+        const nMax = parseInt(document.getElementById('n-lgn').value);
+        document.getElementById('n-lgn-val').textContent = nMax;
+        
+        let suma = 0;
+        let promedios = [];
+        let nVals = [];
+        let mediaPob = 0;
+        
+        for(let i=1; i<=nMax; i++) {
+            let val;
+            if(dist === 'bernoulli') {
+                val = Math.random() < 0.3 ? 1 : 0;
+                mediaPob = 0.3;
+            } else if(dist === 'normal') {
+                val = 5 + 2 * Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                mediaPob = 5;
+            } else {
+                val = -Math.log(Math.random()) / 0.5;
+                mediaPob = 2;
+            }
+            suma += val;
+            promedios.push(suma/i);
+            nVals.push(i);
+        }
+        
+        const canvas = document.getElementById('lgnCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            ctx.beginPath();
+            for(let i=0; i<promedios.length; i++) {
+                const x = (nVals[i]/nMax) * w;
+                const y = h - (promedios[i] / (mediaPob*2)) * h * 0.8;
+                if(i===0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.strokeStyle = '#1976d2';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(0, h - (mediaPob/(mediaPob*2)) * h * 0.8);
+            ctx.lineTo(w, h - (mediaPob/(mediaPob*2)) * h * 0.8);
+            ctx.strokeStyle = '#f44336';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+        
+        document.getElementById('lgn-info').innerHTML = 
+            `\(\\bar{X}_n \\xrightarrow{\\mathbb{P}} \\mu = ${mediaPob}\) (Ley Débil)<br>
+            Media final: ${promedios[promedios.length-1].toFixed(4)} | Converge a ${mediaPob}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // MODULO 4: Robustez
+    // ============================================================
+    function simularRobustez() {
+        const dist = document.getElementById('dist-robustez').value;
+        const outlier = parseFloat(document.getElementById('outlier-val').value);
+        document.getElementById('outlier-val-val').textContent = outlier;
+        
+        const nSim = 500;
+        let medias = [], medianas = [];
+        let mediaPob = 0;
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let muestra = [];
+            for(let i=0; i<49; i++) {
+                let val;
+                if(dist === 'normal') {
+                    val = 10 + 2 * Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                    mediaPob = 10;
+                } else {
+                    val = -Math.log(Math.random()) / 0.1;
+                    mediaPob = 10;
+                }
+                muestra.push(val);
+            }
+            muestra.push(outlier);
+            muestra.sort((a,b)=>a-b);
+            const media = muestra.reduce((a,b)=>a+b,0)/50;
+            const mediana = (muestra[24]+muestra[25])/2;
+            medias.push(media);
+            medianas.push(mediana);
+        }
+        
+        const canvas = document.getElementById('robustezCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const binsM = new Array(30).fill(0);
+            for(let m of medias) {
+                const idx = Math.min(29, Math.max(0, Math.floor((m-5)/20 * 30)));
+                binsM[idx]++;
+            }
+            const maxBin = Math.max(...binsM);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (binsM[i]/maxBin) * h * 0.4;
+                ctx.fillStyle = 'rgba(33,150,243,0.6)';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-2, barHeight);
+            }
+            
+            const binsMed = new Array(30).fill(0);
+            for(let med of medianas) {
+                const idx = Math.min(29, Math.max(0, Math.floor((med-5)/20 * 30)));
+                binsMed[idx]++;
+            }
+            for(let i=0; i<30; i++) {
+                const barHeight = (binsMed[i]/maxBin) * h * 0.4;
+                ctx.fillStyle = 'rgba(76,175,80,0.6)';
+                ctx.fillRect(i*binWidth + binWidth/2, h-barHeight, binWidth-2, barHeight);
+            }
+        }
+        
+        const mediaMedia = medias.reduce((a,b)=>a+b,0)/nSim;
+        const mediaMediana = medianas.reduce((a,b)=>a+b,0)/nSim;
+        
+        document.getElementById('robustez-info').innerHTML = 
+            `Con un outlier de valor ${outlier} en una muestra de tamaño 50:<br>
+            Media muestral promedio: ${mediaMedia.toFixed(2)} (sensible al outlier)<br>
+            Mediana muestral promedio: ${mediaMediana.toFixed(2)} (robusta)<br>
+            Valor poblacional: ${mediaPob}`;
+    }
+    
+    // ============================================================
+    // MODULO 5: Comparación de grupos
+    // ============================================================
+    function simularComparacion() {
+        const mu1 = parseFloat(document.getElementById('mu1-comp').value);
+        const mu2 = parseFloat(document.getElementById('mu2-comp').value);
+        const sigma = parseFloat(document.getElementById('sigma-comp').value);
+        const n = parseInt(document.getElementById('n-comp').value);
+        
+        document.getElementById('mu1-comp-val').textContent = mu1.toFixed(1);
+        document.getElementById('mu2-comp-val').textContent = mu2.toFixed(1);
+        document.getElementById('sigma-comp-val').textContent = sigma.toFixed(1);
+        document.getElementById('n-comp-val').textContent = n;
+        
+        const nSim = 500;
+        let difs = [];
+        
+        for(let sim=0; sim<nSim; sim++) {
+            let suma1=0, suma2=0;
+            for(let i=0; i<n; i++) {
+                suma1 += mu1 + sigma * Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+                suma2 += mu2 + sigma * Math.sqrt(-2*Math.log(Math.random())) * Math.cos(2*Math.PI*Math.random());
+            }
+            difs.push(suma1/n - suma2/n);
+        }
+        
+        const difMedia = difs.reduce((a,b)=>a+b,0)/nSim;
+        const difStd = Math.sqrt(difs.reduce((a,b)=>a+Math.pow(b-difMedia,2),0)/nSim);
+        
+        const canvas = document.getElementById('compCanvas');
+        if(canvas) {
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width, h = canvas.height;
+            ctx.clearRect(0, 0, w, h);
+            const isDark = document.body.classList.contains('dark-theme');
+            ctx.fillStyle = isDark ? '#2d2d2d' : '#f5f5f5';
+            ctx.fillRect(0, 0, w, h);
+            
+            const bins = new Array(30).fill(0);
+            for(let d of difs) {
+                const idx = Math.min(29, Math.max(0, Math.floor((d+3)/6 * 30)));
+                bins[idx]++;
+            }
+            const maxBin = Math.max(...bins);
+            const binWidth = w/30;
+            for(let i=0; i<30; i++) {
+                const barHeight = (bins[i]/maxBin) * h * 0.8;
+                ctx.fillStyle = '#4caf50';
+                ctx.fillRect(i*binWidth, h-barHeight, binWidth-1, barHeight);
+            }
+        }
+        
+        document.getElementById('comp-info').innerHTML = 
+            `\(H_0: \\mu_1 = \\mu_2 = ${mu2.toFixed(1)}\) vs \(H_1: \\mu_1 > \\mu_2\)<br>
+            Diferencia observada \(\\bar{X}_1 - \\bar{X}_2 = ${difMedia.toFixed(3)}\)<br>
+            Desviación estándar de la diferencia: ${difStd.toFixed(3)}<br>
+            ${difMedia > 2*difStd ? '✓ La diferencia es estadísticamente significativa' : '✗ No se rechaza H₀'}`;
+        if(window.MathJax) MathJax.typesetPromise();
+    }
+    
+    // ============================================================
+    // INICIALIZACIÓN
+    // ============================================================
+    window.inicializarModuloActual = function() {
+        document.getElementById('simular-inferencia')?.addEventListener('click', simularInferencia);
+        document.getElementById('p-verdadero')?.addEventListener('input', simularInferencia);
+        document.getElementById('n-inferencia')?.addEventListener('input', simularInferencia);
+        simularInferencia();
+        
+        document.getElementById('simular-estimadores')?.addEventListener('click', simularEstimadores);
+        document.getElementById('n-estimador')?.addEventListener('input', simularEstimadores);
+        document.getElementById('dist-estimador')?.addEventListener('change', simularEstimadores);
+        simularEstimadores();
+        
+        document.getElementById('simular-lgn')?.addEventListener('click', simularLGN);
+        document.getElementById('n-lgn')?.addEventListener('input', simularLGN);
+        document.getElementById('dist-lgn')?.addEventListener('change', simularLGN);
+        simularLGN();
+        
+        document.getElementById('simular-robustez')?.addEventListener('click', simularRobustez);
+        document.getElementById('outlier-val')?.addEventListener('input', simularRobustez);
+        document.getElementById('dist-robustez')?.addEventListener('change', simularRobustez);
+        simularRobustez();
+        
+        document.getElementById('simular-comp')?.addEventListener('click', simularComparacion);
+        document.getElementById('mu1-comp')?.addEventListener('input', simularComparacion);
+        document.getElementById('mu2-comp')?.addEventListener('input', simularComparacion);
+        document.getElementById('sigma-comp')?.addEventListener('input', simularComparacion);
+        document.getElementById('n-comp')?.addEventListener('input', simularComparacion);
+        simularComparacion();
+        
+        if(window.MathJax) {
+            MathJax.texReset();
+            MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+        }
+    };
+    
+    if(document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => window.inicializarModuloActual(), 50);
+        });
+    } else {
+        setTimeout(() => window.inicializarModuloActual(), 50);
+    }
+</script>
+</body>
+</html>
