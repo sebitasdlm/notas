@@ -1,1 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ejemplo: WebR en acción</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 2rem auto; padding: 1rem; }
+        .r-code { background: #f4f4f4; padding: 1rem; border-radius: 8px; font-family: monospace; }
+        button { background: #1976d2; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; margin: 0.5rem 0; }
+        button:hover { opacity: 0.9; }
+        pre { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+        .output { margin-top: 1rem; }
+        hr { margin: 2rem 0; }
+    </style>
+</head>
+<body>
+    <h1>📊 Ejemplo: WebR - R en el navegador</h1>
+    <p>Este código R se ejecuta <strong>directamente en tu navegador</strong> usando WebR.</p>
 
+    <div class="r-code">
+        <strong>Código R:</strong>
+        <pre># Simular la Ley de Grandes Números
+set.seed(123)
+medias <- sapply(1:500, function(n) mean(rnorm(n, mean=10, sd=2)))
+plot(1:500, medias, type="l", xlab="n", ylab="Media muestral", main="Convergencia a μ=10")
+abline(h=10, col="red", lwd=2)
+
+# Calcular algunas estadísticas
+x <- rnorm(1000, mean=50, sd=10)
+cat("Media:", mean(x), "\n")
+cat("Desviación estándar:", sd(x), "\n")
+cat("Percentil 95%:", quantile(x, 0.95), "\n")</pre>
+    </div>
+
+    <button id="run-webr">▶ Ejecutar R con WebR</button>
+
+    <div class="output">
+        <strong>Resultado:</strong>
+        <pre id="webr-output">(Haz clic en ejecutar. La primera vez puede tomar unos segundos mientras carga WebR)</pre>
+    </div>
+
+    <hr>
+
+    <p><strong>Nota:</strong> WebR (~30MB) se descarga la primera vez. Puede tardar 5-15 segundos según tu conexión.</p>
+
+    <script type="module">
+        // Cargar WebR dinámicamente
+        const outputElem = document.getElementById('webr-output');
+        let webRInstance = null;
+
+        async function loadWebR() {
+            outputElem.textContent = "Cargando WebR... (esto toma unos segundos)";
+            try {
+                // Cargar el módulo WebR desde CDN
+                const { WebR } = await import('https://webr.r-wasm.org/latest/webr.mjs');
+                const webR = new WebR();
+                await webR.init();
+                outputElem.textContent = "✅ WebR listo. Haz clic en 'Ejecutar' nuevamente.";
+                return webR;
+            } catch (err) {
+                outputElem.textContent = "❌ Error cargando WebR: " + err.message;
+                return null;
+            }
+        }
+
+        document.getElementById('run-webr').addEventListener('click', async () => {
+            if (!webRInstance) {
+                webRInstance = await loadWebR();
+                if (!webRInstance) return;
+            }
+            
+            outputElem.textContent = "Ejecutando código R...";
+            
+            // Código a ejecutar
+            const codigo = `
+                # Simular Ley de Grandes Números
+                set.seed(123)
+                medias <- sapply(1:500, function(n) mean(rnorm(n, mean=10, sd=2)))
+                
+                # Gráfico (nota: WebR no muestra gráficos automáticamente, solo datos)
+                # Mostrar resultados en texto
+                x <- rnorm(1000, mean=50, sd=10)
+                cat("Media muestral:", mean(x), "\\n")
+                cat("Desviación estándar:", sd(x), "\\n")
+                cat("Percentil 95%:", quantile(x, 0.95), "\\n")
+                cat("Media final de la simulación LGN:", tail(medias, 1), "\\n")
+            `;
+            
+            try {
+                const result = await webRInstance.evalR(codigo);
+                const output = await result.toJs();
+                outputElem.textContent = output;
+            } catch (err) {
+                outputElem.textContent = "❌ Error en la ejecución: " + err.message;
+            }
+        });
+    </script>
+</body>
+</html>
