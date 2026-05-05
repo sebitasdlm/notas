@@ -1045,22 +1045,90 @@
     }
     
     window.inicializarModuloActual = function() {
-        // === MÓDULO 1 (si existe) ===
-        const btnEjemplo = document.getElementById('btn-ejemplo');
-        if (btnEjemplo) btnEjemplo.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // === MÓDULO 2 (si existe) ===
-        const btnOtro = document.getElementById('btn-otro');
-        if (btnOtro) btnOtro.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // ... continuar con todos los botones del capítulo
-
-        console.log("Capítulo inicializado");
-    };
+    console.log("Capítulo 5 - Estimadores Puntuales inicializado");
+    
+    // Módulo 1: ECM
+    const btnECM = document.getElementById('simular-ecm');
+    if (btnECM) btnECM.addEventListener('click', simularECM);
+    
+    // Módulo 2: Método de Momentos
+    const btnMom = document.getElementById('simular-mom');
+    if (btnMom) btnMom.addEventListener('click', simularMomentos);
+    
+    // Módulo 3: EMV
+    const btnEMV = document.getElementById('simular-emv');
+    if (btnEMV) btnEMV.addEventListener('click', () => {
+        actualizarParamEMV();
+        simularEMV();
+    });
+    
+    // Módulo 4: Fisher y Cramér-Rao
+    const btnFisher = document.getElementById('calcular-fisher');
+    if (btnFisher) btnFisher.addEventListener('click', calcularFisher);
+    
+    // Módulo 5: Normalidad asintótica
+    const btnAsint = document.getElementById('simular-asint');
+    if (btnAsint) btnAsint.addEventListener('click', simularAsintotica);
+    
+    // Módulo 6: Invarianza
+    const btnInvar = document.getElementById('simular-invar');
+    if (btnInvar) btnInvar.addEventListener('click', simularInvarianza);
+    
+    // Configurar inputs con eventos
+    const nECM = document.getElementById('n-ecm');
+    if (nECM) nECM.addEventListener('input', simularECM);
+    
+    const distECM = document.getElementById('dist-ecm');
+    if (distECM) distECM.addEventListener('change', simularECM);
+    
+    const alphaMom = document.getElementById('alpha-mom');
+    if (alphaMom) alphaMom.addEventListener('input', simularMomentos);
+    
+    const betaMom = document.getElementById('beta-mom');
+    if (betaMom) betaMom.addEventListener('input', simularMomentos);
+    
+    const nMOM = document.getElementById('n-mom');
+    if (nMOM) nMOM.addEventListener('input', simularMomentos);
+    
+    const distEMV = document.getElementById('dist-emv');
+    if (distEMV) distEMV.addEventListener('change', () => {
+        actualizarParamEMV();
+        simularEMV();
+    });
+    
+    const nEMV = document.getElementById('n-emv');
+    if (nEMV) nEMV.addEventListener('input', simularEMV);
+    
+    const distFisher = document.getElementById('dist-fisher');
+    if (distFisher) distFisher.addEventListener('change', () => {
+        const cont = document.getElementById('param-fisher');
+        if (distFisher.value === 'exp') cont.innerHTML = '<label>λ:</label><input type="range" id="lambda-fisher" min="0.5" max="3" step="0.1" value="1"><span id="lambda-fisher-val">1.0</span>';
+        else if (distFisher.value === 'poisson') cont.innerHTML = '<label>λ:</label><input type="range" id="lambdaP-fisher" min="0.5" max="5" step="0.5" value="3"><span id="lambdaP-fisher-val">3.0</span>';
+        else cont.innerHTML = '<label>σ:</label><input type="range" id="sigma-fisher" min="0.5" max="3" step="0.1" value="1"><span id="sigma-fisher-val">1.0</span>';
+        calcularFisher();
+    });
+    
+    const nFisher = document.getElementById('n-fisher');
+    if (nFisher) nFisher.addEventListener('input', calcularFisher);
+    
+    const nAsint = document.getElementById('n-asint');
+    if (nAsint) nAsint.addEventListener('input', simularAsintotica);
+    
+    const distAsint = document.getElementById('dist-asint');
+    if (distAsint) distAsint.addEventListener('change', simularAsintotica);
+    
+    const pInvar = document.getElementById('p-invar');
+    if (pInvar) pInvar.addEventListener('input', simularInvarianza);
+    
+    const nInvar = document.getElementById('n-invar');
+    if (nInvar) nInvar.addEventListener('input', simularInvarianza);
+    
+    if (window.MathJax) {
+        MathJax.texReset();
+        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+    }
+};
+    
 </script>
 
 </body>
