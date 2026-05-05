@@ -570,6 +570,11 @@
         } else {
             cont.innerHTML = '<label>α:</label><input type="range" id="alpha-dens" min="0.5" max="5" step="0.5" value="2"><span id="alpha-dens-val">2.0</span><label>β:</label><input type="range" id="beta-dens" min="0.5" max="3" step="0.1" value="1"><span id="beta-dens-val">1.0</span>';
         }
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     function graficarDensidad() {
@@ -648,6 +653,11 @@
                 \(\\mathbb{E}[X]=${(alpha*beta).toFixed(2)}\), \(\\operatorname{var}(X)=${(alpha*beta*beta).toFixed(2)}\)`;
         }
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -720,6 +730,11 @@
             Media muestral de X+Y: ${media.toFixed(4)} | Media teórica: ${mediaTeor.toFixed(4)}<br>
             La curva roja es la densidad de \(\\text{Gamma}(${alphasum.toFixed(1)}, ${beta.toFixed(1)})\)`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -800,6 +815,11 @@
             Normal(0,1) (naranja) para comparación<br>
             \(\\mathbb{E}[T]=0\), \(\\operatorname{var}(T)=${varTeor}`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -873,6 +893,11 @@
             Simulación (verde) vs densidad teórica (roja)<br>
             \(\\mathbb{E}[F] = ${mediaTeor} (para n₂>2)`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -938,6 +963,11 @@
             Teóricamente son independientes (correlación 0).<br>
             La nube de puntos no debe mostrar ninguna tendencia.`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -1011,6 +1041,11 @@
             Media muestral de \(S_1^2/S_2^2\): ${ratioMedio.toFixed(4)}<br>
             Teóricamente: \(S_1^2/S_2^2 \\sim (\\sigma_1^2/\\sigma_2^2) F_{${n1-1},${n2-1}}\)`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
