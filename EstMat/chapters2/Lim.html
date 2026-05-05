@@ -875,22 +875,72 @@
     }
 
     window.inicializarModuloActual = function() {
-        // === MÓDULO 1 (si existe) ===
-        const btnEjemplo = document.getElementById('btn-ejemplo');
-        if (btnEjemplo) btnEjemplo.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // === MÓDULO 2 (si existe) ===
-        const btnOtro = document.getElementById('btn-otro');
-        if (btnOtro) btnOtro.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // ... continuar con todos los botones del capítulo
-
-        console.log("Capítulo inicializado");
-    };
+    console.log("Capítulo 4 - Resultados Límite inicializado");
+    
+    // Módulo 1: Convergencia
+    const btnConv = document.getElementById('simular-convergencia');
+    if (btnConv) btnConv.addEventListener('click', simularConvergencia);
+    
+    // Módulo 2: Slutsky
+    const btnSlutsky = document.getElementById('simular-slutsky');
+    if (btnSlutsky) btnSlutsky.addEventListener('click', simularSlutsky);
+    
+    // Módulo 3: LGN
+    const btnLGN = document.getElementById('simular-lgn');
+    if (btnLGN) btnLGN.addEventListener('click', simularLGN);
+    
+    // Módulo 4: TCL
+    const btnTCL = document.getElementById('simular-tcl');
+    if (btnTCL) btnTCL.addEventListener('click', simularTCL);
+    
+    // Módulo 5: Encuestas
+    const btnEncuesta = document.getElementById('simular-encuesta') || 
+                         document.getElementById('p-encuesta');
+    // Los eventos ya están en los inputs
+    
+    // Configurar inputs con eventos
+    const distConv = document.getElementById('dist-convergencia');
+    if (distConv) distConv.addEventListener('change', simularConvergencia);
+    
+    const nConv = document.getElementById('n-convergencia');
+    if (nConv) nConv.addEventListener('input', simularConvergencia);
+    
+    const distSlutsky = document.getElementById('dist-slutsky');
+    if (distSlutsky) distSlutsky.addEventListener('change', simularSlutsky);
+    
+    const cSlutsky = document.getElementById('c-slutsky');
+    if (cSlutsky) cSlutsky.addEventListener('input', simularSlutsky);
+    
+    const nSlutsky = document.getElementById('n-slutsky');
+    if (nSlutsky) nSlutsky.addEventListener('input', simularSlutsky);
+    
+    const pLGN = document.getElementById('p-lgn');
+    if (pLGN) pLGN.addEventListener('input', simularLGN);
+    
+    const nLGN = document.getElementById('n-lgn');
+    if (nLGN) nLGN.addEventListener('input', simularLGN);
+    
+    const distTCL = document.getElementById('dist-tcl');
+    if (distTCL) distTCL.addEventListener('change', simularTCL);
+    
+    const nTCL = document.getElementById('n-tcl');
+    if (nTCL) nTCL.addEventListener('input', simularTCL);
+    
+    const pEncuesta = document.getElementById('p-encuesta');
+    if (pEncuesta) pEncuesta.addEventListener('input', calcularEncuesta);
+    
+    const errorEncuesta = document.getElementById('error-encuesta');
+    if (errorEncuesta) errorEncuesta.addEventListener('input', calcularEncuesta);
+    
+    const confianzaEncuesta = document.getElementById('confianza-encuesta');
+    if (confianzaEncuesta) confianzaEncuesta.addEventListener('change', calcularEncuesta);
+    
+    if (window.MathJax) {
+        MathJax.texReset();
+        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+    }
+};
+    
 </script>
 </body>
 </html>
