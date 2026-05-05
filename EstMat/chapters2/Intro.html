@@ -550,6 +550,11 @@
             Media de \(\\hat{p}\) en 500 simulaciones: ${mediaEst.toFixed(4)}<br>
             Sesgo: ${sesgo.toFixed(4)} | Teóricamente insesgado: \(\\mathbb{E}[\\hat{p}] = p\)`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
@@ -633,6 +638,11 @@
             `Media muestral (azul): varianza = ${varMedia.toFixed(4)}<br>
             Mediana muestral (verde): varianza = ${varMediana.toFixed(4)}<br>
             ${dist === 'normal-outlier' ? '⚠ Con outliers, la mediana es más estable (robusta)' : 'En distribuciones normales, la media es más eficiente'}`;
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
@@ -700,6 +710,12 @@
             `\(\\bar{X}_n \\xrightarrow{\\mathbb{P}} \\mu = ${mediaPob}\) (Ley Débil)<br>
             Media final: ${promedios[promedios.length-1].toFixed(4)} | Converge a ${mediaPob}`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
+        
     }
     
     // ============================================================
@@ -777,6 +793,11 @@
             Media muestral promedio: ${mediaMedia.toFixed(2)} (sensible al outlier)<br>
             Mediana muestral promedio: ${mediaMediana.toFixed(2)} (robusta)<br>
             Valor poblacional: ${mediaPob}`;
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
@@ -837,6 +858,11 @@
             Desviación estándar de la diferencia: ${difStd.toFixed(3)}<br>
             ${difMedia > 2*difStd ? '✓ La diferencia es estadísticamente significativa' : '✗ No se rechaza H₀'}`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
