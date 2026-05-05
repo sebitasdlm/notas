@@ -885,22 +885,70 @@
     }
 
     window.inicializarModuloActual = function() {
-        // === MÓDULO 1 (si existe) ===
-        const btnEjemplo = document.getElementById('btn-ejemplo');
-        if (btnEjemplo) btnEjemplo.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // === MÓDULO 2 (si existe) ===
-        const btnOtro = document.getElementById('btn-otro');
-        if (btnOtro) btnOtro.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // ... continuar con todos los botones del capítulo
-
-        console.log("Capítulo inicializado");
-    };
+    console.log("Capítulo 1 - Introducción a la Estadística Matemática inicializado");
+    
+    // Módulo 1: Inferencia
+    const btnInferencia = document.getElementById('simular-inferencia');
+    if (btnInferencia) btnInferencia.addEventListener('click', simularInferencia);
+    
+    // Módulo 2: Estimadores
+    const btnEstimadores = document.getElementById('simular-estimadores');
+    if (btnEstimadores) btnEstimadores.addEventListener('click', simularEstimadores);
+    
+    // Módulo 3: LGN
+    const btnLGN = document.getElementById('simular-lgn');
+    if (btnLGN) btnLGN.addEventListener('click', simularLGN);
+    
+    // Módulo 4: Robustez
+    const btnRobustez = document.getElementById('simular-robustez');
+    if (btnRobustez) btnRobustez.addEventListener('click', simularRobustez);
+    
+    // Módulo 5: Comparación de grupos
+    const btnComp = document.getElementById('simular-comp');
+    if (btnComp) btnComp.addEventListener('click', simularComparacion);
+    
+    // Configurar inputs con eventos
+    const pVerdadero = document.getElementById('p-verdadero');
+    if (pVerdadero) pVerdadero.addEventListener('input', simularInferencia);
+    
+    const nInferencia = document.getElementById('n-inferencia');
+    if (nInferencia) nInferencia.addEventListener('input', simularInferencia);
+    
+    const distEstimador = document.getElementById('dist-estimador');
+    if (distEstimador) distEstimador.addEventListener('change', simularEstimadores);
+    
+    const nEstimador = document.getElementById('n-estimador');
+    if (nEstimador) nEstimador.addEventListener('input', simularEstimadores);
+    
+    const distLGN = document.getElementById('dist-lgn');
+    if (distLGN) distLGN.addEventListener('change', simularLGN);
+    
+    const nLGN = document.getElementById('n-lgn');
+    if (nLGN) nLGN.addEventListener('input', simularLGN);
+    
+    const distRobustez = document.getElementById('dist-robustez');
+    if (distRobustez) distRobustez.addEventListener('change', simularRobustez);
+    
+    const outlierVal = document.getElementById('outlier-val');
+    if (outlierVal) outlierVal.addEventListener('input', simularRobustez);
+    
+    const mu1Comp = document.getElementById('mu1-comp');
+    if (mu1Comp) mu1Comp.addEventListener('input', simularComparacion);
+    
+    const mu2Comp = document.getElementById('mu2-comp');
+    if (mu2Comp) mu2Comp.addEventListener('input', simularComparacion);
+    
+    const sigmaComp = document.getElementById('sigma-comp');
+    if (sigmaComp) sigmaComp.addEventListener('input', simularComparacion);
+    
+    const nComp = document.getElementById('n-comp');
+    if (nComp) nComp.addEventListener('input', simularComparacion);
+    
+    if (window.MathJax) {
+        MathJax.texReset();
+        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+    }
+};
 </script>
 </body>
 </html>
