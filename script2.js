@@ -149,11 +149,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 const sections = chapter ? Array.from(doc.querySelectorAll("h2, h3")) : [];
                 buildSidebar(chapter, sections);
 
-                // Inicializar los botones después de cargar el contenido
+                // ============================================
+                // CORRECCIÓN 1: Verificar que la función existe
+                // ============================================
                 setTimeout(() => {
-                    inicializarModuloActual();
+                    if (typeof inicializarModuloActual === 'function') {
+                        inicializarModuloActual();
+                    } else {
+                        console.log("Este capítulo no tiene simuladores interactivos (inicializarModuloActual no definida)");
+                    }
                 }, 100);
 
+                // ============================================
+                // CORRECCIÓN 2: Forzar reprocesamiento de MathJax
+                // ============================================
                 if (window.MathJax) {
                     MathJax.texReset();
                     MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
