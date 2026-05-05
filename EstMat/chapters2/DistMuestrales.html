@@ -1071,22 +1071,86 @@
     }
 
     window.inicializarModuloActual = function() {
-        // === MÓDULO 1 (si existe) ===
-        const btnEjemplo = document.getElementById('btn-ejemplo');
-        if (btnEjemplo) btnEjemplo.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // === MÓDULO 2 (si existe) ===
-        const btnOtro = document.getElementById('btn-otro');
-        if (btnOtro) btnOtro.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // ... continuar con todos los botones del capítulo
-
-        console.log("Capítulo inicializado");
-    };
+    console.log("Capítulo 3 - Distribuciones Muestrales inicializado");
+    
+    // Módulo 1: Densidades
+    const btnDensidad = document.getElementById('graficar-densidad');
+    if (btnDensidad) btnDensidad.addEventListener('click', () => {
+        actualizarParamDensidad();
+        graficarDensidad();
+    });
+    
+    // Módulo 2: Suma de Gammas
+    const btnSumaGamma = document.getElementById('simular-suma-gamma');
+    if (btnSumaGamma) btnSumaGamma.addEventListener('click', simularSumaGamma);
+    
+    // Módulo 3: t-Student
+    const btnT = document.getElementById('simular-t');
+    if (btnT) btnT.addEventListener('click', simularT);
+    
+    // Módulo 4: F
+    const btnF = document.getElementById('simular-f');
+    if (btnF) btnF.addEventListener('click', simularF);
+    
+    // Módulo 5: Independencia
+    const btnIndep = document.getElementById('simular-indep');
+    if (btnIndep) btnIndep.addEventListener('click', simularIndependencia);
+    
+    // Módulo 6: Comparación de varianzas
+    const btnVarianza = document.getElementById('simular-varianza');
+    if (btnVarianza) btnVarianza.addEventListener('click', simularVarianza);
+    
+    // Configurar inputs con eventos
+    const distDensidad = document.getElementById('dist-densidad');
+    if (distDensidad) distDensidad.addEventListener('change', () => {
+        actualizarParamDensidad();
+        graficarDensidad();
+    });
+    
+    const alpha1 = document.getElementById('alpha1');
+    if (alpha1) alpha1.addEventListener('input', simularSumaGamma);
+    
+    const alpha2 = document.getElementById('alpha2');
+    if (alpha2) alpha2.addEventListener('input', simularSumaGamma);
+    
+    const betaGamma = document.getElementById('beta-gamma');
+    if (betaGamma) betaGamma.addEventListener('input', simularSumaGamma);
+    
+    const glT = document.getElementById('gl-t');
+    if (glT) glT.addEventListener('input', simularT);
+    
+    const n1F = document.getElementById('n1-f');
+    if (n1F) n1F.addEventListener('input', simularF);
+    
+    const n2F = document.getElementById('n2-f');
+    if (n2F) n2F.addEventListener('input', simularF);
+    
+    const muNorm = document.getElementById('mu-norm');
+    if (muNorm) muNorm.addEventListener('input', simularIndependencia);
+    
+    const sigmaNorm = document.getElementById('sigma-norm');
+    if (sigmaNorm) sigmaNorm.addEventListener('input', simularIndependencia);
+    
+    const nIndep = document.getElementById('n-indep');
+    if (nIndep) nIndep.addEventListener('input', simularIndependencia);
+    
+    const sigma1Comp = document.getElementById('sigma1-comp');
+    if (sigma1Comp) sigma1Comp.addEventListener('input', simularVarianza);
+    
+    const sigma2Comp = document.getElementById('sigma2-comp');
+    if (sigma2Comp) sigma2Comp.addEventListener('input', simularVarianza);
+    
+    const n1Comp = document.getElementById('n1-comp');
+    if (n1Comp) n1Comp.addEventListener('input', simularVarianza);
+    
+    const n2Comp = document.getElementById('n2-comp');
+    if (n2Comp) n2Comp.addEventListener('input', simularVarianza);
+    
+    if (window.MathJax) {
+        MathJax.texReset();
+        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+    }
+};
     
 </script>    
 </body>
