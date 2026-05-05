@@ -539,6 +539,11 @@
             const inv = (((((c[4]*r + c[3])*r + c[2])*r + c[1])*r + c[0]) / ((((d[3]*r + d[2])*r + d[1])*r + d[0])));
             return (p < 0.5) ? -inv : inv;
         }
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // Función para cuantiles t (aproximación)
@@ -555,6 +560,11 @@
         // Aproximación de Wilson-Hilferty
         const z = qnorm(p);
         return df * Math.pow(1 - 2/(9*df) + z * Math.sqrt(2/(9*df)), 3);
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -614,6 +624,11 @@
             `Cobertura observada: ${cubren}/${nSim} = ${(cubren/nSim*100).toFixed(1)}%<br>
             Ancho medio del intervalo: ${(anchos.reduce((a,b)=>a+b,0)/nSim).toFixed(4)}<br>
             Nivel de confianza nominal: ${conf*100}%`;
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -668,6 +683,11 @@
             `t-Student: cobertura = ${(cubrenT/nSim*100).toFixed(1)}%<br>
             Normal (reemplazando σ por S): cobertura = ${(cubrenZ/nSim*100).toFixed(1)}%<br>
             La t-Student da la cobertura nominal correcta para muestras pequeñas.`;
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -713,6 +733,11 @@
             `Cobertura para σ²: ${cubren}/${nSim} = ${(cubren/nSim*100).toFixed(1)}%<br>
             IC: [ (n-1)S²/χ²_{0.975}, (n-1)S²/χ²_{0.025} ]<br>
             El intervalo es asimétrico porque χ² no es simétrica.`;
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -775,6 +800,11 @@
             Cobertura del IC: ${(cubren/nSim*100).toFixed(1)}%<br>
             Intervalos que contienen 0: ${(contieneCero/nSim*100).toFixed(1)}%<br>
             Si el IC no contiene 0, rechazamos H₀: μ₁ = μ₂.`;
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -818,6 +848,11 @@
             `Cobertura para p = ${p}: ${(cubren/nSim*100).toFixed(1)}% (nominal: ${conf*100}%)<br>
             IC: \(\\hat{p} \\pm z_{1-\\alpha/2} \\sqrt{\\hat{p}(1-\\hat{p})/n}\)<br>
             ${n*p >= 5 && n*(1-p) >= 5 ? '✓ Condiciones de validez cumplidas' : '⚠ Advertencia: condiciones de validez no cumplidas'}`;
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -877,6 +912,11 @@
             `EMV de λ = ${lambda.toFixed(1)}: Cobertura = ${(cubren/nSim*100).toFixed(1)}%<br>
             IC asintótico: \(\\bar{X} \\pm z_{1-\\alpha/2} \\sqrt{\\bar{X}/n}\)<br>
             Válido para n suficientemente grande (aquí n=${n}).`;
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     function fact(n) { let r=1; for(let i=2;i<=n;i++) r*=i; return r; }
