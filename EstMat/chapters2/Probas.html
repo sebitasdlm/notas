@@ -605,6 +605,11 @@
             A ∩ B = {${listaAB.join(', ')}} (P=${casosAB/6})<br>
             \(\\mathbb{P}(A|B) = \\frac{\\mathbb{P}(A \\cap B)}{\\mathbb{P}(B)} = \\frac{${casosAB/6}}{${casosB/6}} = ${pAgB.toFixed(4)}\)`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
@@ -637,6 +642,11 @@
             \(\\mathbb{E}[X] = ${mu.toFixed(4)}\), \(\\operatorname{var}(X) = ${sigma2.toFixed(4)}\)<br>
             Coef. asimetría: ${skew.toFixed(4)} | Coef. curtosis: ${kurt.toFixed(4)}`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
@@ -687,6 +697,11 @@
             Cota de Chebyshev: \( \\le ${cota.toFixed(4)} \)<br>
             ${probReal <= cota ? '✓ Se cumple la desigualdad' : '⚠ Error'}`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
@@ -732,6 +747,11 @@
             Si |ρ| ≈ 1, los puntos se alinean en una recta.<br>
             Si ρ = 0, no hay correlación lineal (pero puede haber dependencia no lineal).`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
@@ -792,6 +812,11 @@
             \(\\operatorname{var}(\\sqrt{X})\) exacta = ${(exacto*exacto - exacto).toFixed(4)}<br>
             Método Delta: \((h'(\\mu))^2 \\sigma^2 = ${aproxVar.toFixed(4)}\)`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
@@ -860,6 +885,11 @@
             Media muestral: ${media.toFixed(4)} | Media teórica: ${mediaTeor.toFixed(4)}<br>
             La curva roja es la densidad Beta teórica.`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
