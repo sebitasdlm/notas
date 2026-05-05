@@ -546,9 +546,9 @@
         }
         
         document.getElementById('inferencia-info').innerHTML = 
-            `\(p = ${p.toFixed(2)}\) (verdadero, desconocido) | \(\\hat{p} = \\bar{X}_n\)<br>
-            Media de \(\\hat{p}\) en 500 simulaciones: ${mediaEst.toFixed(4)}<br>
-            Sesgo: ${sesgo.toFixed(4)} | Teóricamente insesgado: \(\\mathbb{E}[\\hat{p}] = p\)`;
+            `($$p = ${p.toFixed(2)}$$) (verdadero, desconocido) | $$ (\hat{p} = \bar{X}_n) $$<br>
+            Media de $$\hat{p}$$ en 500 simulaciones: ${mediaEst.toFixed(4)}<br>
+            Sesgo: ${sesgo.toFixed(4)} | Teóricamente insesgado: ($$ \mathbb{E}[\hat{p}] = p $$)`;
         if(window.MathJax) MathJax.typesetPromise();
 
         if (window.MathJax) {
@@ -637,7 +637,7 @@
         document.getElementById('estimador-info').innerHTML = 
             `Media muestral (azul): varianza = ${varMedia.toFixed(4)}<br>
             Mediana muestral (verde): varianza = ${varMediana.toFixed(4)}<br>
-            ${dist === 'normal-outlier' ? '⚠ Con outliers, la mediana es más estable (robusta)' : 'En distribuciones normales, la media es más eficiente'}`;
+            ${dist === 'normal-outlier' ? 'Con outliers, la mediana es más estable (robusta)' : 'En distribuciones normales, la media es más eficiente'}`;
 
         if (window.MathJax) {
     MathJax.texReset();
@@ -707,7 +707,7 @@
         }
         
         document.getElementById('lgn-info').innerHTML = 
-            `\(\\bar{X}_n \\xrightarrow{\\mathbb{P}} \\mu = ${mediaPob}\) (Ley Débil)<br>
+            `$$ (\bar{X}_n \xrightarrow{\mathbb{P}} \mu = ${mediaPob} $$) (Ley Débil)<br>
             Media final: ${promedios[promedios.length-1].toFixed(4)} | Converge a ${mediaPob}`;
         if(window.MathJax) MathJax.typesetPromise();
 
@@ -853,10 +853,10 @@
         }
         
         document.getElementById('comp-info').innerHTML = 
-            `\(H_0: \\mu_1 = \\mu_2 = ${mu2.toFixed(1)}\) vs \(H_1: \\mu_1 > \\mu_2\)<br>
-            Diferencia observada \(\\bar{X}_1 - \\bar{X}_2 = ${difMedia.toFixed(3)}\)<br>
+            `$$ (H_0: \mu_1 = \mu_2 = ${mu2.toFixed(1)} $$) vs $$(H_1: \mu_1 > \mu_2)$$<br>
+            Diferencia observada $$(\bar{X}_1 - \bar{X}_2 = ${difMedia.toFixed(3)})$$<br>
             Desviación estándar de la diferencia: ${difStd.toFixed(3)}<br>
-            ${difMedia > 2*difStd ? '✓ La diferencia es estadísticamente significativa' : '✗ No se rechaza H₀'}`;
+            ${difMedia > 2*difStd ? '✓ La diferencia es estadísticamente significativa' : '✗ No se rechaza $$H_0$$'}`;
         if(window.MathJax) MathJax.typesetPromise();
 
         if (window.MathJax) {
