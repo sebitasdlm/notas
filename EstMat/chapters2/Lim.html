@@ -584,6 +584,11 @@
             `\(\bar{X}_n\) final = ${ultimo.toFixed(4)} | \(\\mu = ${mediaPob}\)<br>
             \(\\bar{X}_n \\xrightarrow{P} \\mu\) (LGN) y \(\\bar{X}_n \\xrightarrow{c.s.} \\mu\) (LFGN)`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -641,6 +646,11 @@
             entonces \(X_n + Y_n \\xrightarrow{D} X + c\).<br>
             El histograma muestra la distribución de \(\\bar{X}_n + c\).`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -691,6 +701,11 @@
             `\(\\hat{p}_n = \\bar{X}_n\) converge a \(p = ${p.toFixed(2)}\)<br>
             Por LGN, \(\\hat{p}_n \\xrightarrow{P} p\) (Ley Débil) y \(\\hat{p}_n \\xrightarrow{c.s.} p\) (Ley Fuerte)`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -779,6 +794,11 @@
             \(Z_n = \\frac{\\bar{X}_n - \\mu}{\\sigma/\\sqrt{n}} \\xrightarrow{D} N(0,1)\)<br>
             Histograma de \(Z_n\) (verde) vs densidad N(0,1) (roja)`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
@@ -828,6 +848,11 @@
             Tamaño de muestra necesario: \(n = ${n}\)<br>
             Si no conoce \(p\), use \(p=0.5\) (peor caso): \(n = ${nPeorCaso}\)`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
 
     // ============================================================
