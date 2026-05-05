@@ -1069,6 +1069,25 @@
     } else {
         setTimeout(() => window.inicializarModuloActual(), 50);
     }
-</script>
+
+    window.inicializarModuloActual = function() {
+        // === MÓDULO 1 (si existe) ===
+        const btnEjemplo = document.getElementById('btn-ejemplo');
+        if (btnEjemplo) btnEjemplo.addEventListener('click', function() {
+            // código del simulador
+        });
+
+        // === MÓDULO 2 (si existe) ===
+        const btnOtro = document.getElementById('btn-otro');
+        if (btnOtro) btnOtro.addEventListener('click', function() {
+            // código del simulador
+        });
+
+        // ... continuar con todos los botones del capítulo
+
+        console.log("Capítulo inicializado");
+    };
+    
+</script>    
 </body>
 </html>
