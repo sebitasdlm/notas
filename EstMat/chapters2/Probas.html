@@ -909,22 +909,66 @@
     }
 
     window.inicializarModuloActual = function() {
-        // === MÓDULO 1 (si existe) ===
-        const btnEjemplo = document.getElementById('btn-ejemplo');
-        if (btnEjemplo) btnEjemplo.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // === MÓDULO 2 (si existe) ===
-        const btnOtro = document.getElementById('btn-otro');
-        if (btnOtro) btnOtro.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // ... continuar con todos los botones del capítulo
-
-        console.log("Capítulo inicializado");
-    };
+    console.log("Capítulo 2 - Elementos de Probabilidad inicializado");
+    
+    // Módulo 1: Probabilidad condicional
+    const btnCond = document.getElementById('verificar-condicional');
+    if (btnCond) btnCond.addEventListener('click', verificarCondicional);
+    
+    // Módulo 2: Momentos
+    const btnMomentos = document.getElementById('calcular-momentos');
+    if (btnMomentos) btnMomentos.addEventListener('click', calcularMomentos);
+    
+    // Módulo 3: Chebyshev
+    const btnCheby = document.getElementById('verificar-cheby');
+    if (btnCheby) btnCheby.addEventListener('click', verificarCheby);
+    
+    // Módulo 4: Correlación
+    const btnCorrelacion = document.getElementById('simular-correlacion');
+    if (btnCorrelacion) btnCorrelacion.addEventListener('click', simularCorrelacion);
+    
+    // Módulo 5: Método Delta
+    const btnDelta = document.getElementById('verificar-delta');
+    if (btnDelta) btnDelta.addEventListener('click', verificarDelta);
+    
+    // Módulo 6: Estadísticos de orden
+    const btnOrden = document.getElementById('simular-orden');
+    if (btnOrden) btnOrden.addEventListener('click', simularOrden);
+    
+    // Configurar inputs con eventos
+    const eventoA = document.getElementById('eventoA');
+    if (eventoA) eventoA.addEventListener('change', verificarCondicional);
+    
+    const eventoB = document.getElementById('eventoB');
+    if (eventoB) eventoB.addEventListener('change', verificarCondicional);
+    
+    const distMomentos = document.getElementById('dist-momentos');
+    if (distMomentos) distMomentos.addEventListener('change', calcularMomentos);
+    
+    const distCheby = document.getElementById('dist-cheby');
+    if (distCheby) distCheby.addEventListener('change', verificarCheby);
+    
+    const kCheby = document.getElementById('k-cheby');
+    if (kCheby) kCheby.addEventListener('input', verificarCheby);
+    
+    const rho = document.getElementById('rho');
+    if (rho) rho.addEventListener('input', simularCorrelacion);
+    
+    const distDelta = document.getElementById('dist-delta');
+    if (distDelta) distDelta.addEventListener('change', verificarDelta);
+    
+    const nOrden = document.getElementById('n-orden');
+    if (nOrden) nOrden.addEventListener('input', simularOrden);
+    
+    const rOrden = document.getElementById('r-orden');
+    if (rOrden) rOrden.addEventListener('input', simularOrden);
+    
+    if (window.MathJax) {
+        MathJax.texReset();
+        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+    }
+};
+    
 </script>
 </body>
 </html>
