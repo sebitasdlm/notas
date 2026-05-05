@@ -1509,22 +1509,145 @@
     }
     
     window.inicializarModuloActual = function() {
-        // === MÓDULO 1 (si existe) ===
-        const btnEjemplo = document.getElementById('btn-ejemplo');
-        if (btnEjemplo) btnEjemplo.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // === MÓDULO 2 (si existe) ===
-        const btnOtro = document.getElementById('btn-otro');
-        if (btnOtro) btnOtro.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // ... continuar con todos los botones del capítulo
-
-        console.log("Capítulo inicializado");
-    };
+    console.log("Capítulo 8 - Contraste de Hipótesis inicializado");
+    
+    // Módulo 1: Errores
+    const btnError = document.getElementById('calcular-error');
+    if (btnError) btnError.addEventListener('click', calcularErrores);
+    
+    // Módulo 2: Neyman-Pearson
+    const btnNP = document.getElementById('calcular-np');
+    if (btnNP) btnNP.addEventListener('click', simularNP);
+    
+    // Módulo 3: PUMP
+    const btnPUMP = document.getElementById('calcular-pump');
+    if (btnPUMP) btnPUMP.addEventListener('click', calcularPUMP);
+    
+    // Módulo 4: IC vs Prueba
+    const btnMuestra = document.getElementById('generar-muestra');
+    if (btnMuestra) btnMuestra.addEventListener('click', generarMuestraIC);
+    
+    // Módulo 5: CVG
+    const btnCVG = document.getElementById('simular-cvg');
+    if (btnCVG) btnCVG.addEventListener('click', simularCVG);
+    
+    // Módulo 6: Bondad de ajuste χ²
+    const btnBA = document.getElementById('simular-ba');
+    if (btnBA) btnBA.addEventListener('click', simularBondadAjuste);
+    
+    // Módulo 7: Q-Q Plots
+    const btnQQ = document.getElementById('generar-qq');
+    if (btnQQ) btnQQ.addEventListener('click', generarQQ);
+    
+    // Módulo 8: FDE
+    const btnFDE = document.getElementById('simular-fde');
+    if (btnFDE) btnFDE.addEventListener('click', simularFDE);
+    
+    // Módulo 9: KS
+    const btnKS = document.getElementById('simular-ks');
+    if (btnKS) btnKS.addEventListener('click', simularKS);
+    
+    // Módulo 10: Comparación de pruebas
+    const btnComp = document.getElementById('simular-comp');
+    if (btnComp) btnComp.addEventListener('click', simularComparacionPruebas);
+    
+    // Configurar inputs con eventos
+    const mu0 = document.getElementById('mu0');
+    if (mu0) mu0.addEventListener('input', calcularErrores);
+    
+    const mu1 = document.getElementById('mu1');
+    if (mu1) mu1.addEventListener('input', calcularErrores);
+    
+    const sigmaTest = document.getElementById('sigma-test');
+    if (sigmaTest) sigmaTest.addEventListener('input', calcularErrores);
+    
+    const nTest = document.getElementById('n-test');
+    if (nTest) nTest.addEventListener('input', calcularErrores);
+    
+    const cTest = document.getElementById('c-test');
+    if (cTest) cTest.addEventListener('input', calcularErrores);
+    
+    const p0 = document.getElementById('p0');
+    if (p0) p0.addEventListener('input', simularNP);
+    
+    const p1 = document.getElementById('p1');
+    if (p1) p1.addEventListener('input', simularNP);
+    
+    const nNP = document.getElementById('n-np');
+    if (nNP) nNP.addEventListener('input', simularNP);
+    
+    const cNP = document.getElementById('c-np');
+    if (cNP) cNP.addEventListener('input', simularNP);
+    
+    const mu0Pump = document.getElementById('mu0-pump');
+    if (mu0Pump) mu0Pump.addEventListener('input', calcularPUMP);
+    
+    const sigmaPump = document.getElementById('sigma-pump');
+    if (sigmaPump) sigmaPump.addEventListener('input', calcularPUMP);
+    
+    const nPump = document.getElementById('n-pump');
+    if (nPump) nPump.addEventListener('input', calcularPUMP);
+    
+    const alphaPump = document.getElementById('alpha-pump');
+    if (alphaPump) alphaPump.addEventListener('change', calcularPUMP);
+    
+    const mu0CVG = document.getElementById('mu0-cvg');
+    if (mu0CVG) mu0CVG.addEventListener('input', simularCVG);
+    
+    const muCVG = document.getElementById('mu-cvg');
+    if (muCVG) muCVG.addEventListener('input', simularCVG);
+    
+    const sigmaCVG = document.getElementById('sigma-cvg');
+    if (sigmaCVG) sigmaCVG.addEventListener('input', simularCVG);
+    
+    const nCVG = document.getElementById('n-cvg');
+    if (nCVG) nCVG.addEventListener('input', simularCVG);
+    
+    const lambdaBA = document.getElementById('lambda-ba');
+    if (lambdaBA) lambdaBA.addEventListener('input', simularBondadAjuste);
+    
+    const nBA = document.getElementById('n-ba');
+    if (nBA) nBA.addEventListener('input', simularBondadAjuste);
+    
+    const distQQ = document.getElementById('dist-qq');
+    if (distQQ) distQQ.addEventListener('change', generarQQ);
+    
+    const distTeorica = document.getElementById('dist-teorica');
+    if (distTeorica) distTeorica.addEventListener('change', generarQQ);
+    
+    const nQQ = document.getElementById('n-qq');
+    if (nQQ) nQQ.addEventListener('input', generarQQ);
+    
+    const distFDE = document.getElementById('dist-fde');
+    if (distFDE) distFDE.addEventListener('change', simularFDE);
+    
+    const nFDE = document.getElementById('n-fde');
+    if (nFDE) nFDE.addEventListener('input', simularFDE);
+    
+    const distKS = document.getElementById('dist-ks');
+    if (distKS) distKS.addEventListener('change', simularKS);
+    
+    const h0KS = document.getElementById('h0-ks');
+    if (h0KS) h0KS.addEventListener('change', simularKS);
+    
+    const nKS = document.getElementById('n-ks');
+    if (nKS) nKS.addEventListener('input', simularKS);
+    
+    const distComp = document.getElementById('dist-comp');
+    if (distComp) distComp.addEventListener('change', simularComparacionPruebas);
+    
+    const h0Comp = document.getElementById('h0-comp');
+    if (h0Comp) h0Comp.addEventListener('change', simularComparacionPruebas);
+    
+    const nComp = document.getElementById('n-comp');
+    if (nComp) nComp.addEventListener('input', simularComparacionPruebas);
+    
+    if (window.MathJax) {
+        MathJax.texReset();
+        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+    }
+};
+    
 </script>
 </body>
 </html>
