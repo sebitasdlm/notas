@@ -872,22 +872,72 @@
     }
     
     window.inicializarModuloActual = function() {
-        // === MÓDULO 1 (si existe) ===
-        const btnEjemplo = document.getElementById('btn-ejemplo');
-        if (btnEjemplo) btnEjemplo.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // === MÓDULO 2 (si existe) ===
-        const btnOtro = document.getElementById('btn-otro');
-        if (btnOtro) btnOtro.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // ... continuar con todos los botones del capítulo
-
-        console.log("Capítulo inicializado");
-    };
+    console.log("Capítulo 6 - Reducción de Datos inicializado");
+    
+    // Módulo 1: Suficiencia
+    const btnSuf = document.getElementById('simular-suf');
+    if (btnSuf) btnSuf.addEventListener('click', simularSuficiencia);
+    
+    // Módulo 2: Rao-Blackwell
+    const btnRB = document.getElementById('simular-rb');
+    if (btnRB) btnRB.addEventListener('click', () => {
+        actualizarParamRB();
+        simularRB();
+    });
+    
+    // Módulo 3: UMVUE
+    const btnUMVUE = document.getElementById('simular-umvue');
+    if (btnUMVUE) btnUMVUE.addEventListener('click', simularUMVUE);
+    
+    // Módulo 4: Familia Exponencial
+    const btnExpFam = document.getElementById('identificar-expfam');
+    if (btnExpFam) btnExpFam.addEventListener('click', identificarExpFam);
+    
+    // Módulo 5: Cramér-Rao
+    const btnCR = document.getElementById('calcular-cr');
+    if (btnCR) btnCR.addEventListener('click', calcularCR);
+    
+    // Módulo 6: Comparación EMV vs UMVUE
+    const btnComp = document.getElementById('simular-comp');
+    if (btnComp) btnComp.addEventListener('click', simularComparacion);
+    
+    // Configurar los eventos de los inputs que necesitan actualización inmediata
+    const pSuf = document.getElementById('p-suf');
+    if (pSuf) pSuf.addEventListener('input', simularSuficiencia);
+    
+    const nSuf = document.getElementById('n-suf');
+    if (nSuf) nSuf.addEventListener('input', simularSuficiencia);
+    
+    const lambdaUMVUE = document.getElementById('lambda-umvue');
+    if (lambdaUMVUE) lambdaUMVUE.addEventListener('input', simularUMVUE);
+    
+    const nUMVUE = document.getElementById('n-umvue');
+    if (nUMVUE) nUMVUE.addEventListener('input', simularUMVUE);
+    
+    const lambdaCR = document.getElementById('lambda-cr');
+    if (lambdaCR) lambdaCR.addEventListener('input', calcularCR);
+    
+    const nCR = document.getElementById('n-cr');
+    if (nCR) nCR.addEventListener('input', calcularCR);
+    
+    const sigmaComp = document.getElementById('sigma-comp');
+    if (sigmaComp) sigmaComp.addEventListener('input', simularComparacion);
+    
+    const nComp = document.getElementById('n-comp');
+    if (nComp) nComp.addEventListener('input', simularComparacion);
+    
+    // Para Rao-Blackwell, los eventos ya están en el change del select
+    const distRB = document.getElementById('dist-rb');
+    if (distRB) distRB.addEventListener('change', () => {
+        actualizarParamRB();
+        simularRB();
+    });
+    
+    if (window.MathJax) {
+        MathJax.texReset();
+        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+    }
+};
 </script>
 </body>
 </html>
