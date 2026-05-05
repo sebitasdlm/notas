@@ -619,6 +619,11 @@
             Mediana: Sesgo=${sesgoMediana.toFixed(4)}, Var=${varMediana.toFixed(4)}, ECM=${ecmMediana.toFixed(4)}<br>
             ${ecmMedia < ecmMediana ? 'La media tiene menor ECM (más eficiente en normal)' : 'La mediana tiene menor ECM (más robusta)'}`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
@@ -683,6 +688,11 @@
             Media de α̂: ${mediaAlpha.toFixed(4)}, Sesgo: ${sesgo.toFixed(4)}<br>
             β̂ = m₁/α̂ (estimación de β)`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
@@ -697,6 +707,11 @@
         else if(dist === 'exponencial') cont.innerHTML = '<label>θ verdadero:</label><input type="range" id="theta-emv" min="0.5" max="5" step="0.1" value="2"><span id="theta-emv-val">2.0</span>';
         else if(dist === 'normal') cont.innerHTML = '<label>μ verdadero:</label><input type="range" id="mu-emv" min="-5" max="5" step="0.5" value="0"><span id="mu-emv-val">0</span><label>σ verdadero:</label><input type="range" id="sigma-emv" min="0.5" max="3" step="0.1" value="1"><span id="sigma-emv-val">1.0</span>';
         else cont.innerHTML = '<label>θ verdadero:</label><input type="range" id="theta-unif" min="1" max="10" step="0.5" value="5"><span id="theta-unif-val">5.0</span>';
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     function simularEMV() {
@@ -799,6 +814,11 @@
             Sesgo: ${sesgo.toFixed(4)} | Varianza: ${varEst.toFixed(4)}<br>
             ${dist === 'uniforme' ? 'EMV = X₍ₙ₎ (máximo muestral)' : 'EMV = media muestral'}`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     function fact(n) { let r=1; for(let i=2;i<=n;i++) r*=i; return r; }
@@ -837,6 +857,11 @@
             Cota de Cramér-Rao: \(\\operatorname{var}(\\hat{\\theta}) \\ge \\frac{1}{nI(\\theta)} = ${cota.toFixed(6)}\)<br>
             Varianza del EMV: ${varTeorica.toFixed(6)} ${Math.abs(cota - varTeorica) < 0.001 ? '✓ Alcanza la cota' : ''}`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
@@ -931,6 +956,11 @@
             `Distribución asintótica del EMV: \(\\sqrt{n}(\\hat{\\theta}_n - \\theta_0) \\xrightarrow{D} N(0, ${varTeor*n})$<br>
             El histograma se aproxima a N(0,1) (curva roja) cuando n es grande.`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
@@ -988,6 +1018,11 @@
             Media del EMV: ${(estimacionesVar.reduce((a,b)=>a+b,0)/nSim).toFixed(4)} | Sesgo: ${varBias.toFixed(4)}<br>
             Aunque es sesgado, es consistente (sesgo → 0 cuando n → ∞)`;
         if(window.MathJax) MathJax.typesetPromise();
+
+        if (window.MathJax) {
+    MathJax.texReset();
+    MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+}
     }
     
     // ============================================================
