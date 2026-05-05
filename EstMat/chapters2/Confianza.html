@@ -937,22 +937,38 @@
     }
     
     window.inicializarModuloActual = function() {
-        // === MÓDULO 1 (si existe) ===
-        const btnEjemplo = document.getElementById('btn-ejemplo');
-        if (btnEjemplo) btnEjemplo.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // === MÓDULO 2 (si existe) ===
-        const btnOtro = document.getElementById('btn-otro');
-        if (btnOtro) btnOtro.addEventListener('click', function() {
-            // código del simulador
-        });
-
-        // ... continuar con todos los botones del capítulo
-
-        console.log("Capítulo inicializado");
-    };
+    console.log("Capítulo 7 - Intervalos de Confianza inicializado");
+    
+    // Módulo 1
+    const btnIC = document.getElementById('simular-ic');
+    if (btnIC) btnIC.addEventListener('click', simularIC);
+    
+    // Módulo 2
+    const btnT = document.getElementById('simular-t');
+    if (btnT) btnT.addEventListener('click', simularT);
+    
+    // Módulo 3
+    const btnVar = document.getElementById('simular-var');
+    if (btnVar) btnVar.addEventListener('click', simularVarianza);
+    
+    // Módulo 4
+    const btnComp = document.getElementById('simular-comp');
+    if (btnComp) btnComp.addEventListener('click', simularComparacion);
+    
+    // Módulo 5
+    const btnProp = document.getElementById('simular-prop');
+    if (btnProp) btnProp.addEventListener('click', simularProporcion);
+    
+    // Módulo 6
+    const btnEmv = document.getElementById('simular-emv');
+    if (btnEmv) btnEmv.addEventListener('click', simularEMV);
+    
+    if (window.MathJax) {
+        MathJax.texReset();
+        MathJax.typesetPromise().catch(err => console.log('MathJax error:', err));
+    }
+};
+    
 </script>
 </body>
 </html>
